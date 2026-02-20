@@ -8,7 +8,7 @@ export class LandingPageController {
   constructor(private landingPageService: LandingPageService) {}
 
   /**
-   * Récupérer la configuration complète de l'éditeur
+   * Récupérer la configuration complète du site
    */
   @Get()
   @RequireModule('LANDING_PAGE')
@@ -17,44 +17,68 @@ export class LandingPageController {
   }
 
   /**
-   * Sauvegarder les éléments de l'éditeur (auto-save)
+   * Mettre à jour le site (sections, theme, etc.)
    */
-  @Put('elements')
+  @Put()
   @RequireModule('LANDING_PAGE')
-  async saveElements(
+  async updateLandingPage(
     @Param('companyId') companyId: string,
-    @Body() data: { elements: any[] },
+    @Body() updateData: any,
   ) {
-    return this.landingPageService.saveElements(companyId, data.elements);
+    return this.landingPageService.update(companyId, updateData);
   }
 
   /**
-   * Sauvegarder les styles globaux
+   * Sauvegarder les sections du site
    */
-  @Put('global-styles')
+  @Put('sections')
   @RequireModule('LANDING_PAGE')
-  async saveGlobalStyles(
+  async saveSections(
     @Param('companyId') companyId: string,
-    @Body() data: { globalStyles: any },
+    @Body() data: { sections: any },
   ) {
-    return this.landingPageService.saveGlobalStyles(companyId, data.globalStyles);
+    return this.landingPageService.saveSections(companyId, data.sections);
   }
 
   /**
-   * Publier le site (rendre visible au public)
+   * Sauvegarder le thème (couleurs, typographies)
    */
-  @Post('publish')
+  @Put('theme')
   @RequireModule('LANDING_PAGE')
-  async publish(@Param('companyId') companyId: string) {
-    return this.landingPageService.publish(companyId);
+  async saveTheme(
+    @Param('companyId') companyId: string,
+    @Body() data: { theme: any },
+  ) {
+    return this.landingPageService.saveTheme(companyId, data.theme);
   }
 
   /**
-   * Dépublier le site
+   * Changer le template de design
    */
-  @Post('unpublish')
+  @Put('template')
   @RequireModule('LANDING_PAGE')
-  async unpublish(@Param('companyId') companyId: string) {
-    return this.landingPageService.unpublish(companyId);
+  async changeTemplate(
+    @Param('companyId') companyId: string,
+    @Body() data: { templateName: string; theme: any },
+  ) {
+    return this.landingPageService.changeTemplate(companyId, data.templateName, data.theme);
+  }
+
+  /**
+   * Activer le site (rendre visible au public)
+   */
+  @Post('activate')
+  @RequireModule('LANDING_PAGE')
+  async activate(@Param('companyId') companyId: string) {
+    return this.landingPageService.activate(companyId);
+  }
+
+  /**
+   * Désactiver le site
+   */
+  @Post('deactivate')
+  @RequireModule('LANDING_PAGE')
+  async deactivate(@Param('companyId') companyId: string) {
+    return this.landingPageService.deactivate(companyId);
   }
 }

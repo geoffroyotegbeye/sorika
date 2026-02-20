@@ -14,7 +14,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function EditorPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const companySlug = params.companySlug as string;
   const [isLoading, setIsLoading] = useState(true);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isPagesOpen, setIsPagesOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function EditorPage() {
     const fetchLandingPage = async () => {
       try {
         // Récupérer le companyId depuis le slug
-        const companyRes = await fetch(`http://localhost:3001/companies/slug/${slug}`);
+        const companyRes = await fetch(`http://localhost:3001/companies/slug/${companySlug}`);
         if (!companyRes.ok) throw new Error('Company not found');
         
         const company = await companyRes.json();
@@ -50,7 +50,7 @@ export default function EditorPage() {
     };
 
     fetchLandingPage();
-  }, [slug]);
+  }, [companySlug]);
 
   // Charger les éléments de la page actuelle
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function EditorPage() {
   return (
     <div className="h-screen flex flex-col bg-slate-50">
       {/* Toolbar en haut */}
-      <Toolbar companyId={companyId} slug={slug} pageSlug={currentPageSlug} />
+      <Toolbar companyId={companyId} companySlug={companySlug} pageSlug={currentPageSlug} />
 
       {/* Layout principal */}
       <div className="flex-1 flex overflow-hidden">

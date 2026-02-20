@@ -25,52 +25,66 @@ export class LandingPageService {
   }
 
   /**
-   * Sauvegarder les éléments de l'éditeur (auto-save)
+   * Sauvegarder les sections du site
    */
-  async saveElements(companyId: string, elements: any[]) {
+  async saveSections(companyId: string, sections: any) {
     return this.prisma.landingPage.update({
       where: { companyId },
       data: { 
-        elements,
+        sections,
         updatedAt: new Date(),
       },
     });
   }
 
   /**
-   * Sauvegarder les styles globaux
+   * Sauvegarder le thème (couleurs, typographies, etc.)
    */
-  async saveGlobalStyles(companyId: string, globalStyles: any) {
+  async saveTheme(companyId: string, theme: any) {
     return this.prisma.landingPage.update({
       where: { companyId },
       data: { 
-        globalStyles,
+        theme,
         updatedAt: new Date(),
       },
     });
   }
 
   /**
-   * Publier le site
+   * Changer le template
    */
-  async publish(companyId: string) {
+  async changeTemplate(companyId: string, templateName: string, theme: any) {
     return this.prisma.landingPage.update({
       where: { companyId },
       data: { 
-        isPublished: true,
+        templateName,
+        theme,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Activer le site
+   */
+  async activate(companyId: string) {
+    return this.prisma.landingPage.update({
+      where: { companyId },
+      data: { 
+        isActive: true,
         publishedAt: new Date(),
       },
     });
   }
 
   /**
-   * Dépublier le site
+   * Désactiver le site
    */
-  async unpublish(companyId: string) {
+  async deactivate(companyId: string) {
     return this.prisma.landingPage.update({
       where: { companyId },
       data: { 
-        isPublished: false,
+        isActive: false,
       },
     });
   }

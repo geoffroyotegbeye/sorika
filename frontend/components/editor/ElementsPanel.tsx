@@ -244,18 +244,41 @@ export function ElementsPanel() {
             </Accordion>
           </div>
         ) : activeTab === 'layouts' ? (
-          <div className="p-3 space-y-3">
-            {LAYOUT_TEMPLATES.map((layout) => (
-              <div
-                key={layout.id}
-                onClick={() => handleAddLayout(layout.template)}
-                className="p-3 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition"
-              >
-                <div className="text-sm font-semibold mb-1">{layout.thumbnail}</div>
-                <div className="text-sm font-medium">{layout.label}</div>
-                <div className="text-xs text-slate-500">{layout.category}</div>
-              </div>
-            ))}
+          <div className="p-3">
+            <Accordion type="multiple" defaultValue={['Header', 'Hero', 'Features', 'Contact', 'CTA', 'Footer']} className="w-full">
+              {Object.entries(
+                LAYOUT_TEMPLATES.reduce((acc, layout) => {
+                  if (!acc[layout.category]) acc[layout.category] = [];
+                  acc[layout.category].push(layout);
+                  return acc;
+                }, {} as Record<string, typeof LAYOUT_TEMPLATES>)
+              ).map(([category, layouts]) => (
+                <AccordionItem key={category} value={category}>
+                  <AccordionTrigger className="text-xs font-semibold uppercase py-2">
+                    {category}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {layouts.map((layout) => {
+                        const Icon = layout.icon;
+                        return (
+                          <div
+                            key={layout.id}
+                            onClick={() => handleAddLayout(layout.template)}
+                            className="p-3 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition"
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <Icon className="h-4 w-4 text-blue-600" />
+                              <div className="text-sm font-medium">{layout.label}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         ) : (
           <div className="p-4">

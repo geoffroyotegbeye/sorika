@@ -67,14 +67,47 @@ export class AdminService {
   }
 
   async deleteUser(userId: string) {
-    return this.prisma.user.delete({
-      where: { id: userId },
+    // Supprimer en transaction pour gérer les relations
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Supprimer les memberships
+      await tx.membership.deleteMany({
+        where: { userId },
+      });
+
+      // 2. Supprimer l'utilisateur
+      return tx.user.delete({
+        where: { id: userId },
+      });
     });
   }
 
   async deleteCompany(companyId: string) {
-    return this.prisma.company.delete({
-      where: { id: companyId },
+    // Supprimer en transaction pour gérer les relations
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Supprimer la landing page
+      await tx.landingPage.deleteMany({
+        where: { companyId },
+      });
+
+      // 2. Supprimer les pages
+      await tx.page.deleteMany({
+        where: { companyId },
+      });
+
+      // 3. Supprimer les produits
+      await tx.product.deleteMany({
+        where: { companyId },
+      });
+
+      // 4. Supprimer les memberships
+      await tx.membership.deleteMany({
+        where: { companyId },
+      });
+
+      // 5. Supprimer l'entreprise
+      return tx.company.delete({
+        where: { id: companyId },
+      });
     });
   }
 

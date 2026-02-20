@@ -16,6 +16,7 @@ import { BackgroundSection } from './properties/BackgroundSection';
 import { BorderSection } from './properties/BorderSection';
 import { EffectsSection } from './properties/EffectsSection';
 import { InteractionsTab } from './properties/InteractionsTab';
+import { LinkProperties } from './properties/LinkProperties';
 import { useState } from 'react';
 
 export function PropertiesPanelNew() {
@@ -180,6 +181,41 @@ export function PropertiesPanelNew() {
                       onStyleChange={handleStyleChange}
                       onContentChange={handleContentChange}
                     />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {['text-link', 'link-block', 'button'].includes(selectedElement.type) && (
+                <AccordionItem value="link">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Lien
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <LinkProperties elementId={selectedElement.id} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {['navbar', 'header', 'section'].includes(selectedElement.type) && (
+                <AccordionItem value="global">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Global
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedElement.isGlobal || false}
+                          onChange={(e) => updateElement(selectedElement.id, { isGlobal: e.target.checked })}
+                          className="w-4 h-4 rounded border-slate-300"
+                        />
+                        <span className="text-sm">Afficher sur toutes les pages</span>
+                      </label>
+                      <p className="text-xs text-slate-500">
+                        Cet élément apparaîtra automatiquement sur toutes les pages du site.
+                      </p>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               )}

@@ -45,12 +45,16 @@ export default function RegisterPage() {
   const companySlug = watch('companySlug');
 
   const generateSlug = (name: string) => {
-    return name
+    const baseSlug = name
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
+    
+    // Ajouter un identifiant court unique (5 caractères)
+    const uniqueId = Math.random().toString(36).substring(2, 7);
+    return `${baseSlug}-${uniqueId}`;
   };
 
   const handleCompanyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

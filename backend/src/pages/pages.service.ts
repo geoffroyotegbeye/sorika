@@ -121,10 +121,48 @@ export class PagesService {
   async updateElements(companyId: string, slug: string, elements: any[]) {
     const page = await this.findOne(companyId, slug);
 
+    // Extraire les éléments globaux et les sauvegarder au niveau Company
+    const globalElements = this.extractGlobalElements(elements);
+    if (globalElements.length > 0) {
+      await this.prisma.company.update({
+        where: { id: companyId },
+        data: { globalElements },
+      });
+    }
+
+    // Retirer les éléments globaux des éléments de la page
+    const pageElements = elements.filter(el => !el.isGlobal);
+
     return this.prisma.page.update({
       where: { id: page.id },
-      data: { elements },
+      data: { elements: pageElements },
     });
+  }
+
+  private extractGlobalElements(elements: any[]): any[] {
+    const globals: any[] = [];
+    
+    const traverse = (els: any[]) => {
+      for (const el of els) {
+        if (el.isGlobal) {
+          globals.push(el);
+        }
+        if (el.children?.length > 0) {
+          traverse(el.children);
+        }
+      }
+    };
+    
+    traverse(elements);
+    return globals;
+  }
+
+  async getGlobalElements(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { globalElements: true },
+    });
+    return (company?.globalElements as any[]) || [];
   }
 
   async publish(companyId: string, slug: string) {

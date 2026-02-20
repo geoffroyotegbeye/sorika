@@ -120,7 +120,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   elements: [],
   selectedElementId: null,
   currentBreakpoint: 'desktop',
-  showLabels: true,
+  showLabels: typeof window !== 'undefined' ? localStorage.getItem('editor-showLabels') === 'true' : false,
   history: [[]],
   historyIndex: 0,
   hasUnsavedChanges: false,
@@ -251,7 +251,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   setBreakpoint: (breakpoint) => set({ currentBreakpoint: breakpoint }),
 
-  toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
+  toggleLabels: () => set((state) => {
+    const newValue = !state.showLabels;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('editor-showLabels', String(newValue));
+    }
+    return { showLabels: newValue };
+  }),
 
   updateElementStyles: (id, styles) => {
     const { elements, currentBreakpoint } = get();

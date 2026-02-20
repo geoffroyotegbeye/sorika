@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import { PageRenderer } from '@/components/renderer/PageRenderer';
 
-async function getPageData(slug: string) {
+async function getPageData(companySlug: string) {
   try {
     // 1. Récupérer la company
-    const companyRes = await fetch(`http://localhost:3001/companies/slug/${slug}`, {
+    const companyRes = await fetch(`http://localhost:3001/companies/slug/${companySlug}`, {
       cache: 'no-store',
     });
     
@@ -21,49 +21,40 @@ async function getPageData(slug: string) {
     
     return { company, page };
   } catch (error) {
-    console.error('Erreur chargement page:', error);
+    console.error('Erreur preview:', error);
     return null;
   }
 }
 
-export default async function PublicSitePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const data = await getPageData(slug);
+export default async function PreviewPage({ params }: { params: Promise<{ companySlug: string }> }) {
+  const { companySlug } = await params;
+  const data = await getPageData(companySlug);
   
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Site introuvable</h1>
-          <p className="text-slate-600">Le site "{slug}" n'existe pas.</p>
+          <p className="text-slate-600">Le site "{companySlug}" n'existe pas.</p>
         </div>
       </div>
     );
   }
 
   const { company, page } = data;
-
-  // Vérifier si le site est publié
-  if (!page.isPublished) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Site en construction</h1>
-          <p className="text-slate-600">Ce site sera bientôt disponible.</p>
-        </div>
-      </div>
-    );
-  }
-
   const elements = page.elements || [];
 
-  console.log('Public - Company:', company.name);
-  console.log('Public - Page:', page.title);
-  console.log('Public - Elements:', elements.length);
+  console.log('Preview - Company:', company.name);
+  console.log('Preview - Page:', page.title);
+  console.log('Preview - Elements:', elements.length);
 
   return (
     <>
-      {/* Styles globaux */}
+      {/* Bannière de prévisualisation */}
+      <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-black px-4 py-2 text-center text-sm font-medium z-50">
+        🔍 Mode Prévisualisation - Ce site n&apos;est pas encore publié
+      </div>
+      
       <style>{`
         * {
           margin: 0;
@@ -72,6 +63,7 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
         }
         body {
           font-family: Inter, sans-serif;
+          padding-top: 40px;
         }
       `}</style>
       
@@ -79,11 +71,12 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-slate-900 mb-2">Page vide</h1>
-            <p className="text-slate-600">Cette page n'a pas encore de contenu.</p>
+            <p className="text-slate-600">Aucun élément sur cette page.</p>
+            <p className="text-sm text-slate-500 mt-2">Retournez dans l'éditeur pour ajouter du contenu.</p>
           </div>
         </div>
       ) : (
-        <PageRenderer elements={elements} globalStyles={{}} companySlug={slug} />
+        <PageRenderer elements={elements} globalStyles={{}} companySlug={companySlug} isPreview={true} />
       )}
     </>
   );

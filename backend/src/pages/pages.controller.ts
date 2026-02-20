@@ -29,16 +29,22 @@ export class PagesController {
   }
 
   @Get('home')
-  findHomePage(@Param('companyId') companyId: string) {
-    return this.pagesService.findHomePage(companyId);
+  async findHomePage(@Param('companyId') companyId: string) {
+    const page = await this.pagesService.findHomePage(companyId);
+    const globalElements = await this.pagesService.getGlobalElements(companyId);
+    const pageElements = Array.isArray(page?.elements) ? page.elements : [];
+    return { ...page, elements: [...globalElements, ...pageElements] };
   }
 
   @Get(':slug')
-  findOne(
+  async findOne(
     @Param('companyId') companyId: string,
     @Param('slug') slug: string,
   ) {
-    return this.pagesService.findOne(companyId, slug);
+    const page = await this.pagesService.findOne(companyId, slug);
+    const globalElements = await this.pagesService.getGlobalElements(companyId);
+    const pageElements = Array.isArray(page?.elements) ? page.elements : [];
+    return { ...page, elements: [...globalElements, ...pageElements] };
   }
 
   @Put(':slug')

@@ -171,11 +171,11 @@ export function Canvas() {
       ...baseStyles,
       position: 'relative',
       cursor: 'pointer',
-      outline: isSelected ? '2px solid #3b82f6' : isDropTarget ? '2px solid #10b981' : isHovered ? '1px dashed #94a3b8' : isLayout ? '1px dashed #e2e8f0' : 'none',
+      outline: isSelected ? '2px solid #3b82f6' : isDropTarget && dropPosition === 'inside' ? '2px solid #10b981' : isHovered ? '1px dashed #94a3b8' : isLayout ? '1px dashed #e2e8f0' : 'none',
       outlineOffset: isSelected ? '2px' : '0',
       transition: 'outline 0.15s ease',
       minHeight: isEmpty ? '100px' : undefined,
-      backgroundColor: isDropTarget ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
+      backgroundColor: isDropTarget && dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
       // Afficher les bordures de la grille en mode édition
       ...(element.type === 'grid' && {
         border: '1px solid #cbd5e1',
@@ -305,16 +305,36 @@ export function Canvas() {
     };
 
     const handleMoveUp = () => {
-      const index = elements.findIndex(el => el.id === element.id);
-      if (index > 0) {
-        moveElement(element.id, undefined, index - 1);
+      if (!parentId) {
+        // Élément au niveau racine
+        const index = elements.findIndex(el => el.id === element.id);
+        if (index > 0) {
+          // Réorganiser directement le tableau elements
+          const newElements = [...elements];
+          const [movedElement] = newElements.splice(index, 1);
+          newElements.splice(index - 1, 0, movedElement);
+          useEditorStore.setState({ elements: newElements, hasUnsavedChanges: true });
+        }
+      } else {
+        // Élément imbriqué - utiliser moveElement du store
+        moveElement(element.id, parentId, -1);
       }
     };
 
     const handleMoveDown = () => {
-      const index = elements.findIndex(el => el.id === element.id);
-      if (index < elements.length - 1) {
-        moveElement(element.id, undefined, index + 1);
+      if (!parentId) {
+        // Élément au niveau racine
+        const index = elements.findIndex(el => el.id === element.id);
+        if (index < elements.length - 1) {
+          // Réorganiser directement le tableau elements
+          const newElements = [...elements];
+          const [movedElement] = newElements.splice(index, 1);
+          newElements.splice(index + 1, 0, movedElement);
+          useEditorStore.setState({ elements: newElements, hasUnsavedChanges: true });
+        }
+      } else {
+        // Élément imbriqué - utiliser moveElement du store
+        moveElement(element.id, parentId, 999);
       }
     };
 
@@ -323,15 +343,12 @@ export function Canvas() {
       e.preventDefault();
       e.stopPropagation();
       
-      const draggedType = e.dataTransfer.getData('elementType');
-      if (!draggedType) return;
-      
-      // Vérifier si cet élément peut accepter le type d'enfant
-      if (canContainChildren(element.type) && canAcceptChild(element.type, draggedType)) {
+      // Note: Safari a des restrictions sur dataTransfer.getData() dans onDragOver
+      // On accepte tous les drops sur les conteneurs, la validation se fait dans onDrop
+      if (canContainChildren(element.type)) {
         setDropTargetId(element.id);
         setDropPosition('inside');
-      } else if (element.type === 'section' && draggedType === 'section') {
-        // Permettre de déposer une section avant/après une autre section
+      } else if (element.type === 'section') {
         const rect = e.currentTarget.getBoundingClientRect();
         const midpoint = rect.top + rect.height / 2;
         setDropPosition(e.clientY < midpoint ? 'before' : 'after');
@@ -352,8 +369,17 @@ export function Canvas() {
       const draggedType = e.dataTransfer.getData('elementType');
       const draggedTag = e.dataTransfer.getData('elementTag');
       
+      if (!draggedType || !draggedTag) {
+        setDropTargetId(null);
+        setDropPosition(null);
+        return;
+      }
+      
+      // Valider la compatibilité parent-enfant
+      const canAccept = canAcceptChild(element.type, draggedType);
+      
       const newElement = {
-        id: `${draggedType}-${Date.now()}`,
+        id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: draggedType,
         tag: draggedTag,
         content: getDefaultContent(draggedType),
@@ -363,10 +389,12 @@ export function Canvas() {
         children: [],
       };
 
-      if (dropPosition === 'inside' && canContainChildren(element.type)) {
+      if (dropPosition === 'inside' && canContainChildren(element.type) && canAccept) {
         addElement(newElement, element.id);
-      } else if (dropPosition === 'before' || dropPosition === 'after') {
-        addElement(newElement, parentId);
+      } else if (dropPosition === 'before') {
+        addElementAt(newElement, parentId, element.id, 'before');
+      } else if (dropPosition === 'after') {
+        addElementAt(newElement, parentId, element.id, 'after');
       }
 
       setDropTargetId(null);
@@ -674,63 +702,53 @@ export function Canvas() {
         canMoveUp={canMoveUpEl}
         canMoveDown={canMoveDownEl}
       >
-        <Tag 
-          style={styles} 
-          onClick={handleClick}
-          onDoubleClick={handleDoubleClick}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={element.type === 'grid' ? 'editor-grid' : ''}
-        >
-          {renderLabel()}
-          {renderEmptyState()}
-          {isTextElement && isEditing ? (
-            <div
-              ref={(el) => { editableRefs.current[element.id] = el; }}
-              contentEditable
-              suppressContentEditableWarning
-              onInput={handleInput}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              style={{ outline: 'none', cursor: 'text' }}
-            >
-              {element.content}
-            </div>
-          ) : (
-            element.content
+        <div style={{ position: 'relative' }}>
+          {/* Indicateur de drop before */}
+          {isDropTarget && dropPosition === 'before' && (
+            <div style={{
+              position: 'absolute',
+              top: '-2px',
+              left: 0,
+              right: 0,
+              height: '4px',
+              backgroundColor: '#10b981',
+              zIndex: 1000,
+            }} />
           )}
-          {element.children?.length > 0 && element.children.map((child: any) => (
-            <div 
-              key={child.id}
-              className={element.type === 'grid' ? 'grid-cell' : ''}
-              style={element.type === 'grid' ? {
-                border: '1px dashed #cbd5e1',
-                minHeight: '80px',
-                padding: '8px',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              } : undefined}
-            >
-              {renderElement(child, element.id)}
-            </div>
-          ))}
-          {/* Afficher les cellules vides pour les grids */}
-          {element.type === 'grid' && (() => {
-            const cols = (element.styles[currentBreakpoint]?.gridTemplateColumns || element.styles.desktop?.gridTemplateColumns || '1fr').split(' ').length;
-            const rows = (element.styles[currentBreakpoint]?.gridTemplateRows || element.styles.desktop?.gridTemplateRows || 'auto').split(' ').length;
-            const totalCells = cols * rows;
-            const emptyCells = totalCells - (element.children?.length || 0);
-            
-            return Array.from({ length: emptyCells }).map((_, index) => (
+          
+          <Tag 
+            style={styles} 
+            onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={element.type === 'grid' ? 'editor-grid' : ''}
+          >
+            {renderLabel()}
+            {renderEmptyState()}
+            {isTextElement && isEditing ? (
               <div
-                key={`empty-${index}`}
-                className="grid-cell"
-                style={{
+                ref={(el) => { editableRefs.current[element.id] = el; }}
+                contentEditable
+                suppressContentEditableWarning
+                onInput={handleInput}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                style={{ outline: 'none', cursor: 'text' }}
+              >
+                {element.content}
+              </div>
+            ) : (
+              element.content
+            )}
+            {element.children?.length > 0 && element.children.map((child: any) => (
+              <div 
+                key={child.id}
+                className={element.type === 'grid' ? 'grid-cell' : ''}
+                style={element.type === 'grid' ? {
                   border: '1px dashed #cbd5e1',
                   minHeight: '80px',
                   padding: '8px',
@@ -738,17 +756,55 @@ export function Canvas() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: '#f8fafc',
-                }}
+                } : undefined}
               >
-                <span className="text-xs text-slate-400 text-center">
-                  Cellule {(element.children?.length || 0) + index + 1}<br/>
-                  Glissez un élément ici
-                </span>
+                {renderElement(child, element.id)}
               </div>
-            ));
-          })()}
-        </Tag>
+            ))}
+            {/* Afficher les cellules vides pour les grids */}
+            {element.type === 'grid' && (() => {
+              const cols = (element.styles[currentBreakpoint]?.gridTemplateColumns || element.styles.desktop?.gridTemplateColumns || '1fr').split(' ').length;
+              const rows = (element.styles[currentBreakpoint]?.gridTemplateRows || element.styles.desktop?.gridTemplateRows || 'auto').split(' ').length;
+              const totalCells = cols * rows;
+              const emptyCells = totalCells - (element.children?.length || 0);
+              
+              return Array.from({ length: emptyCells }).map((_, index) => (
+                <div
+                  key={`empty-${index}`}
+                  className="grid-cell"
+                  style={{
+                    border: '1px dashed #cbd5e1',
+                    minHeight: '80px',
+                    padding: '8px',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#f8fafc',
+                  }}
+                >
+                  <span className="text-xs text-slate-400 text-center">
+                    Cellule {(element.children?.length || 0) + index + 1}<br/>
+                    Glissez un élément ici
+                  </span>
+                </div>
+              ));
+            })()}
+          </Tag>
+          
+          {/* Indicateur de drop after */}
+          {isDropTarget && dropPosition === 'after' && (
+            <div style={{
+              position: 'absolute',
+              bottom: '-2px',
+              left: 0,
+              right: 0,
+              height: '4px',
+              backgroundColor: '#10b981',
+              zIndex: 1000,
+            }} />
+          )}
+        </div>
       </ElementContextMenu>
     );
   };

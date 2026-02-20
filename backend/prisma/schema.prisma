@@ -42,6 +42,7 @@ model Company {
   phoneNumber  String?  // Très important pour le bouton WhatsApp
   address      String?
   modules      String[] @default(["LANDING_PAGE"]) // Liste des modules activés
+  globalElements Json   @default("[]") // Éléments globaux (navbar, footer) affichés sur toutes les pages
   
   members      Membership[]
   landingPage  LandingPage?
@@ -50,29 +51,30 @@ model Company {
   createdAt    DateTime     @default(now())
 }
 
-// 4. Module Landing Page (Éditeur Webflow-like)
+// 4. Module Landing Page (No-Code) - Système de Design Professionnel
 model LandingPage {
   id            String   @id @default(uuid())
   companyId     String   @unique
   company       Company  @relation(fields: [companyId], references: [id])
   
-  // Éditeur Webflow-like: Structure complète des éléments
-  elements      Json     @default("[]")
-  // Format: [{ id, type, tag, content, styles: { desktop, tablet, mobile }, children: [] }]
+  // Template & Design System
+  templateName  String   @default("modern") // modern, classic, minimal, creative, business
   
-  // Configuration globale du site
-  globalStyles  Json?    @default("{\"fonts\":{\"primary\":\"Inter\",\"secondary\":\"Inter\"},\"colors\":{\"primary\":\"#3b82f6\",\"secondary\":\"#8b5cf6\",\"accent\":\"#f59e0b\",\"background\":\"#ffffff\",\"text\":\"#1e293b\"},\"breakpoints\":{\"mobile\":640,\"tablet\":768,\"desktop\":1024}}")
+  // Système de couleurs (Palette complète)
+  theme         Json?    @default("{\"colors\":{\"primary\":\"#3b82f6\",\"secondary\":\"#8b5cf6\",\"accent\":\"#f59e0b\",\"background\":\"#ffffff\",\"text\":\"#1e293b\",\"muted\":\"#64748b\"},\"fonts\":{\"heading\":\"Inter\",\"body\":\"Inter\"},\"spacing\":\"comfortable\",\"borderRadius\":\"medium\",\"animations\":true}")
+  
+  // Sections du site (Structure complète)
+  sections      Json?    @default("{\"hero\":{\"enabled\":true,\"type\":\"hero\",\"content\":{\"title\":\"Bienvenue\",\"subtitle\":\"Découvrez nos services\",\"buttonText\":\"Commencer\",\"buttonLink\":\"#contact\",\"backgroundType\":\"gradient\",\"backgroundValue\":\"from-blue-600 to-purple-600\",\"imageUrl\":\"\",\"layout\":\"center\"}},\"features\":{\"enabled\":true,\"type\":\"features\",\"content\":{\"title\":\"Nos fonctionnalités\",\"subtitle\":\"Ce qui nous rend uniques\",\"layout\":\"grid\",\"columns\":3,\"items\":[{\"icon\":\"🚀\",\"title\":\"Rapide\",\"description\":\"Performance optimale\"},{\"icon\":\"💎\",\"title\":\"Qualité\",\"description\":\"Service premium\"},{\"icon\":\"🎯\",\"title\":\"Précis\",\"description\":\"Résultats garantis\"}]}}}")
   
   // SEO & Métadonnées
   seo           Json?    @default("{\"title\":\"\",\"description\":\"\",\"keywords\":[],\"ogImage\":\"\"}")
   
-  // Code personnalisé
+  // Paramètres avancés
   customCSS     String?  @db.Text
   customJS      String?  @db.Text
   favicon       String?
   
-  // Statut de publication
-  isPublished   Boolean  @default(false)
+  isActive      Boolean  @default(true)
   publishedAt   DateTime?
   
   createdAt     DateTime @default(now())

@@ -62,13 +62,13 @@ export class AuthService {
       throw new ConflictException('Cet email est déjà utilisé');
     }
 
-    // Vérifier si le slug est déjà pris
-    const existingCompany = await this.prisma.company.findUnique({
-      where: { slug: dto.companySlug },
-    });
-
-    if (existingCompany) {
-      throw new ConflictException('Ce nom de domaine est déjà pris');
+    // Générer un slug unique si nécessaire
+    let finalSlug = dto.companySlug;
+    let counter = 1;
+    
+    while (await this.prisma.company.findUnique({ where: { slug: finalSlug } })) {
+      finalSlug = `${dto.companySlug}-${counter}`;
+      counter++;
     }
 
     // Hash du mot de passe
@@ -90,7 +90,7 @@ export class AuthService {
       const company = await tx.company.create({
         data: {
           name: dto.companyName,
-          slug: dto.companySlug,
+          slug: finalSlug, // Utiliser le slug unique généré
           phoneNumber: dto.phoneNumber,
           modules: dto.modules || ['LANDING_PAGE'], // Par défaut LANDING_PAGE
         },
@@ -105,8 +105,73 @@ export class AuthService {
         },
       });
 
-      // 4. Si LANDING_PAGE est activé, créer la page d'accueil par défaut
+      // 4. Si LANDING_PAGE est activé, créer la landing page avec sections par défaut
       if (company.modules.includes('LANDING_PAGE')) {
+        await tx.landingPage.create({
+          data: {
+            companyId: company.id,
+            templateName: 'modern',
+            theme: {
+              colors: {
+                primary: '#3b82f6',
+                secondary: '#8b5cf6',
+                accent: '#f59e0b',
+                background: '#ffffff',
+                text: '#1e293b',
+                muted: '#64748b'
+              },
+              fonts: {
+                heading: 'Inter',
+                body: 'Inter'
+              },
+              spacing: 'comfortable',
+              borderRadius: 'medium',
+              animations: true
+            },
+            sections: {
+              'section-0': {
+                id: 'section-0',
+                type: 'hero',
+                enabled: true,
+                content: {
+                  title: `Bienvenue chez ${company.name}`,
+                  subtitle: 'Découvrez nos services exceptionnels',
+                  buttonText: 'Commencer',
+                  buttonLink: '#contact',
+                  backgroundType: 'gradient',
+                  backgroundValue: 'from-blue-600 to-purple-600',
+                  imageUrl: '',
+                  layout: 'center'
+                }
+              },
+              'section-1': {
+                id: 'section-1',
+                type: 'features',
+                enabled: true,
+                content: {
+                  title: 'Nos fonctionnalités',
+                  subtitle: 'Ce qui nous rend uniques',
+                  layout: 'grid',
+                  columns: 3,
+                  items: [
+                    { icon: '🚀', title: 'Rapide', description: 'Performance optimale' },
+                    { icon: '💎', title: 'Qualité', description: 'Service premium' },
+                    { icon: '🎯', title: 'Précis', description: 'Résultats garantis' }
+                  ]
+                }
+              }
+            },
+            seo: {
+              title: company.name,
+              description: `Découvrez ${company.name} - Services professionnels`,
+              keywords: [],
+              ogImage: ''
+            },
+            isActive: true,
+          },
+        });
+
+        // 5. Créer la page d'accueil avec une section par défaut
         await tx.page.create({
           data: {
             companyId: company.id,
@@ -115,9 +180,24 @@ export class AuthService {
             description: 'Page d\'accueil',
             isHomePage: true,
             isPublished: false,
-            elements: [],
-            metaTitle: company.name,
-            metaDescription: `Découvrez ${company.name} - Services professionnels`,
+            elements: [
+              {
+                id: `section-${Date.now()}`,
+                type: 'section',
+                tag: 'section',
+                content: '',
+                styles: {
+                  desktop: {
+                    display: 'block',
+                    width: '100%',
+                    padding: '80px 20px',
+                    backgroundColor: '#ffffff',
+                    minHeight: '400px',
+                  },
+                },
+                children: [],
+              },
+            ],
           },
         });
       }
