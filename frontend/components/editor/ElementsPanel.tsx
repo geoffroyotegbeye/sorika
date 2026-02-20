@@ -1,0 +1,274 @@
+'use client';
+
+import { useEditorStore } from '@/lib/stores/editor-store';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Layers, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useState } from 'react';
+import { ELEMENT_CATEGORIES } from './elements/element-categories';
+import { LAYOUT_TEMPLATES } from './elements/layout-templates';
+import { getDefaultStyles, getDefaultContent } from './elements/element-defaults';
+
+const ELEMENT_TYPES = [];
+
+export function ElementsPanel() {
+  const { addElement, elements, selectElement, selectedElementId, updateElement } = useEditorStore();
+  const [activeTab, setActiveTab] = useState<'elements' | 'layouts' | 'layers'>('elements');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editingNameValue, setEditingNameValue] = useState('');
+
+  const handleAddElement = (type: string, tag: string, label: string) => {
+    const newElement = {
+      id: `${type}-${Date.now()}`,
+      type,
+      tag,
+      content: getDefaultContent(type, label),
+      styles: {
+        desktop: getDefaultStyles(type),
+      },
+      children: [],
+    };
+
+    // Les sections sont toujours ajoutées à la racine
+    if (type === 'section') {
+      addElement(newElement);
+    } else {
+      // Pour les autres éléments, on les ajoute à la racine pour l'instant
+      // TODO: Implémenter le drag & drop pour choisir le parent
+      addElement(newElement);
+    }
+  };
+
+  const getDefaultContent = (type: string) => getDefaultContent(type);
+
+  const getDefaultStyles = (type: string) => getDefaultStyles(type);
+
+  const handleAddLayout = (template: any) => {
+    const generateIds = (element: any): any => {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      return {
+        ...element,
+        id: `${element.type}-${timestamp}-${random}`,
+        children: element.children?.map(generateIds) || [],
+      };
+    };
+    
+    const newLayout = generateIds(template);
+    addElement(newLayout);
+  };
+
+  const filteredCategories = ELEMENT_CATEGORIES.map(cat => ({
+    ...cat,
+    items: cat.items.filter(item => 
+      item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+  })).filter(cat => cat.items.length > 0);
+
+  const handleNameDoubleClick = (element: any) => {
+    setEditingNameId(element.id);
+    setEditingNameValue(element.name || element.type);
+  };
+
+  const handleNameBlur = (elementId: string, originalName: string) => {
+    if (editingNameValue && editingNameValue !== originalName) {
+      updateElement(elementId, { name: editingNameValue });
+    }
+    setEditingNameId(null);
+  };
+
+  const renderLayersTree = (items: any[], depth = 0) => {
+    return items.map((item) => {
+      const originalName = item.name || item.type;
+      return (
+        <div key={item.id}>
+          <div 
+            className={`flex items-center gap-2 py-1.5 px-2 rounded cursor-pointer ${
+              selectedElementId === item.id ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-slate-100'
+            }`}
+            style={{ paddingLeft: `${depth * 16 + 8}px` }}
+            onClick={() => selectElement(item.id)}
+          >
+            <Layers className="h-3 w-3 text-slate-400 flex-shrink-0" />
+            {editingNameId === item.id ? (
+              <Input
+                value={editingNameValue}
+                onChange={(e) => setEditingNameValue(e.target.value)}
+                onBlur={() => handleNameBlur(item.id, originalName)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameBlur(item.id, originalName);
+                  if (e.key === 'Escape') {
+                    setEditingNameId(null);
+                    setEditingNameValue('');
+                  }
+                }}
+                className="h-6 text-xs px-2"
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <span 
+                className="text-xs flex-1 truncate select-none"
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleNameDoubleClick(item);
+                }}
+              >
+                {item.name || item.type}
+              </span>
+            )}
+          </div>
+          {item.children?.length > 0 && renderLayersTree(item.children, depth + 1)}
+        </div>
+      );
+    });
+  };
+
+  if (isCollapsed) {
+    return (
+      <div className="w-12 bg-white border-r border-slate-200 flex flex-col items-center py-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(false)}
+          className="mb-4"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
+      {/* Header avec bouton collapse */}
+      <div className="flex items-center justify-between p-3 border-b border-slate-200">
+        <h3 className="font-semibold text-sm">Éléments</h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(true)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('elements')}
+          className={`flex-1 py-2 text-xs font-medium ${
+            activeTab === 'elements'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Elements
+        </button>
+        <button
+          onClick={() => setActiveTab('layouts')}
+          className={`flex-1 py-2 text-xs font-medium ${
+            activeTab === 'layouts'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Layouts
+        </button>
+        <button
+          onClick={() => setActiveTab('layers')}
+          className={`flex-1 py-2 text-xs font-medium ${
+            activeTab === 'layers'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Layers
+        </button>
+      </div>
+
+      <ScrollArea className="flex-1 h-full">
+        {activeTab === 'elements' ? (
+          <div className="p-3">
+            {/* Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search elements"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 text-sm"
+              />
+            </div>
+
+            {/* Accordions */}
+            <Accordion type="multiple" defaultValue={['structure', 'basic', 'typography']} className="w-full">
+              {filteredCategories.map((category) => (
+                <AccordionItem key={category.id} value={category.id}>
+                  <AccordionTrigger className="text-xs font-semibold uppercase py-2">
+                    {category.label}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-1">
+                      {category.items.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <div
+                            key={item.type}
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('elementType', item.type);
+                              e.dataTransfer.setData('elementTag', item.tag);
+                            }}
+                            className="cursor-move group"
+                          >
+                            <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-slate-100 transition">
+                              <Icon className="h-4 w-4 text-slate-600" />
+                              <span className="text-sm flex-1">{item.label}</span>
+                              {item.isNew && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-green-500 text-white rounded font-medium">NEW</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        ) : activeTab === 'layouts' ? (
+          <div className="p-3 space-y-3">
+            {LAYOUT_TEMPLATES.map((layout) => (
+              <div
+                key={layout.id}
+                onClick={() => handleAddLayout(layout.template)}
+                className="p-3 border border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition"
+              >
+                <div className="text-sm font-semibold mb-1">{layout.thumbnail}</div>
+                <div className="text-sm font-medium">{layout.label}</div>
+                <div className="text-xs text-slate-500">{layout.category}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4">
+            {elements.length === 0 ? (
+              <p className="text-sm text-slate-500 text-center py-8">
+                Aucun élément sur la page
+              </p>
+            ) : (
+              renderLayersTree(elements)
+            )}
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
+}

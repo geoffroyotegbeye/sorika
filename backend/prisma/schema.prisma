@@ -1,0 +1,126 @@
+// backend/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. L'Utilisateur (Le gérant)
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  isSuperAdmin  Boolean      @default(false) // Super Admin avec tous les droits
+  memberships   Membership[] // Un utilisateur peut appartenir à plusieurs entreprises
+  createdAt     DateTime     @default(now())
+}
+
+// 2. Table de liaison (Pour le multi-entreprises)
+model Membership {
+  id        String   @id @default(uuid())
+  role      String   @default("OWNER") // OWNER, ADMIN, ou STAFF
+  userId    String
+  companyId String
+  user      User     @relation(fields: [userId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  @@unique([userId, companyId]) // Un utilisateur ne peut pas être membre deux fois de la même entreprise
+}
+
+// 3. L'Entreprise (Le "Tenant")
+model Company {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique // Utilisé pour l'URL : sorika.bj/foodirect
+  logo         String?
+  phoneNumber  String?  // Très important pour le bouton WhatsApp
+  address      String?
+  modules      String[] @default(["LANDING_PAGE"]) // Liste des modules activés
+  
+  members      Membership[]
+  landingPage  LandingPage?
+  pages        Page[]
+  products     Product[]
+  createdAt    DateTime     @default(now())
+}
+
+// 4. Module Landing Page (Éditeur Webflow-like)
+model LandingPage {
+  id            String   @id @default(uuid())
+  companyId     String   @unique
+  company       Company  @relation(fields: [companyId], references: [id])
+  
+  // Éditeur Webflow-like: Structure complète des éléments
+  elements      Json     @default("[]")
+  // Format: [{ id, type, tag, content, styles: { desktop, tablet, mobile }, children: [] }]
+  
+  // Configuration globale du site
+  globalStyles  Json?    @default("{\"fonts\":{\"primary\":\"Inter\",\"secondary\":\"Inter\"},\"colors\":{\"primary\":\"#3b82f6\",\"secondary\":\"#8b5cf6\",\"accent\":\"#f59e0b\",\"background\":\"#ffffff\",\"text\":\"#1e293b\"},\"breakpoints\":{\"mobile\":640,\"tablet\":768,\"desktop\":1024}}")
+  
+  // SEO & Métadonnées
+  seo           Json?    @default("{\"title\":\"\",\"description\":\"\",\"keywords\":[],\"ogImage\":\"\"}")
+  
+  // Code personnalisé
+  customCSS     String?  @db.Text
+  customJS      String?  @db.Text
+  favicon       String?
+  
+  // Statut de publication
+  isPublished   Boolean  @default(false)
+  publishedAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 5. Pages (Système multi-pages SPA)
+model Page {
+  id            String   @id @default(uuid())
+  slug          String   // URL: /slug
+  title         String
+  description   String?  @db.Text
+  
+  // Contenu de la page
+  elements      Json     @default("[]")
+  // Format: [{ id, type, tag, content, styles: { desktop, tablet, mobile }, children: [] }]
+  
+  // SEO
+  metaTitle     String?
+  metaDescription String? @db.Text
+  ogImage       String?
+  
+  // Statut
+  isHomePage    Boolean  @default(false)
+  isPublished   Boolean  @default(false)
+  publishedAt   DateTime?
+  
+  // Relations
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([companyId, slug])
+  @@index([companyId, isHomePage])
+}
+
+// 6. Module Produits (Pour le menu/catalogue)
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  category    String?  // ex: "Entrées", "Boissons"
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  
+  isActive    Boolean  @default(true)
+}
