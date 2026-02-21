@@ -76,6 +76,8 @@ export interface Element {
   content?: string;
   attributes?: Record<string, string>; // src, href, alt, etc.
   menuItems?: MenuItem[]; // Pour les headers responsives
+  isLocked?: boolean; // Verrouillé (empêche modifications)
+  isHidden?: boolean; // Caché (invisible dans le canvas)
   styles: {
     desktop: ElementStyle;
     tablet?: ElementStyle;
@@ -117,6 +119,8 @@ export interface EditorState {
   updateElementStyles: (id: string, styles: Partial<ElementStyle>) => void;
   moveElement: (elementId: string, newParentId: string, index: number) => void;
   duplicateElement: (id: string) => void;
+  toggleElementLock: (id: string) => void;
+  toggleElementVisibility: (id: string) => void;
   undo: () => void;
   redo: () => void;
   saveToHistory: () => void;
@@ -263,7 +267,24 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     get().saveToHistory();
   },
 
-  selectElement: (id) => set({ selectedElementId: id }),
+  selectElement: (id) => {
+    if (id) {
+      const { elements } = get();
+      const findElement = (items: Element[]): Element | null => {
+        for (const item of items) {
+          if (item.id === id) return item;
+          if (item.children.length > 0) {
+            const found = findElement(item.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      const element = findElement(elements);
+      if (element?.isLocked) return;
+    }
+    set({ selectedElementId: id });
+  },
 
   setBreakpoint: (breakpoint) => set({ currentBreakpoint: breakpoint }),
 
@@ -451,5 +472,37 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   markAsSaved: () => {
     set({ hasUnsavedChanges: false });
+  },
+
+  toggleElementLock: (id) => {
+    const { elements } = get();
+    const toggleInTree = (items: Element[]): Element[] => {
+      return items.map(item => {
+        if (item.id === id) {
+          return { ...item, isLocked: !item.isLocked };
+        }
+        if (item.children.length > 0) {
+          return { ...item, children: toggleInTree(item.children) };
+        }
+        return item;
+      });
+    };
+    set({ elements: toggleInTree(elements), hasUnsavedChanges: true });
+  },
+
+  toggleElementVisibility: (id) => {
+    const { elements } = get();
+    const toggleInTree = (items: Element[]): Element[] => {
+      return items.map(item => {
+        if (item.id === id) {
+          return { ...item, isHidden: !item.isHidden };
+        }
+        if (item.children.length > 0) {
+          return { ...item, children: toggleInTree(item.children) };
+        }
+        return item;
+      });
+    };
+    set({ elements: toggleInTree(elements), hasUnsavedChanges: true });
   },
 }));

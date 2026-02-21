@@ -20,12 +20,18 @@ export function Canvas() {
   const canvasState = useCanvasState();
   const handlers = useElementHandlers();
 
-  const renderElement = (element: any, parentId?: string, parentType?: string): JSX.Element => {
+  const renderElement = (element: any, parentId?: string, parentType?: string, parentLocked = false, parentHidden = false): JSX.Element => {
+    // Si l'élément ou son parent est caché, ne pas le rendre
+    if (element.isHidden || parentHidden) {
+      return <div key={element.id} style={{ display: 'none' }} />;
+    }
+    
     const Tag = element.tag as keyof JSX.IntrinsicElements;
     const isSelected = element.id === selectedElementId;
     const isHovered = element.id === canvasState.hoveredElementId;
     const isEmpty = canContainChildren(element.type) && element.children?.length === 0;
     const isDropTarget = element.id === canvasState.dropTargetId;
+    const isLocked = element.isLocked || parentLocked;
     
     let baseStyles = {
       ...element.styles.desktop,
@@ -46,9 +52,9 @@ export function Canvas() {
     const styles: CSSProperties = {
       ...baseStyles,
       position: 'relative',
-      cursor: 'pointer',
-      outline: isSelected ? '2px solid #3b82f6' : isHovered ? '1px dashed #94a3b8' : 'none',
-      outlineOffset: isSelected ? '2px' : '0',
+      cursor: isLocked ? 'not-allowed' : 'pointer',
+      outline: (isSelected && !isLocked) ? '2px solid #3b82f6' : isHovered ? '1px dashed #94a3b8' : 'none',
+      outlineOffset: (isSelected && !isLocked) ? '2px' : '0',
       transition: 'outline 0.15s ease, border 0.15s ease, background-color 0.15s ease',
       minHeight: isEmpty ? '100px' : undefined,
       backgroundColor: isDropTarget && canvasState.dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
@@ -58,7 +64,9 @@ export function Canvas() {
 
     const handleClick = (e: React.MouseEvent) => {
       e.stopPropagation();
-      handlers.selectElement(element.id);
+      if (!isLocked) {
+        handlers.selectElement(element.id);
+      }
     };
 
     const handleMouseEnter = (e: React.MouseEvent) => {
@@ -74,7 +82,7 @@ export function Canvas() {
 
     const handleDoubleClick = (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (isTextElement) {
+      if (isTextElement && !isLocked) {
         canvasState.setEditingElementId(element.id);
       }
     };
@@ -227,7 +235,12 @@ export function Canvas() {
           style={{ pointerEvents: 'auto' }}
         >
           <span>{element.type}</span>
-          {(canMoveUp || canMoveDown) && (
+          {isLocked && (
+            <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z" />
+            </svg>
+          )}
+          {(canMoveUp || canMoveDown) && !isLocked && (
             <span className="flex gap-0.5 ml-1">
               {canMoveUp && (
                 <button
@@ -344,7 +357,7 @@ export function Canvas() {
         canMoveUp={canMoveUp}
         canMoveDown={canMoveDown}
       >
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', pointerEvents: isLocked ? 'none' : 'auto' }}>
           <Tag 
             style={styles} 
             onClick={handleClick}
@@ -428,7 +441,7 @@ export function Canvas() {
                         Glissez un élément ici
                       </span>
                     ) : (
-                      cellChildren.map((child: any) => child && renderElement(child, element.id, element.type))
+                      cellChildren.map((child: any) => child && renderElement(child, element.id, element.type, isLocked, element.isHidden))
                     )}
                   </div>
                 );
@@ -436,7 +449,7 @@ export function Canvas() {
             })() : (
               element.children?.length > 0 && element.children.map((child: any) => (
                 <div key={child.id}>
-                  {renderElement(child, element.id, element.type)}
+                  {renderElement(child, element.id, element.type, isLocked, element.isHidden)}
                 </div>
               ))
             )}

@@ -14,12 +14,19 @@ import { getDefaultStyles, getDefaultContent } from './elements/element-defaults
 const ELEMENT_TYPES = [];
 
 export function ElementsPanel() {
-  const { addElement, elements, selectElement, selectedElementId, updateElement } = useEditorStore();
+  const { addElement, elements, selectElement, selectedElementId, updateElement, toggleElementLock, toggleElementVisibility } = useEditorStore();
   const [activeTab, setActiveTab] = useState<'elements' | 'layouts' | 'layers'>('elements');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editingNameValue, setEditingNameValue] = useState('');
+  const [collapsedLayers, setCollapsedLayers] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('editor-collapsedLayers');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    }
+    return new Set();
+  });
 
   const handleAddElement = (type: string, tag: string, label: string) => {
     const newElement = {
@@ -89,49 +96,151 @@ export function ElementsPanel() {
     setEditingNameId(null);
   };
 
-  const renderLayersTree = (items: any[], depth = 0) => {
+  const renderLayersTree = (items: any[], depth = 0, parentLocked = false, parentHidden = false) => {
     return items.map((item) => {
       const originalName = item.name || item.type;
+      const hasChildren = item.children?.length > 0;
+      const isCollapsed = collapsedLayers.has(item.id);
+      const isLocked = item.isLocked || parentLocked;
+      const isHidden = item.isHidden || parentHidden;
+      
       return (
         <div key={item.id}>
           <div 
-            className={`flex items-center gap-2 py-1.5 px-2 rounded cursor-pointer ${
+            className={`flex items-center gap-1 py-1.5 px-2 rounded group ${
               selectedElementId === item.id ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-slate-100'
             }`}
             style={{ paddingLeft: `${depth * 16 + 8}px` }}
-            onClick={() => selectElement(item.id)}
           >
+            {/* Chevron pour expand/collapse */}
+            {hasChildren ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollapsedLayers(prev => {
+                    const next = new Set(prev);
+                    if (next.has(item.id)) {
+                      next.delete(item.id);
+                    } else {
+                      next.add(item.id);
+                    }
+                    // Sauvegarder dans localStorage
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('editor-collapsedLayers', JSON.stringify([...next]));
+                    }
+                    return next;
+                  });
+                }}
+                className="flex-shrink-0 hover:bg-slate-200 rounded p-0.5"
+              >
+                <ChevronRight className={`h-3 w-3 text-slate-600 transition-transform ${
+                  isCollapsed ? '' : 'rotate-90'
+                }`} />
+              </button>
+            ) : (
+              <div className="w-4" />
+            )}
+            
+            {/* Icône type */}
             <Layers className="h-3 w-3 text-slate-400 flex-shrink-0" />
-            {editingNameId === item.id ? (
-              <Input
-                value={editingNameValue}
-                onChange={(e) => setEditingNameValue(e.target.value)}
-                onBlur={() => handleNameBlur(item.id, originalName)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNameBlur(item.id, originalName);
-                  if (e.key === 'Escape') {
-                    setEditingNameId(null);
-                    setEditingNameValue('');
+            
+            {/* Nom éditable */}
+            <div 
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => {
+                if (!isLocked) {
+                  selectElement(item.id);
+                }
+              }}
+            >
+              {editingNameId === item.id ? (
+                <Input
+                  value={editingNameValue}
+                  onChange={(e) => setEditingNameValue(e.target.value)}
+                  onBlur={() => handleNameBlur(item.id, originalName)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleNameBlur(item.id, originalName);
+                    if (e.key === 'Escape') {
+                      setEditingNameId(null);
+                      setEditingNameValue('');
+                    }
+                  }}
+                  className="h-6 text-xs px-2"
+                  autoFocus
+                  onClick={(e) => e.stopPropagation()}
+                  disabled={isLocked}
+                />
+              ) : (
+                <span 
+                  className="text-xs truncate select-none block"
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (!isLocked) {
+                      handleNameDoubleClick(item);
+                    }
+                  }}
+                >
+                  {item.name || item.type}
+                  {parentLocked && item.isLocked !== true && (
+                    <span className="text-[10px] ml-1 text-slate-400">(hérité)</span>
+                  )}
+                  {parentHidden && item.isHidden !== true && (
+                    <span className="text-[10px] ml-1 text-slate-400">(hérité)</span>
+                  )}
+                </span>
+              )}
+            </div>
+            
+            {/* Actions: Lock & Visibility */}
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!parentHidden) {
+                    toggleElementVisibility(item.id);
                   }
                 }}
-                className="h-6 text-xs px-2"
-                autoFocus
-                onClick={(e) => e.stopPropagation()}
-              />
-            ) : (
-              <span 
-                className="text-xs flex-1 truncate select-none"
-                onDoubleClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  handleNameDoubleClick(item);
-                }}
+                className="p-1 hover:bg-slate-200 rounded"
+                title={parentHidden ? 'Parent caché' : (isHidden ? 'Afficher' : 'Masquer')}
+                disabled={parentHidden}
               >
-                {item.name || item.type}
-              </span>
-            )}
+                {isHidden ? (
+                  <svg className={`h-3 w-3 ${parentHidden ? 'text-slate-300' : 'text-slate-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className={`h-3 w-3 ${parentHidden ? 'text-slate-300' : 'text-slate-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!parentLocked) {
+                    toggleElementLock(item.id);
+                  }
+                }}
+                className="p-1 hover:bg-slate-200 rounded"
+                title={parentLocked ? 'Parent verrouillé' : (isLocked ? 'Déverrouiller' : 'Verrouiller')}
+                disabled={parentLocked}
+              >
+                {isLocked ? (
+                  <svg className={`h-3 w-3 ${parentLocked ? 'text-red-300' : 'text-red-500'}`} fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z" />
+                  </svg>
+                ) : (
+                  <svg className={`h-3 w-3 ${parentLocked ? 'text-slate-300' : 'text-slate-400'}`} fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C9.243 2 7 4.243 7 7v2H6c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v2H9V7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
-          {item.children?.length > 0 && renderLayersTree(item.children, depth + 1)}
+          {hasChildren && !isCollapsed && renderLayersTree(item.children, depth + 1, isLocked, isHidden)}
         </div>
       );
     });
@@ -139,7 +248,7 @@ export function ElementsPanel() {
 
   if (isCollapsed) {
     return (
-      <div className="w-12 bg-white border-r border-slate-200 flex flex-col items-center py-4">
+      <div className="w-12 bg-white border-r border-slate-200 flex flex-col items-center py-4 transition-all duration-300">
         <Button
           variant="ghost"
           size="icon"
@@ -153,7 +262,7 @@ export function ElementsPanel() {
   }
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
+    <div className="w-64 bg-white border-r border-slate-200 flex flex-col transition-all duration-300">
       {/* Header avec bouton collapse */}
       <div className="flex items-center justify-between p-3 border-b border-slate-200">
         <h3 className="font-semibold text-sm">Éléments</h3>
@@ -200,7 +309,7 @@ export function ElementsPanel() {
         </button>
       </div>
 
-      <ScrollArea className="flex-1 h-full">
+      <ScrollArea className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 120px)' }}>
         {activeTab === 'elements' ? (
           <div className="p-3">
             {/* Search */}

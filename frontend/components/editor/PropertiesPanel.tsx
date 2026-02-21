@@ -39,7 +39,7 @@ export function PropertiesPanel() {
 
   const selectedElement = findElementById(elements, selectedElementId);
 
-  if (!selectedElement) {
+  if (!selectedElement || selectedElement.isLocked) {
     return null;
   }
 
