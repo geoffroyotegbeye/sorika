@@ -10,7 +10,7 @@ interface SizeSectionProps {
 }
 
 export function SizeSection({ styles, onStyleChange }: SizeSectionProps) {
-  const [unit, setUnit] = useState('px');
+  const [unit, setUnit] = useState('rem');
 
   const parseValue = (value: string) => {
     if (!value || value === 'auto' || value === 'none') return '';
@@ -35,9 +35,9 @@ export function SizeSection({ styles, onStyleChange }: SizeSectionProps) {
           onChange={(e) => setUnit(e.target.value)}
           className="h-7 px-2 rounded border text-xs bg-white"
         >
-          <option value="px">px</option>
-          <option value="%">%</option>
           <option value="rem">rem</option>
+          <option value="%">%</option>
+          <option value="px">px</option>
           <option value="em">em</option>
           <option value="vh">vh</option>
           <option value="vw">vw</option>

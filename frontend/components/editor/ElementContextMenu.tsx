@@ -20,6 +20,7 @@ interface ElementContextMenuProps {
   elementType: string;
   elementId: string;
   parentId?: string;
+  parentType?: string;
   onAddChild: (childType: string) => void;
   onAddBefore: (childType: string) => void;
   onAddAfter: (childType: string) => void;
@@ -36,6 +37,7 @@ export function ElementContextMenu({
   elementType,
   elementId,
   parentId,
+  parentType,
   onAddChild,
   onAddBefore,
   onAddAfter,
@@ -47,6 +49,7 @@ export function ElementContextMenu({
   canMoveDown = false,
 }: ElementContextMenuProps) {
   
+  const isInGrid = parentType === 'grid';
   const getAllElements = () => {
     return ELEMENT_CATEGORIES.flatMap(cat => 
       cat.items.map(item => ({ type: item.type, label: item.label, tag: item.tag }))
@@ -92,41 +95,45 @@ export function ElementContextMenu({
         {children}
       </ContextMenuTrigger>
       <ContextMenuContent className="w-56">
-        {/* Ajouter avant */}
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <ArrowUp className="mr-2 h-4 w-4" />
-            Ajouter avant
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48 max-h-64 overflow-y-auto">
-            {allElements.map((el) => (
-              <ContextMenuItem
-                key={`before-${el.type}`}
-                onClick={() => onAddBefore(el.type)}
-              >
-                {el.label}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
+        {/* Ajouter avant - désactivé pour les éléments dans une grille */}
+        {!isInGrid && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <ArrowUp className="mr-2 h-4 w-4" />
+              Ajouter avant
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48 max-h-64 overflow-y-auto">
+              {allElements.map((el) => (
+                <ContextMenuItem
+                  key={`before-${el.type}`}
+                  onClick={() => onAddBefore(el.type)}
+                >
+                  {el.label}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        )}
 
-        {/* Ajouter après */}
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <ArrowDown className="mr-2 h-4 w-4" />
-            Ajouter après
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48 max-h-64 overflow-y-auto">
-            {allElements.map((el) => (
-              <ContextMenuItem
-                key={`after-${el.type}`}
-                onClick={() => onAddAfter(el.type)}
-              >
-                {el.label}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
+        {/* Ajouter après - désactivé pour les éléments dans une grille */}
+        {!isInGrid && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <ArrowDown className="mr-2 h-4 w-4" />
+              Ajouter après
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48 max-h-64 overflow-y-auto">
+              {allElements.map((el) => (
+                <ContextMenuItem
+                  key={`after-${el.type}`}
+                  onClick={() => onAddAfter(el.type)}
+                >
+                  {el.label}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        )}
 
         {canHaveChildren && (
           <>

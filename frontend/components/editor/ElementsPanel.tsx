@@ -31,6 +31,14 @@ export function ElementsPanel() {
         desktop: getDefaultStyles(type),
       },
       children: [],
+      ...(type === 'responsive-header' && {
+        menuItems: [
+          { id: 'menu-1', label: 'Accueil', href: '#' },
+          { id: 'menu-2', label: 'Services', href: '#services' },
+          { id: 'menu-3', label: 'À propos', href: '#about' },
+          { id: 'menu-4', label: 'Contact', href: '#contact' },
+        ],
+      }),
     };
 
     // Les sections sont toujours ajoutées à la racine

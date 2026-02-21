@@ -1,25 +1,53 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { IconSidebar } from '@/components/editor/IconSidebar';
 import { ElementsPanel } from '@/components/editor/ElementsPanel';
 import { Canvas } from '@/components/editor/Canvas';
-import { PropertiesPanelNew } from '@/components/editor/PropertiesPanelNew';
+import { PropertiesPanel } from '@/components/editor/PropertiesPanel';
 import { Toolbar } from '@/components/editor/Toolbar';
 import { PageManager } from '@/components/editor/PageManager';
+import { ConfirmDialog } from '@/components/editor/ConfirmDialog';
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { usePagesStore } from '@/lib/stores/pages-store';
 import { Loader2 } from 'lucide-react';
 
 export default function EditorPage() {
   const params = useParams();
+  const router = useRouter();
   const companySlug = params.companySlug as string;
   const [isLoading, setIsLoading] = useState(true);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isPagesOpen, setIsPagesOpen] = useState(false);
-  const { setElements, elements, hasUnsavedChanges } = useEditorStore();
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const { setElements, elements, hasUnsavedChanges, setHasUnsavedChanges } = useEditorStore();
   const { currentPageSlug, getCurrentPage } = usePagesStore();
+
+  const handleSave = async () => {
+    if (!companyId || !currentPageSlug) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/companies/${companyId}/pages/${currentPageSlug}/elements`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ elements }),
+        }
+      );
+
+      if (response.ok) {
+        setHasUnsavedChanges(false);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -107,6 +135,33 @@ export default function EditorPage() {
 
   return (
     <div className="h-screen flex flex-col bg-slate-50">
+      {/* Modal de confirmation pour modifications non enregistrées */}
+      <ConfirmDialog
+        open={showUnsavedDialog}
+        onOpenChange={setShowUnsavedDialog}
+        title="Modifications non enregistrées"
+        description="Vous avez des modifications non enregistrées. Voulez-vous les enregistrer avant de continuer ?"
+        confirmText="Enregistrer"
+        cancelText="Ne pas enregistrer"
+        variant="default"
+        onConfirm={async () => {
+          const saved = await handleSave();
+          if (saved && pendingNavigation) {
+            router.push(pendingNavigation);
+          }
+          setShowUnsavedDialog(false);
+          setPendingNavigation(null);
+        }}
+        onCancel={() => {
+          if (pendingNavigation) {
+            setHasUnsavedChanges(false);
+            router.push(pendingNavigation);
+          }
+          setShowUnsavedDialog(false);
+          setPendingNavigation(null);
+        }}
+      />
+
       {/* Toolbar en haut */}
       <Toolbar companyId={companyId} companySlug={companySlug} pageSlug={currentPageSlug} />
 
@@ -131,7 +186,7 @@ export default function EditorPage() {
         <Canvas />
 
         {/* Panneau droit: Propriétés */}
-        <PropertiesPanelNew />
+        <PropertiesPanel />
       </div>
     </div>
   );

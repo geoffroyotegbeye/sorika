@@ -11,7 +11,7 @@ interface BorderSectionProps {
 }
 
 export function BorderSection({ styles, onStyleChange }: BorderSectionProps) {
-  const [unit, setUnit] = useState('px');
+  const [unit, setUnit] = useState('rem');
 
   const parseValue = (value: string) => {
     if (!value) return 0;
@@ -33,8 +33,8 @@ export function BorderSection({ styles, onStyleChange }: BorderSectionProps) {
           onChange={(e) => setUnit(e.target.value)}
           className="h-7 px-2 rounded border text-xs bg-white"
         >
-          <option value="px">px</option>
           <option value="rem">rem</option>
+          <option value="px">px</option>
           <option value="%">%</option>
         </select>
       </div>

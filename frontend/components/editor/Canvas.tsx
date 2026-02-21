@@ -2,6 +2,7 @@
 
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { ElementContextMenu } from './ElementContextMenu';
+import { ResponsiveHeaderRenderer } from './ResponsiveHeaderRenderer';
 import { CSSProperties, useState, useRef, useEffect } from 'react';
 
 export function Canvas() {
@@ -141,7 +142,27 @@ export function Canvas() {
     return styles[type] || base;
   };
 
-  const renderElement = (element: any, parentId?: string) => {
+  const handleAddFirstSection = () => {
+    const newSection = {
+      id: `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: 'section',
+      tag: 'section',
+      content: '',
+      styles: { 
+        desktop: { 
+          display: 'block', 
+          boxSizing: 'border-box', 
+          width: '100%', 
+          padding: '80px 20px', 
+          backgroundColor: '#ffffff' 
+        } 
+      },
+      children: [],
+    };
+    addElement(newSection);
+  };
+
+  const renderElement = (element: any, parentId?: string, parentType?: string) => {
     const Tag = element.tag as keyof JSX.IntrinsicElements;
     const isSelected = element.id === selectedElementId;
     const isHovered = element.id === hoveredElementId;
@@ -171,18 +192,15 @@ export function Canvas() {
       ...baseStyles,
       position: 'relative',
       cursor: 'pointer',
-      outline: isSelected ? '2px solid #3b82f6' : isDropTarget && dropPosition === 'inside' ? '2px solid #10b981' : isHovered ? '1px dashed #94a3b8' : isLayout ? '1px dashed #e2e8f0' : 'none',
+      outline: isSelected ? '2px solid #3b82f6' : isHovered ? '1px dashed #94a3b8' : 'none',
       outlineOffset: isSelected ? '2px' : '0',
-      transition: 'outline 0.15s ease',
+      transition: 'outline 0.15s ease, border 0.15s ease, background-color 0.15s ease',
       minHeight: isEmpty ? '100px' : undefined,
       backgroundColor: isDropTarget && dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
-      // Afficher les bordures de la grille en mode édition
-      ...(element.type === 'grid' && {
-        border: '1px solid #cbd5e1',
-        '& > *': {
-          border: '1px dashed #e2e8f0',
-        }
-      }),
+      // Bordure top bold pour drop before
+      borderTop: isDropTarget && dropPosition === 'before' ? '3px solid #10b981' : baseStyles.borderTop,
+      // Bordure bottom bold pour drop after
+      borderBottom: isDropTarget && dropPosition === 'after' ? '3px solid #10b981' : baseStyles.borderBottom,
     };
 
     const handleClick = (e: React.MouseEvent) => {
@@ -217,10 +235,8 @@ export function Canvas() {
     };
 
     const handleInput = () => {
-      if (editableRefs.current[element.id] && editingElementId === element.id) {
-        const newContent = editableRefs.current[element.id]?.innerText || '';
-        updateElementContent(element.id, newContent);
-      }
+      // Ne pas mettre à jour le store à chaque frappe pour éviter le re-render
+      // La mise à jour se fera au blur
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -343,17 +359,29 @@ export function Canvas() {
       e.preventDefault();
       e.stopPropagation();
       
-      // Note: Safari a des restrictions sur dataTransfer.getData() dans onDragOver
-      // On accepte tous les drops sur les conteneurs, la validation se fait dans onDrop
+      const rect = e.currentTarget.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const height = rect.height;
+      
+      // Diviser en 3 zones: top 25%, middle 50%, bottom 25%
       if (canContainChildren(element.type)) {
-        setDropTargetId(element.id);
-        setDropPosition('inside');
-      } else if (element.type === 'section') {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-        setDropPosition(e.clientY < midpoint ? 'before' : 'after');
-        setDropTargetId(element.id);
+        if (y < height * 0.25) {
+          setDropPosition('before');
+        } else if (y > height * 0.75) {
+          setDropPosition('after');
+        } else {
+          setDropPosition('inside');
+        }
+      } else {
+        // Pour les éléments non-conteneurs, seulement before/after
+        if (y < height / 2) {
+          setDropPosition('before');
+        } else {
+          setDropPosition('after');
+        }
       }
+      
+      setDropTargetId(element.id);
     };
 
     const handleDragLeave = (e: React.DragEvent) => {
@@ -424,9 +452,9 @@ export function Canvas() {
         
         const parent = findParent(elements);
         if (parent) {
-          const index = parent.children.findIndex(el => el.id === element.id);
+          const index = parent.children.filter(Boolean).findIndex(el => el.id === element.id);
           canMoveUp = index > 0;
-          canMoveDown = index < parent.children.length - 1;
+          canMoveDown = index < parent.children.filter(Boolean).length - 1;
         }
       } else {
         // Élément top-level
@@ -502,9 +530,9 @@ export function Canvas() {
         
         const parent = findParent(elements);
         if (parent) {
-          const index = parent.children.findIndex(el => el.id === element.id);
+          const index = parent.children.filter(Boolean).findIndex(el => el.id === element.id);
           canMoveUpImg = index > 0;
-          canMoveDownImg = index < parent.children.length - 1;
+          canMoveDownImg = index < parent.children.filter(Boolean).length - 1;
         }
       } else {
         const index = elements.findIndex(el => el.id === element.id);
@@ -518,6 +546,7 @@ export function Canvas() {
           elementType={element.type}
           elementId={element.id}
           parentId={parentId}
+          parentType={parentType}
           onAddChild={handleAddChild}
           onAddBefore={handleAddBefore}
           onAddAfter={handleAddAfter}
@@ -529,17 +558,23 @@ export function Canvas() {
           canMoveDown={canMoveDownImg}
         >
           <div
-            style={{ ...styles, display: 'block', position: 'relative' }}
+            style={{ ...styles, display: 'block', position: 'relative', overflow: 'hidden' }}
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             {renderLabel()}
             {hasImage ? (
-              <Tag
-                style={{ width: '100%', height: 'auto', display: 'block' }}
+              <img
                 src={element.attributes.src}
                 alt={element.attributes?.alt || 'Image'}
+                style={{ 
+                  width: styles.width || '100%', 
+                  height: styles.height || 'auto', 
+                  display: 'block',
+                  objectFit: styles.objectFit || 'cover',
+                  borderRadius: styles.borderRadius || '0'
+                }}
               />
             ) : (
               <div
@@ -589,9 +624,9 @@ export function Canvas() {
         
         const parent = findParent(elements);
         if (parent) {
-          const index = parent.children.findIndex(el => el.id === element.id);
+          const index = parent.children.filter(Boolean).findIndex(el => el.id === element.id);
           canMoveUpVid = index > 0;
-          canMoveDownVid = index < parent.children.length - 1;
+          canMoveDownVid = index < parent.children.filter(Boolean).length - 1;
         }
       } else {
         const index = elements.findIndex(el => el.id === element.id);
@@ -605,6 +640,7 @@ export function Canvas() {
           elementType={element.type}
           elementId={element.id}
           parentId={parentId}
+          parentType={parentType}
           onAddChild={handleAddChild}
           onAddBefore={handleAddBefore}
           onAddAfter={handleAddAfter}
@@ -616,21 +652,27 @@ export function Canvas() {
           canMoveDown={canMoveDownVid}
         >
           <div
-            style={{ ...styles, display: 'block', position: 'relative' }}
+            style={{ ...styles, display: 'block', position: 'relative', overflow: 'hidden' }}
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             {renderLabel()}
             {hasVideo ? (
-              <Tag
-                style={{ width: '100%', height: 'auto', display: 'block' }}
+              <video
                 src={element.attributes.src}
                 poster={element.attributes?.poster}
                 controls={element.attributes?.controls !== false}
                 autoPlay={element.attributes?.autoplay}
                 loop={element.attributes?.loop}
                 muted={element.attributes?.muted}
+                style={{ 
+                  width: styles.width || '100%', 
+                  height: styles.height || 'auto', 
+                  display: 'block',
+                  objectFit: styles.objectFit || 'cover',
+                  borderRadius: styles.borderRadius || '0'
+                }}
               />
             ) : (
               <div
@@ -659,6 +701,66 @@ export function Canvas() {
       );
     }
 
+    // Pour les headers responsives
+    if (element.type === 'responsive-header') {
+      let canMoveUpHeader = false;
+      let canMoveDownHeader = false;
+      
+      if (parentId) {
+        const findParent = (items: Element[]): Element | null => {
+          for (const item of items) {
+            if (item.id === parentId) return item;
+            if (item.children.length > 0) {
+              const found = findParent(item.children);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        
+        const parent = findParent(elements);
+        if (parent) {
+          const index = parent.children.filter(Boolean).findIndex(el => el.id === element.id);
+          canMoveUpHeader = index > 0;
+          canMoveDownHeader = index < parent.children.filter(Boolean).length - 1;
+        }
+      } else {
+        const index = elements.findIndex(el => el.id === element.id);
+        canMoveUpHeader = index > 0;
+        canMoveDownHeader = index < elements.length - 1;
+      }
+      
+      return (
+        <ElementContextMenu
+          key={element.id}
+          elementType={element.type}
+          elementId={element.id}
+          parentId={parentId}
+          parentType={parentType}
+          onAddChild={handleAddChild}
+          onAddBefore={handleAddBefore}
+          onAddAfter={handleAddAfter}
+          onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
+          onMoveUp={canMoveUpHeader ? handleMoveUp : undefined}
+          onMoveDown={canMoveDownHeader ? handleMoveDown : undefined}
+          canMoveUp={canMoveUpHeader}
+          canMoveDown={canMoveDownHeader}
+        >
+          <ResponsiveHeaderRenderer
+            element={element}
+            styles={styles}
+            currentBreakpoint={currentBreakpoint}
+            isSelected={isSelected}
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            renderLabel={renderLabel}
+          />
+        </ElementContextMenu>
+      );
+    }
+
     // Pour les autres éléments
     const isEditing = editingElementId === element.id;
     
@@ -680,9 +782,9 @@ export function Canvas() {
       
       const parent = findParent(elements);
       if (parent) {
-        const index = parent.children.findIndex(el => el.id === element.id);
+        const index = parent.children.filter(Boolean).findIndex(el => el.id === element.id);
         canMoveUpEl = index > 0;
-        canMoveDownEl = index < parent.children.length - 1;
+        canMoveDownEl = index < parent.children.filter(Boolean).length - 1;
       }
     } else {
       const index = elements.findIndex(el => el.id === element.id);
@@ -694,7 +796,10 @@ export function Canvas() {
       <ElementContextMenu
         key={element.id}
         elementType={element.type}
+        parentType={parentType}
         onAddChild={handleAddChild}
+        onAddBefore={handleAddBefore}
+        onAddAfter={handleAddAfter}
         onDelete={handleDelete}
         onDuplicate={handleDuplicate}
         onMoveUp={canMoveUpEl ? handleMoveUp : undefined}
@@ -703,19 +808,6 @@ export function Canvas() {
         canMoveDown={canMoveDownEl}
       >
         <div style={{ position: 'relative' }}>
-          {/* Indicateur de drop before */}
-          {isDropTarget && dropPosition === 'before' && (
-            <div style={{
-              position: 'absolute',
-              top: '-2px',
-              left: 0,
-              right: 0,
-              height: '4px',
-              backgroundColor: '#10b981',
-              zIndex: 1000,
-            }} />
-          )}
-          
           <Tag 
             style={styles} 
             onClick={handleClick}
@@ -734,7 +826,6 @@ export function Canvas() {
                 ref={(el) => { editableRefs.current[element.id] = el; }}
                 contentEditable
                 suppressContentEditableWarning
-                onInput={handleInput}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 style={{ outline: 'none', cursor: 'text' }}
@@ -744,73 +835,112 @@ export function Canvas() {
             ) : (
               element.content
             )}
-            {element.children?.length > 0 && element.children.map((child: any) => (
-              <div 
-                key={child.id}
-                className={element.type === 'grid' ? 'grid-cell' : ''}
-                style={element.type === 'grid' ? {
-                  border: '1px dashed #cbd5e1',
-                  minHeight: '80px',
-                  padding: '8px',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                } : undefined}
-              >
-                {renderElement(child, element.id)}
-              </div>
-            ))}
-            {/* Afficher les cellules vides pour les grids */}
-            {element.type === 'grid' && (() => {
+            {/* Rendu des cellules de grille avec plusieurs éléments par cellule */}
+            {element.type === 'grid' ? (() => {
               const cols = (element.styles[currentBreakpoint]?.gridTemplateColumns || element.styles.desktop?.gridTemplateColumns || '1fr').split(' ').length;
               const rows = (element.styles[currentBreakpoint]?.gridTemplateRows || element.styles.desktop?.gridTemplateRows || 'auto').split(' ').length;
               const totalCells = cols * rows;
-              const emptyCells = totalCells - (element.children?.length || 0);
               
-              return Array.from({ length: emptyCells }).map((_, index) => (
-                <div
-                  key={`empty-${index}`}
-                  className="grid-cell"
-                  style={{
-                    border: '1px dashed #cbd5e1',
-                    minHeight: '80px',
-                    padding: '8px',
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f8fafc',
-                  }}
-                >
-                  <span className="text-xs text-slate-400 text-center">
-                    Cellule {(element.children?.length || 0) + index + 1}<br/>
-                    Glissez un élément ici
-                  </span>
+              return Array.from({ length: totalCells }).map((_, cellIndex) => {
+                const cellChildren = Array.isArray(element.children?.[cellIndex]) ? element.children[cellIndex] : [];
+                const isEmpty = cellChildren.length === 0;
+                
+                return (
+                  <div
+                    key={`cell-${cellIndex}`}
+                    className="grid-cell"
+                    style={{
+                      border: '1px dashed #cbd5e1',
+                      minHeight: '80px',
+                      padding: '8px',
+                      position: 'relative',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      alignItems: 'stretch',
+                      backgroundColor: isEmpty ? '#f8fafc' : undefined,
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      const draggedType = e.dataTransfer.getData('elementType');
+                      const draggedTag = e.dataTransfer.getData('elementTag');
+                      
+                      if (draggedType && draggedTag) {
+                        const newElement = {
+                          id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                          type: draggedType,
+                          tag: draggedTag,
+                          content: getDefaultContent(draggedType),
+                          styles: {
+                            desktop: getDefaultStyles(draggedType),
+                          },
+                          children: [],
+                        };
+                        addElement(newElement, element.id, cellIndex);
+                      }
+                    }}
+                  >
+                    {isEmpty ? (
+                      <span className="text-xs text-slate-400 text-center m-auto">
+                        Cellule {cellIndex + 1}<br/>
+                        Glissez un élément ici
+                      </span>
+                    ) : (
+                      cellChildren.map((child: any) => child && renderElement(child, element.id, element.type))
+                    )}
+                  </div>
+                );
+              });
+            })() : (
+              element.children?.length > 0 && element.children.map((child: any) => (
+                <div key={child.id}>
+                  {renderElement(child, element.id, element.type)}
                 </div>
-              ));
-            })()}
+              ))
+            )}
           </Tag>
-          
-          {/* Indicateur de drop after */}
-          {isDropTarget && dropPosition === 'after' && (
-            <div style={{
-              position: 'absolute',
-              bottom: '-2px',
-              left: 0,
-              right: 0,
-              height: '4px',
-              backgroundColor: '#10b981',
-              zIndex: 1000,
-            }} />
-          )}
         </div>
       </ElementContextMenu>
     );
   };
 
   return (
-    <div className="flex-1 bg-slate-100 overflow-auto flex flex-col" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <div 
+      className="flex-1 bg-slate-100 overflow-auto flex flex-col" 
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      onDragOver={(e) => {
+        if (elements.length === 0) {
+          e.preventDefault();
+        }
+      }}
+      onDrop={(e) => {
+        if (elements.length === 0) {
+          e.preventDefault();
+          const draggedType = e.dataTransfer.getData('elementType');
+          const draggedTag = e.dataTransfer.getData('elementTag');
+          
+          if (draggedType && draggedTag) {
+            const newElement = {
+              id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              type: draggedType,
+              tag: draggedTag,
+              content: getDefaultContent(draggedType),
+              styles: {
+                desktop: getDefaultStyles(draggedType),
+              },
+              children: [],
+            };
+            addElement(newElement);
+          }
+        }
+      }}
+    >
       <style jsx global>{`
         .flex-1::-webkit-scrollbar {
           display: none;
@@ -828,9 +958,30 @@ export function Canvas() {
           >
             {elements.length === 0 ? (
               <div className="h-screen flex items-center justify-center text-slate-400">
-                <div className="text-center">
-                  <p className="text-lg font-medium mb-2">Canvas vide</p>
-                  <p className="text-sm">Ajoutez des éléments depuis le panneau de gauche</p>
+                <div className="text-center space-y-6">
+                  <div>
+                    <svg className="mx-auto h-24 w-24 mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                    </svg>
+                    <p className="text-xl font-semibold text-slate-600 mb-2">Votre page est vide</p>
+                    <p className="text-sm text-slate-500 mb-6">Commencez par ajouter une section pour structurer votre contenu</p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleAddFirstSection}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Ajouter une section
+                    </button>
+                    
+                    <p className="text-xs text-slate-400">
+                      Ou glissez-déposez des éléments depuis le panneau de gauche
+                    </p>
+                  </div>
                 </div>
               </div>
             ) : (

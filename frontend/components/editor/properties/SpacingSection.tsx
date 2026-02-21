@@ -12,7 +12,7 @@ interface SpacingSectionProps {
 }
 
 export function SpacingSection({ styles, onStyleChange }: SpacingSectionProps) {
-  const [unit, setUnit] = useState('px');
+  const [unit, setUnit] = useState('rem');
   const [marginLinked, setMarginLinked] = useState(true);
   const [paddingLinked, setPaddingLinked] = useState(true);
 
@@ -52,8 +52,8 @@ export function SpacingSection({ styles, onStyleChange }: SpacingSectionProps) {
           onChange={(e) => setUnit(e.target.value)}
           className="h-7 px-2 rounded border text-xs bg-white"
         >
-          <option value="px">px</option>
           <option value="rem">rem</option>
+          <option value="px">px</option>
           <option value="%">%</option>
           <option value="em">em</option>
         </select>

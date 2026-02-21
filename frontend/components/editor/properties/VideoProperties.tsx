@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, X } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface VideoPropertiesProps {
   element: any;
@@ -15,6 +15,7 @@ interface VideoPropertiesProps {
 
 export function VideoProperties({ element, styles, onUpdate, onStyleChange }: VideoPropertiesProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [unit, setUnit] = useState('px');
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,22 +163,36 @@ export function VideoProperties({ element, styles, onUpdate, onStyleChange }: Vi
       </div>
 
       <div className="space-y-2">
-        <Label>Dimensions</Label>
+        <div className="flex items-center justify-between">
+          <Label>Dimensions</Label>
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            className="h-7 px-2 rounded border text-xs bg-white"
+          >
+            <option value="px">px</option>
+            <option value="%">%</option>
+            <option value="rem">rem</option>
+            <option value="em">em</option>
+          </select>
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
             <Label className="text-xs text-slate-500">Largeur</Label>
             <Input
-              value={styles.width || ''}
-              onChange={(e) => onStyleChange('width', e.target.value)}
-              placeholder="100%"
+              type="number"
+              value={parseInt(styles.width) || ''}
+              onChange={(e) => onStyleChange('width', e.target.value ? `${e.target.value}${unit}` : '')}
+              placeholder="100"
               className="h-8 text-xs"
             />
           </div>
           <div>
             <Label className="text-xs text-slate-500">Hauteur</Label>
             <Input
-              value={styles.height || ''}
-              onChange={(e) => onStyleChange('height', e.target.value)}
+              type="number"
+              value={parseInt(styles.height) || ''}
+              onChange={(e) => onStyleChange('height', e.target.value ? `${e.target.value}${unit}` : '')}
               placeholder="auto"
               className="h-8 text-xs"
             />

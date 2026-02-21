@@ -3,8 +3,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, X } from 'lucide-react';
-import { useRef } from 'react';
+import { Upload, X, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface ImagePropertiesProps {
   element: any;
@@ -15,6 +15,7 @@ interface ImagePropertiesProps {
 
 export function ImageProperties({ element, styles, onUpdate, onStyleChange }: ImagePropertiesProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [unit, setUnit] = useState('rem');
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,43 +113,85 @@ export function ImageProperties({ element, styles, onUpdate, onStyleChange }: Im
       </div>
 
       <div className="space-y-2">
-        <Label>Dimensions</Label>
+        <Label>Alignement</Label>
+        <div className="grid grid-cols-3 gap-1">
+          <Button
+            variant={(styles.display === 'block' && styles.marginLeft === '0' && styles.marginRight === 'auto') ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              onStyleChange('display', 'block');
+              onStyleChange('marginLeft', '0');
+              onStyleChange('marginRight', 'auto');
+            }}
+            className="text-xs flex items-center justify-center gap-1"
+          >
+            <AlignLeft className="h-3 w-3" />
+            Gauche
+          </Button>
+          <Button
+            variant={(styles.display === 'block' && styles.marginLeft === 'auto' && styles.marginRight === 'auto') ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              onStyleChange('display', 'block');
+              onStyleChange('marginLeft', 'auto');
+              onStyleChange('marginRight', 'auto');
+            }}
+            className="text-xs flex items-center justify-center gap-1"
+          >
+            <AlignCenter className="h-3 w-3" />
+            Centre
+          </Button>
+          <Button
+            variant={(styles.display === 'block' && styles.marginLeft === 'auto' && styles.marginRight === '0') ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              onStyleChange('display', 'block');
+              onStyleChange('marginLeft', 'auto');
+              onStyleChange('marginRight', '0');
+            }}
+            className="text-xs flex items-center justify-center gap-1"
+          >
+            <AlignRight className="h-3 w-3" />
+            Droite
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>Dimensions</Label>
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            className="h-7 px-2 rounded border text-xs bg-white"
+          >
+            <option value="rem">rem</option>
+            <option value="px">px</option>
+            <option value="%">%</option>
+            <option value="em">em</option>
+          </select>
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
             <Label className="text-xs text-slate-500">Largeur</Label>
             <Input
-              value={styles.width || ''}
-              onChange={(e) => onStyleChange('width', e.target.value)}
-              placeholder="100%"
+              type="number"
+              value={parseInt(styles.width) || ''}
+              onChange={(e) => onStyleChange('width', e.target.value ? `${e.target.value}${unit}` : '')}
+              placeholder="100"
               className="h-8 text-xs"
             />
           </div>
           <div>
             <Label className="text-xs text-slate-500">Hauteur</Label>
             <Input
-              value={styles.height || ''}
-              onChange={(e) => onStyleChange('height', e.target.value)}
+              type="number"
+              value={parseInt(styles.height) || ''}
+              onChange={(e) => onStyleChange('height', e.target.value ? `${e.target.value}${unit}` : '')}
               placeholder="auto"
               className="h-8 text-xs"
             />
           </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Bordure arrondie</Label>
-        <div className="flex gap-1">
-          {['0px', '4px', '8px', '16px', '50%'].map((radius) => (
-            <Button
-              key={radius}
-              variant={styles.borderRadius === radius ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onStyleChange('borderRadius', radius)}
-              className="text-xs flex-1"
-            >
-              {radius}
-            </Button>
-          ))}
         </div>
       </div>
     </div>

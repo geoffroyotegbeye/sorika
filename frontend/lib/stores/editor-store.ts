@@ -63,12 +63,19 @@ export interface ElementStyle {
   zIndex?: string;
 }
 
+export interface MenuItem {
+  id: string;
+  label: string;
+  href: string;
+}
+
 export interface Element {
   id: string;
   type: string; // 'section', 'container', 'heading', 'text', 'button', 'image', etc.
   tag: string; // 'section', 'div', 'h1', 'p', 'button', 'img', etc.
   content?: string;
   attributes?: Record<string, string>; // src, href, alt, etc.
+  menuItems?: MenuItem[]; // Pour les headers responsives
   styles: {
     desktop: ElementStyle;
     tablet?: ElementStyle;
@@ -99,7 +106,7 @@ export interface EditorState {
   
   // Actions
   setElements: (elements: Element[]) => void;
-  addElement: (element: Element, parentId?: string) => void;
+  addElement: (element, parentId, cellIndex?) => void;
   addElementAt: (element: Element, parentId: string | undefined, targetId: string, position: 'before' | 'after') => void;
   updateElement: (id: string, updates: Partial<Element>) => void;
   updateElementContent: (id: string, content: string) => void;
@@ -130,10 +137,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     get().saveToHistory();
   },
 
-  addElement: (element, parentId) => {
+  addElement: (element, parentId, cellIndex) => {
     const { elements } = get();
     
-    // Garantir un ID unique avec timestamp + random
     const uniqueElement = {
       ...element,
       id: `${element.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -146,6 +152,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       
       return items.map(item => {
         if (item.id === parentId) {
+          if (item.type === 'grid' && typeof cellIndex === 'number') {
+            const newChildren = [...item.children];
+            // Initialiser la cellule comme tableau si elle n'existe pas
+            if (!Array.isArray(newChildren[cellIndex])) {
+              newChildren[cellIndex] = [];
+            }
+            // Ajouter l'élément au tableau de la cellule
+            newChildren[cellIndex] = [...newChildren[cellIndex], uniqueElement];
+            return { ...item, children: newChildren };
+          }
           return { ...item, children: [...item.children, uniqueElement] };
         }
         if (item.children.length > 0) {
