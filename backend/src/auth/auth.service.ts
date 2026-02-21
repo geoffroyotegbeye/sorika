@@ -175,7 +175,7 @@ export class AuthService {
         await tx.page.create({
           data: {
             companyId: company.id,
-            slug: '',
+            slug: 'accueil',
             title: 'Accueil',
             description: 'Page d\'accueil',
             isHomePage: true,

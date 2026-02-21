@@ -23,7 +23,7 @@ export default function EditorPage() {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const { setElements, elements, hasUnsavedChanges, setHasUnsavedChanges } = useEditorStore();
-  const { currentPageSlug, getCurrentPage } = usePagesStore();
+  const { currentPageSlug, setPages, setCurrentPage, pages } = usePagesStore();
 
   const handleSave = async () => {
     if (!companyId || !currentPageSlug) return;
@@ -62,7 +62,7 @@ export default function EditorPage() {
   }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    const fetchLandingPage = async () => {
+    const fetchCompanyAndPages = async () => {
       try {
         // Récupérer le companyId depuis le slug
         const companyRes = await fetch(`http://localhost:3001/companies/slug/${companySlug}`);
@@ -70,6 +70,42 @@ export default function EditorPage() {
         
         const company = await companyRes.json();
         setCompanyId(company.id);
+
+        // Charger les pages
+        const pagesRes = await fetch(`http://localhost:3001/companies/${company.id}/pages`);
+        if (pagesRes.ok) {
+          let pagesData = await pagesRes.json();
+          
+          // Si aucune page n'existe, créer une page d'accueil par défaut
+          if (pagesData.length === 0) {
+            const createRes = await fetch(`http://localhost:3001/companies/${company.id}/pages`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: 'Accueil',
+                slug: 'accueil',
+                description: 'Page d\'accueil',
+                isHomePage: true,
+              }),
+            });
+            
+            if (createRes.ok) {
+              const newPage = await createRes.json();
+              pagesData = [newPage];
+            }
+          }
+          
+          setPages(pagesData);
+          
+          // Définir la page actuelle (home page ou première page)
+          const homePage = pagesData.find((p: any) => p.isHomePage);
+          const firstPage = pagesData[0];
+          if (homePage) {
+            setCurrentPage(homePage.slug);
+          } else if (firstPage) {
+            setCurrentPage(firstPage.slug);
+          }
+        }
       } catch (error) {
         console.error('Erreur lors du chargement:', error);
       } finally {
@@ -77,8 +113,8 @@ export default function EditorPage() {
       }
     };
 
-    fetchLandingPage();
-  }, [companySlug]);
+    fetchCompanyAndPages();
+  }, [companySlug, setPages, setCurrentPage]);
 
   // Charger les éléments de la page actuelle
   useEffect(() => {
@@ -163,7 +199,7 @@ export default function EditorPage() {
       />
 
       {/* Toolbar en haut */}
-      <Toolbar companyId={companyId} companySlug={companySlug} pageSlug={currentPageSlug} />
+      <Toolbar companyId={companyId} companySlug={companySlug} pageSlug={currentPageSlug || 'default'} />
 
       {/* Layout principal */}
       <div className="flex-1 flex overflow-hidden">

@@ -95,7 +95,14 @@ export function Toolbar({ companyId, companySlug, pageSlug }: ToolbarProps) {
   }, [companyId, elements]);
 
   const handleSave = async () => {
-    if (!companyId || !pageSlug) return;
+    if (!companyId || !pageSlug) {
+      console.log('Cannot save - companyId:', companyId, 'pageSlug:', pageSlug);
+      toast.error('Impossible de sauvegarder: informations manquantes');
+      return;
+    }
+
+    console.log('Saving to:', `http://localhost:3001/companies/${companyId}/pages/${pageSlug}/elements`);
+    console.log('Elements:', elements);
 
     try {
       const response = await fetch(`http://localhost:3001/companies/${companyId}/pages/${pageSlug}/elements`, {
@@ -108,9 +115,12 @@ export function Toolbar({ companyId, companySlug, pageSlug }: ToolbarProps) {
         markAsSaved();
         toast.success('Modifications sauvegardées');
       } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Save error:', errorData);
         throw new Error('Erreur lors de la sauvegarde');
       }
     } catch (error) {
+      console.error('Save exception:', error);
       toast.error('Impossible de sauvegarder');
     }
   };

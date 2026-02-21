@@ -11,13 +11,16 @@ async function getPageData(companySlug: string) {
     if (!companyRes.ok) return null;
     const company = await companyRes.json();
     
-    // 2. Récupérer la page d'accueil
-    const pageRes = await fetch(`http://localhost:3001/companies/${company.id}/pages/home`, {
+    // 2. Récupérer la page d'accueil (isHomePage = true)
+    const pagesRes = await fetch(`http://localhost:3001/companies/${company.id}/pages`, {
       cache: 'no-store',
     });
     
-    if (!pageRes.ok) return null;
-    const page = await pageRes.json();
+    if (!pagesRes.ok) return null;
+    const pages = await pagesRes.json();
+    const page = pages.find((p: any) => p.isHomePage);
+    
+    if (!page) return null;
     
     return { company, page };
   } catch (error) {

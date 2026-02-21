@@ -114,7 +114,7 @@ export function PropertiesPanel() {
   );
 
   const hasContent = selectedElement.content !== undefined;
-  const isTextElement = ['heading', 'paragraph', 'text', 'button'].includes(selectedElement.type);
+  const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(selectedElement.type);
 
   return (
     <div className="w-80 bg-white border-l border-slate-200 flex flex-col">
