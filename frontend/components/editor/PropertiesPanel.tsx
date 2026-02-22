@@ -19,7 +19,6 @@ import { InteractionsTab } from './properties/InteractionsTab';
 import { LinkProperties } from './properties/LinkProperties';
 import { ImageProperties } from './properties/ImageProperties';
 import { VideoProperties } from './properties/VideoProperties';
-import { ResponsiveHeaderProperties } from './properties/ResponsiveHeaderProperties';
 import { useState } from 'react';
 
 export function PropertiesPanel() {
@@ -163,14 +162,16 @@ export function PropertiesPanel() {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="size">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
-                  Size
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <SizeSection styles={currentStyles} onStyleChange={handleStyleChange} />
-                </AccordionContent>
-              </AccordionItem>
+              {selectedElement.type !== 'header' && (
+                <AccordionItem value="size">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Size
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <SizeSection styles={currentStyles} onStyleChange={handleStyleChange} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {isTextElement && (
                 <AccordionItem value="typography">
@@ -231,18 +232,7 @@ export function PropertiesPanel() {
                 </AccordionItem>
               )}
 
-              {selectedElement.type === 'responsive-header' && (
-                <AccordionItem value="menu">
-                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
-                    Menu
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <ResponsiveHeaderProperties />
-                  </AccordionContent>
-                </AccordionItem>
-              )}
-
-              {['navbar', 'header', 'section'].includes(selectedElement.type) && (
+              {['navbar', 'header', 'section', 'footer'].includes(selectedElement.type) && (
                 <AccordionItem value="global">
                   <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
                     Global

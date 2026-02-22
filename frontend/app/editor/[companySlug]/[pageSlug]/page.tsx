@@ -1,24 +1,90 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { IconSidebar } from '@/components/editor/IconSidebar';
 import { ElementsPanel } from '@/components/editor/ElementsPanel';
 import { Canvas } from '@/components/editor/Canvas';
-import { PropertiesPanelNew } from '@/components/editor/PropertiesPanelNew';
+import { PropertiesPanel } from '@/components/editor/PropertiesPanel';
 import { Toolbar } from '@/components/editor/Toolbar';
 import { PageManager } from '@/components/editor/PageManager';
 import { useEditorStore } from '@/lib/stores/editor-store';
+import { usePagesStore } from '@/lib/stores/pages-store';
 import { Loader2 } from 'lucide-react';
 
 export default function EditorPageWithSlug() {
   const params = useParams();
+  const router = useRouter();
   const companySlug = params.companySlug as string;
   const pageSlug = params.pageSlug as string;
   const [isLoading, setIsLoading] = useState(true);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isPagesOpen, setIsPagesOpen] = useState(false);
-  const { setElements, hasUnsavedChanges } = useEditorStore();
+  const { setElements, hasUnsavedChanges, selectedElementId, copyElement, pasteElement, elements, clipboard } = useEditorStore();
+  const { currentPageSlug } = usePagesStore();
+
+  // Raccourcis clavier pour copier/coller
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignorer si on est dans un input ou textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      // Ctrl+C ou Cmd+C pour copier
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedElementId) {
+        e.preventDefault();
+        copyElement(selectedElementId);
+        console.log('Élément copié:', selectedElementId);
+      }
+
+      // Ctrl+V ou Cmd+V pour coller
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && clipboard) {
+        e.preventDefault();
+        
+        // Vérifier si l'élément sélectionné peut contenir des enfants
+        const canContainChildren = (type: string) => {
+          return ['section', 'container', 'grid', 'vflex', 'hflex', 'div', 'link-block', 'navbar', 'header', 'footer'].includes(type);
+        };
+        
+        // Trouver l'élément sélectionné
+        const findElement = (items: any[], id: string | null): any => {
+          if (!id) return null;
+          for (const item of items) {
+            if (item.id === id) return item;
+            if (item.children?.length > 0) {
+              const found = findElement(item.children, id);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        
+        const selectedElement = findElement(elements, selectedElementId);
+        
+        if (selectedElement && canContainChildren(selectedElement.type)) {
+          // Coller dans l'élément sélectionné
+          pasteElement(selectedElementId || undefined);
+          console.log('Élément collé dans:', selectedElementId);
+        } else {
+          // Coller à la racine si aucun élément valide n'est sélectionné
+          pasteElement(undefined);
+          console.log('Élément collé à la racine');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElementId, copyElement, pasteElement, elements, clipboard]);
+
+  // Redirection automatique si la page active change
+  useEffect(() => {
+    if (currentPageSlug && currentPageSlug !== pageSlug) {
+      router.push(`/editor/${companySlug}/${currentPageSlug}`);
+    }
+  }, [currentPageSlug, pageSlug, companySlug, router]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -84,7 +150,7 @@ export default function EditorPageWithSlug() {
         
         <ElementsPanel />
         <Canvas />
-        <PropertiesPanelNew />
+        <PropertiesPanel />
       </div>
     </div>
   );

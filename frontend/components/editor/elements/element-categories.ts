@@ -3,7 +3,7 @@ import {
   Type, AlignLeft, Link, Quote,
   Image, Video,
   MousePointer2, List,
-  FormInput, CheckSquare, Upload, Menu, LayoutTemplate, Smartphone
+  FormInput, CheckSquare, Upload, Menu, LayoutTemplate, Copyright
 } from 'lucide-react';
 
 export const ELEMENT_CATEGORIES = [
@@ -11,9 +11,9 @@ export const ELEMENT_CATEGORIES = [
     id: 'structure',
     label: 'Structure',
     items: [
-      { type: 'responsive-header', label: 'Header Responsive', tag: 'header', icon: Smartphone, isNew: true },
       { type: 'header', label: 'Header', tag: 'header', icon: LayoutTemplate },
       { type: 'section', label: 'Section', tag: 'section', icon: Box },
+      { type: 'footer', label: 'Footer', tag: 'footer', icon: Copyright },
       { type: 'container', label: 'Container', tag: 'div', icon: Square },
       { type: 'grid', label: 'Grid', tag: 'div', icon: Grid3x3 },
       { type: 'vflex', label: 'V Flex', tag: 'div', icon: Rows, isNew: true },

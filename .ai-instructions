@@ -1,0 +1,29 @@
+# Instructions pour l'IA
+
+## 📁 Organisation des fichiers
+
+### Documentation (fichiers .md)
+**Tous les fichiers markdown doivent être créés dans le dossier `docs/`**
+
+Chemin absolu : `/Users/macbookpro/Documents/www/sorika/docs/`
+
+Exemples :
+- ✅ `/Users/macbookpro/Documents/www/sorika/docs/CODE_GENERATOR.md`
+- ✅ `/Users/macbookpro/Documents/www/sorika/docs/API_DOCS.md`
+- ❌ `/Users/macbookpro/Documents/www/sorika/NEW_FEATURE.md` (incorrect)
+
+### Convention de nommage
+- UPPERCASE avec underscores : `MY_FEATURE.md`
+- Noms descriptifs et clairs
+- Pas d'espaces, utiliser `_`
+
+## 📚 Documentation existante
+
+Voir `docs/README.md` pour la liste complète des fichiers de documentation.
+
+## 🎯 Règles importantes
+
+1. **Toujours** créer les fichiers .md dans `docs/`
+2. Mettre à jour `docs/README.md` si nécessaire
+3. Utiliser des liens relatifs dans la documentation
+4. Garder le README.md racine minimal (pointer vers docs/)

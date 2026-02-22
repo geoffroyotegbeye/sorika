@@ -11,9 +11,10 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { Plus, Trash2, Copy, ArrowUp, ArrowDown, MoveUp, MoveDown } from 'lucide-react';
+import { Plus, Trash2, Copy, ArrowUp, ArrowDown, MoveUp, MoveDown, Clipboard } from 'lucide-react';
 import { ELEMENT_CATEGORIES } from './elements/element-categories';
 import { getDefaultStyles, getDefaultContent } from './elements/element-defaults';
+import { useEditorStore } from '@/lib/stores/editor-store';
 
 interface ElementContextMenuProps {
   children: React.ReactNode;
@@ -48,6 +49,11 @@ export function ElementContextMenu({
   canMoveUp = false,
   canMoveDown = false,
 }: ElementContextMenuProps) {
+  const clipboard = useEditorStore((state) => state.clipboard);
+  const copyElement = useEditorStore((state) => state.copyElement);
+  const pasteElement = useEditorStore((state) => state.pasteElement);
+  
+  console.log('ElementContextMenu render - clipboard:', clipboard);
   
   const isInGrid = parentType === 'grid';
   const getAllElements = () => {
@@ -59,11 +65,18 @@ export function ElementContextMenu({
   const getAvailableChildren = (parentType: string) => {
     switch (parentType) {
       case 'section':
+      case 'header':
+      case 'footer':
+      case 'navbar':
         return [
           { type: 'container', label: 'Container', tag: 'div' },
           { type: 'grid', label: 'Grid', tag: 'div' },
         ];
       case 'container':
+      case 'vflex':
+      case 'hflex':
+      case 'div':
+      case 'link-block':
         return [
           { type: 'grid', label: 'Grid', tag: 'div' },
           { type: 'heading', label: 'Titre', tag: 'h2' },
@@ -161,6 +174,21 @@ export function ElementContextMenu({
           <Copy className="mr-2 h-4 w-4" />
           Dupliquer
         </ContextMenuItem>
+        
+        <ContextMenuItem onClick={() => copyElement(elementId)}>
+          <Clipboard className="mr-2 h-4 w-4" />
+          Copier
+        </ContextMenuItem>
+        
+        {(() => {
+          console.log('Checking paste button - clipboard:', clipboard, 'canHaveChildren:', canHaveChildren, 'elementType:', elementType);
+          return clipboard && canHaveChildren && (
+            <ContextMenuItem onClick={() => pasteElement(elementId)}>
+              <Clipboard className="mr-2 h-4 w-4" />
+              Coller à l'intérieur ({clipboard.type})
+            </ContextMenuItem>
+          );
+        })()}
         
         {(canMoveUp || canMoveDown) && (
           <>

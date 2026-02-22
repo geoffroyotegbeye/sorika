@@ -1,13 +1,13 @@
 export const isLayoutElement = (type: string) => {
-  return ['header', 'section', 'container', 'grid', 'vflex', 'hflex', 'div', 'link-block', 'form', 'list', 'navbar', 'responsive-header'].includes(type);
+  return ['header', 'footer', 'section', 'container', 'grid', 'vflex', 'hflex', 'div', 'link-block', 'form', 'list', 'navbar'].includes(type);
 };
 
 export const canContainChildren = (type: string) => {
-  return ['header', 'section', 'container', 'grid', 'vflex', 'hflex', 'div', 'link-block', 'form', 'list', 'navbar'].includes(type);
+  return ['header', 'footer', 'section', 'container', 'grid', 'vflex', 'hflex', 'div', 'link-block', 'form', 'list', 'navbar'].includes(type);
 };
 
 export const canAcceptChild = (parentType: string, childType: string) => {
-  if (parentType === 'header') {
+  if (parentType === 'header' || parentType === 'footer') {
     return ['container', 'vflex', 'hflex', 'navbar', 'div'].includes(childType);
   }
   

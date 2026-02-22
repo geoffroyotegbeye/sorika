@@ -67,6 +67,13 @@ export interface MenuItem {
   id: string;
   label: string;
   href: string;
+  linkType?: 'anchor' | 'internal' | 'external';
+  // Styles personnalisés
+  fontSize?: string;
+  fontWeight?: string;
+  fontFamily?: string;
+  color?: string;
+  hoverColor?: string;
 }
 
 export interface Element {
@@ -106,6 +113,9 @@ export interface EditorState {
   // Modifications non sauvegardées
   hasUnsavedChanges: boolean;
   
+  // Presse-papier
+  clipboard: Element | null;
+  
   // Actions
   setElements: (elements: Element[]) => void;
   addElement: (element, parentId, cellIndex?) => void;
@@ -119,6 +129,8 @@ export interface EditorState {
   updateElementStyles: (id: string, styles: Partial<ElementStyle>) => void;
   moveElement: (elementId: string, newParentId: string, index: number) => void;
   duplicateElement: (id: string) => void;
+  copyElement: (id: string) => void;
+  pasteElement: (parentId?: string) => void;
   toggleElementLock: (id: string) => void;
   toggleElementVisibility: (id: string) => void;
   undo: () => void;
@@ -135,6 +147,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   history: [[]],
   historyIndex: 0,
   hasUnsavedChanges: false,
+  clipboard: null,
 
   setElements: (elements) => {
     set({ elements, hasUnsavedChanges: false });
@@ -438,6 +451,71 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     };
     
     set({ elements: findAndDuplicate(elements), hasUnsavedChanges: true });
+    get().saveToHistory();
+  },
+
+  copyElement: (id) => {
+    const { elements } = get();
+    
+    const findElement = (items: Element[]): Element | null => {
+      for (const item of items) {
+        if (item.id === id) return JSON.parse(JSON.stringify(item));
+        if (item.children.length > 0) {
+          const found = findElement(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    const element = findElement(elements);
+    if (element) {
+      set({ clipboard: element });
+    }
+  },
+
+  pasteElement: (parentId) => {
+    const { clipboard, elements } = get();
+    if (!clipboard) return;
+    
+    // Fonction pour régénérer tous les IDs récursivement
+    const regenerateIds = (element: Element): Element => {
+      const newElement = {
+        ...element,
+        id: `${element.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        children: [] as Element[],
+      };
+      
+      // Régénérer les IDs des enfants
+      if (element.children && element.children.length > 0) {
+        newElement.children = element.children.map(child => regenerateIds(child));
+      }
+      
+      return newElement;
+    };
+    
+    const newElement = regenerateIds(clipboard);
+    
+    if (parentId) {
+      // Coller dans un parent spécifique
+      const pasteInParent = (items: Element[]): Element[] => {
+        return items.map(item => {
+          if (item.id === parentId) {
+            return { ...item, children: [...item.children, newElement] };
+          }
+          if (item.children.length > 0) {
+            return { ...item, children: pasteInParent(item.children) };
+          }
+          return item;
+        });
+      };
+      
+      set({ elements: pasteInParent(elements), hasUnsavedChanges: true });
+    } else {
+      // Coller au niveau racine
+      set({ elements: [...elements, newElement], hasUnsavedChanges: true });
+    }
+    
     get().saveToHistory();
   },
 

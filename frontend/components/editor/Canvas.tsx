@@ -2,7 +2,6 @@
 
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { ElementContextMenu } from './ElementContextMenu';
-import { ResponsiveHeaderRenderer } from './ResponsiveHeaderRenderer';
 import { ImageRenderer, VideoRenderer } from './MediaRenderers';
 import { useCanvasState, useElementHandlers } from './canvas-hooks';
 import { 
@@ -243,22 +242,22 @@ export function Canvas() {
           {(canMoveUp || canMoveDown) && !isLocked && (
             <span className="flex gap-0.5 ml-1">
               {canMoveUp && (
-                <button
+                <span
                   onClick={(e) => { e.stopPropagation(); handleMoveUp(); }}
-                  className="hover:bg-blue-700 px-1 rounded"
+                  className="hover:bg-blue-700 px-1 rounded cursor-pointer"
                   title="Monter"
                 >
                   ↑
-                </button>
+                </span>
               )}
               {canMoveDown && (
-                <button
+                <span
                   onClick={(e) => { e.stopPropagation(); handleMoveDown(); }}
-                  className="hover:bg-blue-700 px-1 rounded"
+                  className="hover:bg-blue-700 px-1 rounded cursor-pointer"
                   title="Descendre"
                 >
                   ↓
-                </button>
+                </span>
               )}
             </span>
           )}
@@ -305,40 +304,6 @@ export function Canvas() {
       return <VideoRenderer {...mediaProps} />;
     }
 
-    if (element.type === 'responsive-header') {
-      const { canMoveUp, canMoveDown } = canMoveElement(handlers.elements, element.id, parentId);
-      
-      return (
-        <ElementContextMenu
-          key={element.id}
-          elementType={element.type}
-          elementId={element.id}
-          parentId={parentId}
-          parentType={parentType}
-          onAddChild={handleAddChild}
-          onAddBefore={handleAddBefore}
-          onAddAfter={handleAddAfter}
-          onDelete={handleDelete}
-          onDuplicate={handleDuplicate}
-          onMoveUp={canMoveUp ? handleMoveUp : undefined}
-          onMoveDown={canMoveDown ? handleMoveDown : undefined}
-          canMoveUp={canMoveUp}
-          canMoveDown={canMoveDown}
-        >
-          <ResponsiveHeaderRenderer
-            element={element}
-            styles={styles}
-            currentBreakpoint={currentBreakpoint}
-            isSelected={isSelected}
-            onClick={handleClick}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            renderLabel={renderLabel}
-          />
-        </ElementContextMenu>
-      );
-    }
-
     const isEditing = canvasState.editingElementId === element.id;
     const { canMoveUp, canMoveDown } = canMoveElement(handlers.elements, element.id, parentId);
 
@@ -346,6 +311,7 @@ export function Canvas() {
       <ElementContextMenu
         key={element.id}
         elementType={element.type}
+        elementId={element.id}
         parentType={parentType}
         onAddChild={handleAddChild}
         onAddBefore={handleAddBefore}
@@ -521,7 +487,7 @@ export function Canvas() {
             style={{
               width: getBreakpointWidth(currentBreakpoint),
               minHeight: '100vh',
-              overflow: 'hidden',
+              overflow: 'visible',
             }}
             onClick={() => handlers.selectElement(null)}
           >

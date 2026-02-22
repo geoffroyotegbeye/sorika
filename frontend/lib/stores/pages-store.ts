@@ -28,6 +28,7 @@ interface PagesState {
   updatePage: (slug: string, updates: Partial<Page>) => void;
   removePage: (slug: string) => void;
   getCurrentPage: () => Page | null;
+  getRedirectSlug: () => string | null;
 }
 
 export const usePagesStore = create<PagesState>((set, get) => ({
@@ -49,13 +50,34 @@ export const usePagesStore = create<PagesState>((set, get) => ({
     ),
   })),
 
-  removePage: (slug) => set((state) => ({
-    pages: state.pages.filter((page) => page.slug !== slug),
-    currentPageSlug: state.currentPageSlug === slug ? null : state.currentPageSlug,
-  })),
+  removePage: (slug) => set((state) => {
+    const isCurrentPage = state.currentPageSlug === slug;
+    const remainingPages = state.pages.filter((page) => page.slug !== slug);
+    
+    // Si on supprime la page active, rediriger vers la page d'accueil ou la première page
+    let newCurrentSlug = state.currentPageSlug;
+    if (isCurrentPage && remainingPages.length > 0) {
+      const homePage = remainingPages.find((p) => p.isHomePage);
+      newCurrentSlug = homePage?.slug || remainingPages[0].slug;
+    } else if (remainingPages.length === 0) {
+      newCurrentSlug = null;
+    }
+    
+    return {
+      pages: remainingPages,
+      currentPageSlug: newCurrentSlug,
+    };
+  }),
 
   getCurrentPage: () => {
     const { pages, currentPageSlug } = get();
     return pages.find((page) => page.slug === currentPageSlug) || null;
+  },
+
+  getRedirectSlug: () => {
+    const { pages } = get();
+    if (pages.length === 0) return null;
+    const homePage = pages.find((p) => p.isHomePage);
+    return homePage?.slug || pages[0].slug;
   },
 }));

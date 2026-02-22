@@ -102,6 +102,8 @@ export function PageManager({ companyId, isOpen, onClose }: PageManagerProps) {
   const confirmDeletePage = async () => {
     if (!deletePageSlug) return;
 
+    const isCurrentPage = currentPageSlug === deletePageSlug;
+
     try {
       const response = await fetch(`http://localhost:3001/companies/${companyId}/pages/${deletePageSlug}`, {
         method: 'DELETE',
@@ -109,6 +111,12 @@ export function PageManager({ companyId, isOpen, onClose }: PageManagerProps) {
 
       if (response.ok) {
         removePage(deletePageSlug);
+        
+        // Si on supprime la page active, la redirection est gérée automatiquement par le store
+        if (isCurrentPage) {
+          onClose(); // Fermer le panneau pour voir la nouvelle page
+        }
+        
         toast.success('Page supprimée');
       } else {
         const error = await response.json();

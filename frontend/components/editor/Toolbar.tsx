@@ -47,7 +47,8 @@ export function Toolbar({ companyId, companySlug, pageSlug }: ToolbarProps) {
     historyIndex,
     showLabels,
     toggleLabels,
-    markAsSaved
+    markAsSaved,
+    clipboard
   } = useEditorStore();
 
   // Vérifier si le site est publié
@@ -282,6 +283,13 @@ export function Toolbar({ companyId, companySlug, pageSlug }: ToolbarProps) {
 
       {/* Droite: Actions */}
       <div className="flex items-center gap-2">
+        {clipboard && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-700">
+            <Copy className="h-3 w-3" />
+            <span>{clipboard.type} copié</span>
+          </div>
+        )}
+        
         <Button
           variant="outline"
           size="sm"

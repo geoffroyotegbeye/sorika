@@ -2,17 +2,9 @@ export const getDefaultStyles = (type: string) => {
   const base = { display: 'block' };
 
   const styles: Record<string, any> = {
-    'responsive-header': { 
-      ...base, 
-      width: '100%', 
-      padding: '16px 20px', 
-      backgroundColor: '#ffffff', 
-      borderBottom: '1px solid #e2e8f0',
-      position: 'sticky',
-      top: '0',
-      zIndex: '1000'
-    },
+    header: { ...base, width: '100%', padding: '12px 20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0' },
     section: { ...base, padding: '80px 20px', backgroundColor: '#ffffff' },
+    footer: { ...base, width: '100%', padding: '40px 20px', backgroundColor: '#1e293b', color: '#ffffff' },
     container: { ...base, maxWidth: '1200px', margin: '0 auto', padding: '20px' },
     grid: { display: 'grid', gridTemplateColumns: '1fr', gap: '20px', minHeight: '100px' },
     vflex: { display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' },
@@ -41,7 +33,6 @@ export const getDefaultStyles = (type: string) => {
 
 export const getDefaultContent = (type: string) => {
   const content: Record<string, string> = {
-    'responsive-header': '',
     heading: 'Nouveau titre',
     paragraph: 'Nouveau paragraphe de texte.',
     text: 'Texte',
@@ -62,13 +53,5 @@ export const getDefaultChildren = (type: string) => {
 };
 
 export const getDefaultMenuItems = (type: string) => {
-  if (type === 'responsive-header') {
-    return [
-      { id: 'menu-1', label: 'Accueil', href: '#' },
-      { id: 'menu-2', label: 'Services', href: '#services' },
-      { id: 'menu-3', label: 'À propos', href: '#about' },
-      { id: 'menu-4', label: 'Contact', href: '#contact' },
-    ];
-  }
   return undefined;
 };
