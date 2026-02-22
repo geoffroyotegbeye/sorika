@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { ConfirmDialog } from './ConfirmDialog';
+import { ExportButton } from './ExportButton';
 import { 
   Undo2, 
   Redo2, 
@@ -289,6 +290,8 @@ export function Toolbar({ companyId, companySlug, pageSlug }: ToolbarProps) {
             <span>{clipboard.type} copié</span>
           </div>
         )}
+        
+        <ExportButton />
         
         <Button
           variant="outline"

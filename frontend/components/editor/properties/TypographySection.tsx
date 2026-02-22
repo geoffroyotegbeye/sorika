@@ -15,7 +15,7 @@ interface TypographySectionProps {
 }
 
 export function TypographySection({ styles, content, onStyleChange, onContentChange }: TypographySectionProps) {
-  const [unit, setUnit] = useState('rem');
+  const [unit, setUnit] = useState('px');
 
   const parseValue = (value: string) => {
     if (!value) return 16;
@@ -48,8 +48,8 @@ export function TypographySection({ styles, content, onStyleChange, onContentCha
           onChange={(e) => setUnit(e.target.value)}
           className="h-7 px-2 rounded border text-xs bg-white"
         >
-          <option value="rem">rem</option>
           <option value="px">px</option>
+          <option value="rem">rem</option>
           <option value="em">em</option>
         </select>
       </div>

@@ -11,7 +11,7 @@ export const getDefaultStyles = (type: string) => {
     hflex: { display: 'flex', flexDirection: 'row', gap: '16px', padding: '20px', alignItems: 'center' },
     div: { ...base, padding: '20px' },
     'link-block': { ...base, textDecoration: 'none', color: 'inherit' },
-    button: { display: 'inline-block', padding: '12px 24px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', border: 'none' },
+    button: { display: 'inline-block', padding: '12px 24px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', borderWidth: '0px', borderStyle: 'none', borderColor: 'transparent' },
     list: { ...base, paddingLeft: '20px' },
     heading: { ...base, fontSize: '32px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' },
     paragraph: { ...base, fontSize: '16px', lineHeight: '1.6', color: '#475569' },
@@ -25,7 +25,7 @@ export const getDefaultStyles = (type: string) => {
     textarea: { ...base, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '14px', minHeight: '100px' },
     checkbox: { display: 'inline-block', width: '16px', height: '16px' },
     'file-upload': { ...base, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '4px' },
-    navbar: { ...base, padding: '16px 20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0' },
+    navbar: { display: 'flex', gap: '20px', alignItems: 'center', padding: '8px' },
   };
 
   return styles[type] || base;

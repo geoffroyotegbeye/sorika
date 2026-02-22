@@ -15,6 +15,7 @@ export const ELEMENT_CATEGORIES = [
       { type: 'section', label: 'Section', tag: 'section', icon: Box },
       { type: 'footer', label: 'Footer', tag: 'footer', icon: Copyright },
       { type: 'container', label: 'Container', tag: 'div', icon: Square },
+      { type: 'navbar', label: 'Navbar', tag: 'nav', icon: Menu },
       { type: 'grid', label: 'Grid', tag: 'div', icon: Grid3x3 },
       { type: 'vflex', label: 'V Flex', tag: 'div', icon: Rows, isNew: true },
       { type: 'hflex', label: 'H Flex', tag: 'div', icon: Columns, isNew: true },
@@ -63,8 +64,6 @@ export const ELEMENT_CATEGORIES = [
   {
     id: 'advanced',
     label: 'Advanced',
-    items: [
-      { type: 'navbar', label: 'Navbar', tag: 'nav', icon: Menu },
-    ],
+    items: [],
   },
 ];

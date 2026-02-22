@@ -3,6 +3,7 @@
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { ElementContextMenu } from './ElementContextMenu';
 import { ImageRenderer, VideoRenderer } from './MediaRenderers';
+import { MobileMenuToggle } from './MobileMenuToggle';
 import { useCanvasState, useElementHandlers } from './canvas-hooks';
 import { 
   isLayoutElement, 
@@ -12,12 +13,43 @@ import {
   canMoveElement 
 } from './canvas-utils';
 import { getDefaultContent, getDefaultStyles } from './elements/element-defaults';
-import { CSSProperties } from 'react';
+import { CSSProperties, useEffect, useRef } from 'react';
+import { interactionEngine } from '@/lib/interactions/engine';
+import { cleanStyleConflicts } from '@/lib/utils/style-utils';
 
 export function Canvas() {
-  const { selectedElementId, currentBreakpoint, showLabels } = useEditorStore();
+  const { selectedElementId, currentBreakpoint, showLabels, elements } = useEditorStore();
   const canvasState = useCanvasState();
   const handlers = useElementHandlers();
+  const elementRefs = useRef<Map<string, HTMLElement>>(new Map());
+
+  // Appliquer les interactions en mode preview
+  useEffect(() => {
+    // Petit délai pour s'assurer que les refs sont prêtes
+    const timer = setTimeout(() => {
+      const applyInteractions = (els: any[]) => {
+        els.forEach(el => {
+          if (el.interactions && el.interactions.length > 0) {
+            const domElement = elementRefs.current.get(el.id);
+            if (domElement) {
+              interactionEngine.setInteractions(el.id, el.interactions);
+              interactionEngine.applyInteractions(el.id, domElement);
+            }
+          }
+          if (el.children?.length > 0) {
+            applyInteractions(el.children);
+          }
+        });
+      };
+
+      applyInteractions(elements);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      interactionEngine.clearAll();
+    };
+  }, [elements]);
 
   const renderElement = (element: any, parentId?: string, parentType?: string, parentLocked = false, parentHidden = false): JSX.Element => {
     // Si l'élément ou son parent est caché, ne pas le rendre
@@ -38,6 +70,9 @@ export function Canvas() {
       ...(currentBreakpoint === 'mobile' && element.styles.mobile ? element.styles.mobile : {}),
     };
 
+    // Nettoyer les conflits de propriétés CSS
+    baseStyles = cleanStyleConflicts(baseStyles);
+
     if (element.type === 'grid') {
       if (currentBreakpoint === 'mobile') {
         baseStyles.gridTemplateColumns = '1fr';
@@ -48,8 +83,19 @@ export function Canvas() {
       }
     }
     
+  // Séparer les propriétés border pour éviter les conflits
+    const { border, borderTop, borderRight, borderBottom, borderLeft, ...baseStylesWithoutBorder } = baseStyles;
+    
+    // Forcer position: relative pour les hflex qui contiennent un menu mobile
+    if (element.type === 'hflex' && currentBreakpoint === 'mobile') {
+      const hasNav = element.children?.some((child: any) => child.type === 'navbar');
+      if (hasNav && !baseStylesWithoutBorder.position) {
+        baseStylesWithoutBorder.position = 'relative';
+      }
+    }
+    
     const styles: CSSProperties = {
-      ...baseStyles,
+      ...baseStylesWithoutBorder,
       position: 'relative',
       cursor: isLocked ? 'not-allowed' : 'pointer',
       outline: (isSelected && !isLocked) ? '2px solid #3b82f6' : isHovered ? '1px dashed #94a3b8' : 'none',
@@ -57,8 +103,11 @@ export function Canvas() {
       transition: 'outline 0.15s ease, border 0.15s ease, background-color 0.15s ease',
       minHeight: isEmpty ? '100px' : undefined,
       backgroundColor: isDropTarget && canvasState.dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
-      borderTop: isDropTarget && canvasState.dropPosition === 'before' ? '3px solid #10b981' : baseStyles.borderTop,
-      borderBottom: isDropTarget && canvasState.dropPosition === 'after' ? '3px solid #10b981' : baseStyles.borderBottom,
+      ...(border && !isDropTarget ? { border } : {}),
+      ...(borderTop && !isDropTarget ? { borderTop } : {}),
+      ...(borderRight && !isDropTarget ? { borderRight } : {}),
+      ...(borderLeft && !isDropTarget ? { borderLeft } : {}),
+      borderBottom: isDropTarget && canvasState.dropPosition === 'after' ? '3px solid #10b981' : borderBottom,
     };
 
     const handleClick = (e: React.MouseEvent) => {
@@ -325,6 +374,8 @@ export function Canvas() {
       >
         <div style={{ position: 'relative', pointerEvents: isLocked ? 'none' : 'auto' }}>
           <Tag 
+            ref={(el) => el && elementRefs.current.set(element.id, el)}
+            data-element-id={element.id}
             style={styles} 
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
@@ -446,9 +497,10 @@ export function Canvas() {
   };
 
   return (
-    <div 
-      className="flex-1 bg-slate-100 overflow-auto flex flex-col" 
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    <MobileMenuToggle currentBreakpoint={currentBreakpoint}>
+      <div 
+        className="flex-1 bg-slate-100 overflow-auto flex flex-col" 
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       onDragOver={(e) => {
         if (handlers.elements.length === 0) {
           e.preventDefault();
@@ -524,6 +576,7 @@ export function Canvas() {
             )}
           </div>
         </div>
-    </div>
+      </div>
+    </MobileMenuToggle>
   );
 }

@@ -35,6 +35,7 @@ export function PropertiesPanel() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editingNameValue, setEditingNameValue] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const selectedElement = findElementById(elements, selectedElementId);
 
@@ -118,19 +119,36 @@ export function PropertiesPanel() {
   return (
     <div className="w-80 bg-white border-l border-slate-200 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-        <div>
-          <h3 className="font-semibold text-sm">{selectedElement.name || selectedElement.type}</h3>
-          <p className="text-xs text-slate-500">{selectedElement.tag}</p>
+      <div className="p-4 border-b border-slate-200">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm">{selectedElement.name || selectedElement.type}</h3>
+            <p className="text-xs text-slate-500">{selectedElement.tag}</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowDeleteDialog(true)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowDeleteDialog(true)}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2 mt-2 p-2 bg-slate-50 rounded text-xs font-mono">
+          <span className="text-slate-500 flex-1 truncate">{selectedElement.id}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2"
+            onClick={() => {
+              navigator.clipboard.writeText(selectedElement.id);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? 'Copié' : 'Copier'}
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}

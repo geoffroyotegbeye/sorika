@@ -22,6 +22,21 @@ export function LayoutSection({ styles, onStyleChange }: LayoutSectionProps) {
   return (
     <div className="space-y-4">
       <div>
+        <Label className="text-xs text-slate-500 uppercase mb-2 block">Position</Label>
+        <select
+          className="w-full h-9 px-3 rounded-md border text-sm"
+          value={styles.position || 'static'}
+          onChange={(e) => onStyleChange('position', e.target.value)}
+        >
+          <option value="static">Static</option>
+          <option value="relative">Relative</option>
+          <option value="absolute">Absolute</option>
+          <option value="fixed">Fixed</option>
+          <option value="sticky">Sticky</option>
+        </select>
+      </div>
+
+      <div>
         <Label className="text-xs text-slate-500 uppercase mb-2 block">Display</Label>
         <div className="grid grid-cols-4 gap-1">
           {displayOptions.map((option) => {
@@ -90,13 +105,15 @@ export function LayoutSection({ styles, onStyleChange }: LayoutSectionProps) {
           </div>
 
           <div>
-            <Label className="text-xs">Gap</Label>
+            <Label className="text-xs">Gap (px)</Label>
             <input
-              type="text"
+              type="number"
               className="w-full h-9 px-3 rounded-md border text-sm mt-1"
-              value={styles.gap || ''}
-              onChange={(e) => onStyleChange('gap', e.target.value)}
-              placeholder="20px"
+              value={parseInt(styles.gap) || 0}
+              onChange={(e) => onStyleChange('gap', `${e.target.value}px`)}
+              placeholder="20"
+              min="0"
+              step="1"
             />
           </div>
         </>
@@ -152,7 +169,7 @@ export function LayoutSection({ styles, onStyleChange }: LayoutSectionProps) {
           </div>
 
           <div>
-            <Label className="text-xs">Espacement (Gap)</Label>
+            <Label className="text-xs">Espacement - Gap (px)</Label>
             <div className="grid grid-cols-4 gap-1 mt-1">
               {['0px', '10px', '20px', '30px'].map((gap) => (
                 <Button

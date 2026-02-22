@@ -15,7 +15,7 @@ const ELEMENT_TYPES = [];
 
 export function ElementsPanel() {
   const { addElement, elements, selectElement, selectedElementId, updateElement, toggleElementLock, toggleElementVisibility } = useEditorStore();
-  const [activeTab, setActiveTab] = useState<'elements' | 'layouts' | 'layers'>('elements');
+  const [activeTab, setActiveTab] = useState<'elements' | 'templates' | 'calques'>('elements');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
@@ -288,24 +288,24 @@ export function ElementsPanel() {
           Elements
         </button>
         <button
-          onClick={() => setActiveTab('layouts')}
+          onClick={() => setActiveTab('templates')}
           className={`flex-1 py-2 text-xs font-medium ${
-            activeTab === 'layouts'
+            activeTab === 'templates'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Layouts
+          Templates
         </button>
         <button
-          onClick={() => setActiveTab('layers')}
+          onClick={() => setActiveTab('calques')}
           className={`flex-1 py-2 text-xs font-medium ${
-            activeTab === 'layers'
+            activeTab === 'calques'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Layers
+          Calques
         </button>
       </div>
 
@@ -360,7 +360,7 @@ export function ElementsPanel() {
               ))}
             </Accordion>
           </div>
-        ) : activeTab === 'layouts' ? (
+        ) : activeTab === 'templates' ? (
           <div className="p-3">
             <Accordion type="multiple" defaultValue={['Header', 'Hero', 'Features', 'Contact', 'CTA', 'Footer']} className="w-full">
               {Object.entries(

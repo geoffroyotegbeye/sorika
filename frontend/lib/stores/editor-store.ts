@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Interaction } from '../interactions/types';
 
 export interface ElementStyle {
   // Layout
@@ -85,6 +86,7 @@ export interface Element {
   menuItems?: MenuItem[]; // Pour les headers responsives
   isLocked?: boolean; // Verrouillé (empêche modifications)
   isHidden?: boolean; // Caché (invisible dans le canvas)
+  interactions?: Interaction[]; // Interactions et animations
   styles: {
     desktop: ElementStyle;
     tablet?: ElementStyle;
@@ -127,6 +129,7 @@ export interface EditorState {
   setBreakpoint: (breakpoint: 'desktop' | 'tablet' | 'mobile') => void;
   toggleLabels: () => void;
   updateElementStyles: (id: string, styles: Partial<ElementStyle>) => void;
+  updateElementInteractions: (id: string, interactions: Interaction[]) => void;
   moveElement: (elementId: string, newParentId: string, index: number) => void;
   duplicateElement: (id: string) => void;
   copyElement: (id: string) => void;
@@ -334,6 +337,25 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     };
     
     set({ elements: updateStylesInTree(elements), hasUnsavedChanges: true });
+    get().saveToHistory();
+  },
+
+  updateElementInteractions: (id, interactions) => {
+    const { elements } = get();
+    
+    const updateInTree = (items: Element[]): Element[] => {
+      return items.map(item => {
+        if (item.id === id) {
+          return { ...item, interactions };
+        }
+        if (item.children.length > 0) {
+          return { ...item, children: updateInTree(item.children) };
+        }
+        return item;
+      });
+    };
+    
+    set({ elements: updateInTree(elements), hasUnsavedChanges: true });
     get().saveToHistory();
   },
 

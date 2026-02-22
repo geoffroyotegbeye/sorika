@@ -28,6 +28,12 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
           top: '0',
           zIndex: '1000',
         },
+        tablet: {
+          padding: '12px 16px',
+        },
+        mobile: {
+          padding: '10px 12px',
+        },
       },
       children: [
         {
@@ -52,6 +58,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                   alignItems: 'center',
                   gap: '20px',
                   padding: '0',
+                  position: 'relative',
                 },
               },
               children: [
@@ -66,6 +73,41 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       color: '#3b82f6',
                       margin: '0',
                     },
+                    tablet: {
+                      fontSize: '20px',
+                    },
+                    mobile: {
+                      fontSize: '18px',
+                    },
+                  },
+                  children: [],
+                },
+                {
+                  type: 'button',
+                  tag: 'button',
+                  content: '☰',
+                  attributes: { 'aria-label': 'Menu' },
+                  styles: {
+                    desktop: {
+                      display: 'none',
+                    },
+                    tablet: {
+                      display: 'none',
+                    },
+                    mobile: {
+                      display: 'block',
+                      padding: '8px 12px',
+                      backgroundColor: 'transparent',
+                      color: '#1e293b',
+                      borderTop: '1px solid #cbd5e1',
+                      borderRight: '1px solid #cbd5e1',
+                      borderBottom: '1px solid #cbd5e1',
+                      borderLeft: '1px solid #cbd5e1',
+                      borderRadius: '6px',
+                      fontSize: '20px',
+                      cursor: 'pointer',
+                      lineHeight: '1',
+                    },
                   },
                   children: [],
                 },
@@ -78,7 +120,26 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       gap: '24px',
                       alignItems: 'center',
                       padding: '0',
-                      border: 'none',
+                      borderTop: 'none',
+                      borderRight: 'none',
+                      borderBottom: 'none',
+                      borderLeft: 'none',
+                    },
+                    tablet: {
+                      gap: '16px',
+                    },
+                    mobile: {
+                      display: 'none',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      position: 'absolute',
+                      top: '100%',
+                      left: '0',
+                      right: '0',
+                      backgroundColor: '#ffffff',
+                      padding: '16px',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      borderTop: '1px solid #e2e8f0',
                     },
                   },
                   children: [
@@ -93,6 +154,15 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           textDecoration: 'none',
                           fontSize: '16px',
                           fontWeight: '500',
+                        },
+                        tablet: {
+                          fontSize: '14px',
+                        },
+                        mobile: {
+                          fontSize: '16px',
+                          padding: '8px 0',
+                          display: 'block',
+                          width: '100%',
                         },
                       },
                       children: [],
@@ -109,6 +179,15 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           fontSize: '16px',
                           fontWeight: '500',
                         },
+                        tablet: {
+                          fontSize: '14px',
+                        },
+                        mobile: {
+                          fontSize: '16px',
+                          padding: '8px 0',
+                          display: 'block',
+                          width: '100%',
+                        },
                       },
                       children: [],
                     },
@@ -123,6 +202,15 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           textDecoration: 'none',
                           fontSize: '16px',
                           fontWeight: '500',
+                        },
+                        tablet: {
+                          fontSize: '14px',
+                        },
+                        mobile: {
+                          fontSize: '16px',
+                          padding: '8px 0',
+                          display: 'block',
+                          width: '100%',
                         },
                       },
                       children: [],
@@ -139,8 +227,19 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           borderRadius: '6px',
                           fontSize: '14px',
                           fontWeight: '600',
-                          border: 'none',
+                          borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
                           cursor: 'pointer',
+                        },
+                        tablet: {
+                          padding: '6px 16px',
+                          fontSize: '13px',
+                        },
+                        mobile: {
+                          display: 'block',
+                          width: '100%',
+                          padding: '12px',
+                          fontSize: '16px',
+                          marginTop: '8px',
                         },
                       },
                       children: [],
@@ -170,6 +269,12 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
           backgroundColor: '#1e293b',
           textAlign: 'center',
         },
+        tablet: {
+          padding: '16px',
+        },
+        mobile: {
+          padding: '12px',
+        },
       },
       children: [
         {
@@ -196,6 +301,12 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                   color: '#ffffff',
                   margin: '0',
                 },
+                tablet: {
+                  fontSize: '24px',
+                },
+                mobile: {
+                  fontSize: '20px',
+                },
               },
               children: [],
             },
@@ -207,7 +318,14 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                   display: 'flex',
                   gap: '20px',
                   padding: '0',
-                  border: 'none',
+                  borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
+                },
+                tablet: {
+                  gap: '16px',
+                },
+                mobile: {
+                  flexDirection: 'column',
+                  gap: '12px',
                 },
               },
               children: [
@@ -221,6 +339,9 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       color: '#ffffff',
                       textDecoration: 'none',
                       fontSize: '14px',
+                    },
+                    mobile: {
+                      fontSize: '13px',
                     },
                   },
                   children: [],
@@ -236,6 +357,9 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       textDecoration: 'none',
                       fontSize: '14px',
                     },
+                    mobile: {
+                      fontSize: '13px',
+                    },
                   },
                   children: [],
                 },
@@ -249,6 +373,9 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       color: '#ffffff',
                       textDecoration: 'none',
                       fontSize: '14px',
+                    },
+                    mobile: {
+                      fontSize: '13px',
                     },
                   },
                   children: [],
@@ -626,7 +753,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           borderRadius: '6px',
                           fontSize: '16px',
                           fontWeight: '600',
-                          border: 'none',
+                          borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
                           cursor: 'pointer',
                         },
                       },
@@ -836,7 +963,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                               borderRadius: '6px',
                               fontSize: '16px',
                               fontWeight: '600',
-                              border: 'none',
+                              borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
                               cursor: 'pointer',
                             },
                           },
@@ -900,7 +1027,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
               tag: 'button',
               content: 'Commencer maintenant',
               styles: {
-                desktop: { display: 'inline-block', padding: '16px 32px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '18px', fontWeight: '600', cursor: 'pointer', border: 'none' },
+                desktop: { display: 'inline-block', padding: '16px 32px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '18px', fontWeight: '600', cursor: 'pointer', borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none' },
               },
               children: [],
             },
@@ -981,7 +1108,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                           tag: 'button',
                           content: 'Démarrer',
                           styles: {
-                            desktop: { padding: '14px 28px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer' },
+                            desktop: { padding: '14px 28px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '16px', fontWeight: '600', borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none', cursor: 'pointer' },
                           },
                           children: [],
                         },
@@ -1068,7 +1195,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
               tag: 'button',
               content: 'Essayer gratuitement',
               styles: {
-                desktop: { display: 'inline-block', padding: '18px 40px', backgroundColor: '#ffffff', color: '#667eea', borderRadius: '50px', fontSize: '18px', fontWeight: '700', cursor: 'pointer', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' },
+                desktop: { display: 'inline-block', padding: '18px 40px', backgroundColor: '#ffffff', color: '#667eea', borderRadius: '50px', fontSize: '18px', fontWeight: '700', cursor: 'pointer', borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' },
               },
               children: [],
             },
@@ -1149,7 +1276,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                     desktop: {
                       flex: '1',
                       padding: '14px 16px',
-                      border: 'none',
+                      borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
                       borderRadius: '8px',
                       fontSize: '14px',
                       backgroundColor: '#ffffff',
@@ -1169,7 +1296,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       borderRadius: '8px',
                       fontSize: '16px',
                       fontWeight: '600',
-                      border: 'none',
+                      borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                     },
@@ -1230,7 +1357,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
               tag: 'button',
               content: 'Inscription gratuite',
               styles: {
-                desktop: { display: 'inline-block', padding: '14px 28px', backgroundColor: '#ffffff', color: '#3b82f6', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', border: 'none' },
+                desktop: { display: 'inline-block', padding: '14px 28px', backgroundColor: '#ffffff', color: '#3b82f6', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: 'none' },
               },
               children: [],
             },
@@ -1254,6 +1381,12 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
           backgroundColor: '#1e293b',
           color: '#ffffff',
         },
+        tablet: {
+          padding: '40px 16px 20px',
+        },
+        mobile: {
+          padding: '30px 12px 16px',
+        },
       },
       children: [
         {
@@ -1268,6 +1401,8 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
               tag: 'div',
               styles: {
                 desktop: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', marginBottom: '40px' },
+                tablet: { gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px', marginBottom: '30px' },
+                mobile: { gridTemplateColumns: '1fr', gap: '24px', marginBottom: '24px' },
               },
               children: [
                 {
@@ -1281,6 +1416,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       content: 'À propos',
                       styles: {
                         desktop: { fontSize: '18px', fontWeight: '600', color: '#ffffff', marginBottom: '12px' },
+                        mobile: { fontSize: '16px', marginBottom: '10px' },
                       },
                       children: [],
                     },
@@ -1290,6 +1426,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
                       content: 'Votre partenaire de confiance',
                       styles: {
                         desktop: { fontSize: '14px', color: '#94a3b8' },
+                        mobile: { fontSize: '13px' },
                       },
                       children: [],
                     },
@@ -1303,6 +1440,7 @@ export const LAYOUT_TEMPLATES: LayoutTemplate[] = [
               content: '© 2024 Tous droits réservés',
               styles: {
                 desktop: { fontSize: '14px', color: '#64748b', textAlign: 'center', borderTop: '1px solid #334155', paddingTop: '20px' },
+                mobile: { fontSize: '12px', paddingTop: '16px' },
               },
               children: [],
             },

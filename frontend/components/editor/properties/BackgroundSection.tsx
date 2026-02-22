@@ -43,12 +43,25 @@ export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionPr
 
   return (
     <div className="space-y-4">
-      {/* Palette toujours visible */}
-      <ColorPicker
-        label="Couleur de fond"
-        value={styles.backgroundColor || '#ffffff'}
-        onChange={(val) => onStyleChange('backgroundColor', val)}
-      />
+      {/* Couleur de fond */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <Label className="text-xs">Couleur de fond</Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onStyleChange('backgroundColor', 'transparent')}
+            className="h-6 text-xs"
+          >
+            Sans fond
+          </Button>
+        </div>
+        <ColorPicker
+          value={styles.backgroundColor || '#ffffff'}
+          onChange={(val) => onStyleChange('backgroundColor', val)}
+        />
+      </div>
 
       {/* Upload d'image */}
       <div>
@@ -129,7 +142,12 @@ export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionPr
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleImageUrl('')}
+            onClick={() => {
+              onStyleChange('backgroundImage', '');
+              onStyleChange('backgroundSize', '');
+              onStyleChange('backgroundPosition', '');
+              onStyleChange('backgroundRepeat', '');
+            }}
             className="w-full text-red-600"
           >
             Supprimer l'image
