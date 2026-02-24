@@ -1,23 +1,25 @@
 'use client';
 
+import { Globe, ShoppingCart, FileText, MessageCircle, Users, TrendingUp, Store, Calendar, Calculator, Receipt, Package, Factory, UserCheck, Target, Mail, Smartphone } from 'lucide-react';
+
 export default function HomePage() {
   const apps = [
-    { icon: "🌐", name: "Site Web", desc: "Créateur de site internet pour entreprises", color: "from-blue-500 to-blue-600" },
-    { icon: "🛒", name: "eCommerce", desc: "Vendez vos produits en ligne", color: "from-sky-500 to-blue-500" },
-    { icon: "📝", name: "Blog", desc: "Publiez des articles et actualités", color: "from-slate-500 to-slate-600" },
-    { icon: "💬", name: "Live Chat", desc: "Discutez avec vos visiteurs", color: "from-cyan-500 to-blue-500" },
-    { icon: "📊", name: "CRM", desc: "Suivez vos opportunités", color: "from-indigo-500 to-blue-600" },
-    { icon: "💰", name: "Ventes", desc: "Du devis à la facture", color: "from-blue-600 to-indigo-600" },
-    { icon: "🏪", name: "Point de Vente", desc: "Interface PDV pour magasins", color: "from-slate-600 to-slate-700" },
-    { icon: "📅", name: "Abonnements", desc: "Factures récurrentes", color: "from-sky-600 to-blue-600" },
-    { icon: "💼", name: "Comptabilité", desc: "Gérez votre comptabilité", color: "from-slate-500 to-slate-600" },
-    { icon: "📄", name: "Facturation", desc: "Factures & Paiements", color: "from-blue-500 to-blue-700" },
-    { icon: "📦", name: "Inventaire", desc: "Gérez votre stock", color: "from-slate-600 to-blue-700" },
-    { icon: "🏭", name: "Fabrication", desc: "Ordres de fabrication", color: "from-gray-600 to-slate-700" },
-    { icon: "👥", name: "Employés", desc: "Infos de vos employés", color: "from-blue-600 to-indigo-600" },
-    { icon: "🎯", name: "Recrutement", desc: "Pipeline de recrutement", color: "from-indigo-600 to-blue-700" },
-    { icon: "✉️", name: "Email Marketing", desc: "Campagnes emailing", color: "from-sky-500 to-blue-600" },
-    { icon: "📱", name: "SMS Marketing", desc: "Envoyez des SMS", color: "from-cyan-600 to-blue-600" },
+    { icon: Globe, name: "Site Web", desc: "Créez votre vitrine en ligne en quelques clics", color: "from-blue-500 to-blue-600" },
+    { icon: ShoppingCart, name: "eCommerce", desc: "Vendez 24/7 et boostez votre chiffre d'affaires", color: "from-sky-500 to-blue-500" },
+    { icon: FileText, name: "Blog", desc: "Partagez votre expertise et attirez des clients", color: "from-slate-500 to-slate-600" },
+    { icon: MessageCircle, name: "Live Chat", desc: "Convertissez vos visiteurs en clients", color: "from-cyan-500 to-blue-500" },
+    { icon: Users, name: "CRM", desc: "Ne perdez plus aucune opportunité", color: "from-indigo-500 to-blue-600" },
+    { icon: TrendingUp, name: "Ventes", desc: "Gérez vos devis et factures en un clin d'œil", color: "from-blue-600 to-indigo-600" },
+    { icon: Store, name: "Point de Vente", desc: "Encaissez rapidement et simplement", color: "from-slate-600 to-slate-700" },
+    { icon: Calendar, name: "Abonnements", desc: "Automatisez vos revenus récurrents", color: "from-sky-600 to-blue-600" },
+    { icon: Calculator, name: "Comptabilité", desc: "Gardez vos finances sous contrôle", color: "from-slate-500 to-slate-600" },
+    { icon: Receipt, name: "Facturation", desc: "Facturez pro et soyez payé plus vite", color: "from-blue-500 to-blue-700" },
+    { icon: Package, name: "Inventaire", desc: "Suivez votre stock en temps réel", color: "from-slate-600 to-blue-700" },
+    { icon: Factory, name: "Fabrication", desc: "Optimisez votre production", color: "from-gray-600 to-slate-700" },
+    { icon: UserCheck, name: "Employés", desc: "Centralisez les infos de votre équipe", color: "from-blue-600 to-indigo-600" },
+    { icon: Target, name: "Recrutement", desc: "Trouvez les meilleurs talents", color: "from-indigo-600 to-blue-700" },
+    { icon: Mail, name: "Email Marketing", desc: "Fidélisez et engagez vos clients", color: "from-sky-500 to-blue-600" },
+    { icon: Smartphone, name: "SMS Marketing", desc: "Touchez vos clients instantanément", color: "from-cyan-600 to-blue-600" },
   ];
 
   return (
@@ -127,29 +129,35 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {apps.map((app, index) => (
-              <div 
-                key={index}
-                className="group relative bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-transparent hover:shadow-2xl transition-all duration-300 cursor-pointer"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${app.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`} />
-                
-                <div className="relative">
-                  <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
-                    {app.icon}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+            {apps.map((app, index) => {
+              const Icon = app.icon;
+              return (
+                <div 
+                  key={index}
+                  className="group relative bg-white rounded-xl p-5 border-2 border-slate-200 hover:border-transparent hover:shadow-xl transition-all duration-300 cursor-pointer text-center"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${app.color} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity`} />
+                  
+                  <div className="relative flex flex-col items-center">
+                    <div className={`mb-3 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br ${app.color} w-14 h-14 rounded-xl flex items-center justify-center shadow-lg`}
+                      style={{ 
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                        transform: 'perspective(1000px) rotateX(0deg)'
+                      }}
+                    >
+                      <Icon className="w-7 h-7 text-white drop-shadow-md" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-800 mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-slate-700 transition">
+                      {app.name}
+                    </h3>
+                    <p className="text-slate-600 text-sm leading-snug">
+                      {app.desc}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-slate-700 transition">
-                    {app.name}
-                  </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {app.desc}
-                  </p>
                 </div>
-                
-                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${app.color} transform scale-x-0 group-hover:scale-x-100 transition-transform rounded-b-2xl`} />
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="text-center mt-12">
