@@ -10,6 +10,7 @@ interface Element {
   content?: string;
   attributes?: Record<string, string>;
   interactions?: any[];
+  listItems?: string[];
   styles: {
     desktop: any;
     tablet?: any;
@@ -93,6 +94,11 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
 
   const renderElement = (element: Element, parentId?: string): JSX.Element => {
     const Tag = element.tag as keyof JSX.IntrinsicElements;
+    const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(element.type);
+    
+    // Si le contenu contient des listes, utiliser div au lieu de p/span
+    const hasListInContent = element.content && (element.content.includes('<ul>') || element.content.includes('<ol>'));
+    const ActualTag = (hasListInContent && (element.tag === 'p' || element.tag === 'span')) ? 'div' : Tag;
     
     // Convertir les styles en CSSProperties avec gestion responsive
     let styles: CSSProperties = { ...element.styles.desktop };
@@ -110,6 +116,18 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       };
     }
 
+    // Préparer les attributs HTML pour les éléments form
+    const htmlAttributes: any = {};
+    if (element.attributes) {
+      Object.keys(element.attributes).forEach(key => {
+        if (key === 'required' && element.attributes[key]) {
+          htmlAttributes[key] = true;
+        } else if (key !== 'src' && key !== 'alt' && key !== 'href' && key !== 'linkType' && element.attributes[key]) {
+          htmlAttributes[key] = element.attributes[key];
+        }
+      });
+    }
+
     // Pour les images
     if (element.tag === 'img') {
       return (
@@ -121,6 +139,20 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
           src={element.attributes?.src || 'https://via.placeholder.com/400x300'}
           alt={element.attributes?.alt || 'Image'}
         />
+      );
+    }
+
+    // Pour les éléments texte avec HTML
+    if (isTextElement && element.content) {
+      return (
+        <ActualTag
+          key={element.id}
+          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          data-element-id={element.id}
+          style={styles}
+        >
+          <div dangerouslySetInnerHTML={{ __html: element.content }} />
+        </ActualTag>
       );
     }
 
@@ -169,13 +201,34 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
     // Pour les hflex, ajouter un data-hflex-id
     const hflexProps = element.type === 'hflex' ? { 'data-hflex-id': element.id } : {};
 
+    // Pour list, afficher les listItems
+    if (element.type === 'list') {
+      const listItems = element.listItems || ['Item 1', 'Item 2', 'Item 3'];
+      const listStyle = element.attributes?.listStyle || 'disc';
+      return (
+        <Tag 
+          key={element.id} 
+          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          data-element-id={element.id}
+          style={{ ...styles, listStyleType: listStyle }}
+          {...htmlAttributes}
+          {...hflexProps}
+        >
+          {listItems.map((item: string, index: number) => (
+            <li key={index} style={{ marginBottom: '8px' }}>{item}</li>
+          ))}
+        </Tag>
+      );
+    }
+
     // Pour les autres éléments
     return (
       <Tag 
         key={element.id} 
         ref={(el) => el && elementRefs.current.set(element.id, el)}
         data-element-id={element.id}
-        style={styles} 
+        style={styles}
+        {...htmlAttributes}
         {...hflexProps}
       >
         {element.content}

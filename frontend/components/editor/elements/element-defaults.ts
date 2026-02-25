@@ -12,7 +12,7 @@ export const getDefaultStyles = (type: string) => {
     div: { ...base, padding: '20px' },
     'link-block': { ...base, textDecoration: 'none', color: 'inherit' },
     button: { display: 'inline-block', padding: '12px 24px', backgroundColor: '#3b82f6', color: '#ffffff', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', borderWidth: '0px', borderStyle: 'none', borderColor: 'transparent' },
-    list: { ...base, paddingLeft: '20px' },
+    list: { ...base, paddingLeft: '20px', listStyleType: 'disc' },
     heading: { ...base, fontSize: '32px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' },
     paragraph: { ...base, fontSize: '16px', lineHeight: '1.6', color: '#475569' },
     text: { display: 'inline', fontSize: '16px', color: '#1e293b' },
@@ -50,6 +50,13 @@ export const getDefaultChildren = (type: string) => {
     return [null];
   }
   return [];
+};
+
+export const getDefaultListItems = (type: string) => {
+  if (type === 'list') {
+    return ['Item 1', 'Item 2', 'Item 3'];
+  }
+  return undefined;
 };
 
 export const getDefaultMenuItems = (type: string) => {

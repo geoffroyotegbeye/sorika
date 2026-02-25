@@ -271,11 +271,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const { elements } = get();
     
     const deleteFromTree = (items: Element[]): Element[] => {
+      if (!items) return [];
       return items
-        .filter(item => item.id !== id)
+        .filter(item => item && item.id !== id)
         .map(item => ({
           ...item,
-          children: deleteFromTree(item.children),
+          children: item.children ? deleteFromTree(item.children) : [],
         }));
     };
     

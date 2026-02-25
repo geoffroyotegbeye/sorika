@@ -19,6 +19,9 @@ import { InteractionsTab } from './properties/InteractionsTab';
 import { LinkProperties } from './properties/LinkProperties';
 import { ImageProperties } from './properties/ImageProperties';
 import { VideoProperties } from './properties/VideoProperties';
+import { FormProperties } from './properties/FormProperties';
+import { InputProperties } from './properties/InputProperties';
+import { ListProperties } from './properties/ListProperties';
 import { useState } from 'react';
 
 export function PropertiesPanel() {
@@ -115,6 +118,9 @@ export function PropertiesPanel() {
 
   const hasContent = selectedElement.content !== undefined;
   const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(selectedElement.type);
+  const isInputElement = ['input', 'textarea', 'checkbox', 'file-upload'].includes(selectedElement.type);
+  const isLinkElement = ['text-link', 'link-block', 'button'].includes(selectedElement.type);
+  const isGlobalElement = ['navbar', 'header', 'section', 'footer'].includes(selectedElement.type);
 
   return (
     <div className="w-80 bg-white border-l border-slate-200 flex flex-col">
@@ -180,16 +186,14 @@ export function PropertiesPanel() {
                 </AccordionContent>
               </AccordionItem>
 
-              {selectedElement.type !== 'header' && (
-                <AccordionItem value="size">
-                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
-                    Size
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <SizeSection styles={currentStyles} onStyleChange={handleStyleChange} />
-                  </AccordionContent>
-                </AccordionItem>
-              )}
+              <AccordionItem value="size">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                  Size
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <SizeSection styles={currentStyles} onStyleChange={handleStyleChange} />
+                </AccordionContent>
+              </AccordionItem>
 
               {isTextElement && (
                 <AccordionItem value="typography">
@@ -207,7 +211,7 @@ export function PropertiesPanel() {
                 </AccordionItem>
               )}
 
-              {['text-link', 'link-block', 'button'].includes(selectedElement.type) && (
+              {isLinkElement && (
                 <AccordionItem value="link">
                   <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
                     Lien
@@ -250,7 +254,40 @@ export function PropertiesPanel() {
                 </AccordionItem>
               )}
 
-              {['navbar', 'header', 'section', 'footer'].includes(selectedElement.type) && (
+              {selectedElement.type === 'form' && (
+                <AccordionItem value="form">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Formulaire
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <FormProperties elementId={selectedElement.id} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {isInputElement && (
+                <AccordionItem value="input">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Champ
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <InputProperties elementId={selectedElement.id} elementType={selectedElement.type} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {selectedElement.type === 'list' && (
+                <AccordionItem value="list">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Liste
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <ListProperties elementId={selectedElement.id} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {isGlobalElement && (
                 <AccordionItem value="global">
                   <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
                     Global
