@@ -369,11 +369,23 @@ function findElementById(elements: any[], id: string | null): any {
   if (!id) return null;
 
   for (const element of elements) {
-    if (!element) continue; // Ignorer les null/undefined
+    if (!element) continue;
     if (element.id === id) return element;
+    
+    // Vérifier dans les enfants normaux
     if (element.children?.length > 0) {
-      const found = findElementById(element.children, id);
-      if (found) return found;
+      // Pour les grids, vérifier dans chaque cellule
+      if (element.type === 'grid') {
+        for (const cell of element.children) {
+          if (Array.isArray(cell)) {
+            const found = findElementById(cell, id);
+            if (found) return found;
+          }
+        }
+      } else {
+        const found = findElementById(element.children, id);
+        if (found) return found;
+      }
     }
   }
   return null;

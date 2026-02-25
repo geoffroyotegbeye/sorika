@@ -182,13 +182,13 @@ export function PageManager({ companyId, isOpen, onClose }: PageManagerProps) {
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-40"
+          className="fixed inset-0 bg-black/20 z-20"
           onClick={onClose}
         />
       )}
       
       <div className={cn(
-        "fixed left-14 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 z-50 transition-transform duration-300",
+        "fixed left-14 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 z-30 transition-transform duration-300",
         isOpen ? "translate-x-0" : "-translate-x-[400px]"
       )}>
         <div className="p-4">

@@ -215,7 +215,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
             result.push(item, uniqueElement);
           }
         } else {
-          if (item.children.length > 0) {
+          if (item.children?.length > 0) {
             result.push({ ...item, children: addAtPosition(item.children) });
           } else {
             result.push(item);
@@ -238,7 +238,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         if (item.id === id) {
           return { ...item, ...updates };
         }
-        if (item.children.length > 0) {
+        
+        // Pour les grids, chercher dans les cellules
+        if (item.type === 'grid' && item.children?.length > 0) {
+          const newChildren = item.children.map(cell => {
+            if (Array.isArray(cell)) {
+              return updateInTree(cell);
+            }
+            return cell;
+          });
+          return { ...item, children: newChildren };
+        }
+        
+        if (item.children?.length > 0) {
           return { ...item, children: updateInTree(item.children) };
         }
         return item;
@@ -257,7 +269,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         if (item.id === id) {
           return { ...item, content };
         }
-        if (item.children.length > 0) {
+        if (item.children?.length > 0) {
           return { ...item, children: updateInTree(item.children) };
         }
         return item;
@@ -290,7 +302,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       const findElement = (items: Element[]): Element | null => {
         for (const item of items) {
           if (item.id === id) return item;
-          if (item.children.length > 0) {
+          if (item.children?.length > 0) {
             const found = findElement(item.children);
             if (found) return found;
           }
@@ -330,7 +342,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
             },
           };
         }
-        if (item.children.length > 0) {
+        if (item.children?.length > 0) {
           return { ...item, children: updateStylesInTree(item.children) };
         }
         return item;
@@ -349,7 +361,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         if (item.id === id) {
           return { ...item, interactions };
         }
-        if (item.children.length > 0) {
+        if (item.children?.length > 0) {
           return { ...item, children: updateInTree(item.children) };
         }
         return item;

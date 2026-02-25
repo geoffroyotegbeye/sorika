@@ -17,7 +17,7 @@ export const getDefaultStyles = (type: string) => {
     paragraph: { ...base, fontSize: '16px', lineHeight: '1.6', color: '#475569' },
     text: { display: 'inline', fontSize: '16px', color: '#1e293b' },
     'text-link': { display: 'inline', color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' },
-    blockquote: { ...base, borderLeft: '4px solid #3b82f6', paddingLeft: '16px', fontStyle: 'italic', color: '#475569' },
+    blockquote: { ...base, borderLeft: '4px solid #3b82f6', paddingLeft: '16px', fontStyle: 'italic', color: '#475569', position: 'relative', quotes: '"\u201C""\u201D""\u2018""\u2019"' },
     image: { ...base, width: '100%', height: 'auto', objectFit: 'cover', marginLeft: 'auto', marginRight: 'auto' },
     video: { ...base, width: '100%', height: 'auto', objectFit: 'cover' },
     form: { ...base, padding: '20px' },

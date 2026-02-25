@@ -44,7 +44,10 @@ export function ImageRenderer(props: MediaRendererProps) {
     >
       <div
         style={{ ...styles, display: 'block', position: 'relative', overflow: 'hidden' }}
-        onClick={props.handleClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          props.handleClick(e);
+        }}
         onMouseEnter={props.handleMouseEnter}
         onMouseLeave={props.handleMouseLeave}
       >
@@ -112,7 +115,10 @@ export function VideoRenderer(props: MediaRendererProps) {
     >
       <div
         style={{ ...styles, display: 'block', position: 'relative', overflow: 'hidden' }}
-        onClick={props.handleClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          props.handleClick(e);
+        }}
         onMouseEnter={props.handleMouseEnter}
         onMouseLeave={props.handleMouseLeave}
       >

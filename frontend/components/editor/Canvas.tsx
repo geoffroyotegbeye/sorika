@@ -12,7 +12,7 @@ import {
   getBreakpointWidth,
   canMoveElement 
 } from './canvas-utils';
-import { getDefaultContent, getDefaultStyles } from './elements/element-defaults';
+import { getDefaultContent, getDefaultStyles, getDefaultListItems } from './elements/element-defaults';
 import { CSSProperties, useEffect, useRef } from 'react';
 import { interactionEngine } from '@/lib/interactions/engine';
 import { cleanStyleConflicts } from '@/lib/utils/style-utils';
@@ -73,6 +73,17 @@ export function Canvas() {
     // Nettoyer les conflits de propriétés CSS
     baseStyles = cleanStyleConflicts(baseStyles);
 
+    // Filtrer les propriétés non-CSS valides (comme les tableaux ou objets)
+    const validStyles: Record<string, any> = {};
+    Object.keys(baseStyles).forEach(key => {
+      const value = baseStyles[key];
+      // Ne garder que les valeurs primitives (string, number, boolean, undefined, null)
+      if (value === null || value === undefined || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        validStyles[key] = value;
+      }
+    });
+    baseStyles = validStyles;
+
     if (element.type === 'grid') {
       if (currentBreakpoint === 'mobile') {
         baseStyles.gridTemplateColumns = '1fr';
@@ -102,13 +113,42 @@ export function Canvas() {
       outlineOffset: (isSelected && !isLocked) ? '2px' : '0',
       transition: 'outline 0.15s ease, border 0.15s ease, background-color 0.15s ease',
       minHeight: isEmpty ? '100px' : undefined,
-      backgroundColor: isDropTarget && canvasState.dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : element.styles[currentBreakpoint]?.backgroundColor || element.styles.desktop.backgroundColor,
+      backgroundColor: isDropTarget && canvasState.dropPosition === 'inside' ? 'rgba(16, 185, 129, 0.05)' : baseStyles.backgroundColor,
       ...(border && !isDropTarget ? { border } : {}),
       ...(borderTop && !isDropTarget ? { borderTop } : {}),
       ...(borderRight && !isDropTarget ? { borderRight } : {}),
       ...(borderLeft && !isDropTarget ? { borderLeft } : {}),
       borderBottom: isDropTarget && canvasState.dropPosition === 'after' ? '3px solid #10b981' : borderBottom,
     };
+
+    // Filtre final pour s'assurer qu'aucune valeur invalide ne passe
+    const finalStyles: Record<string, string | number> = {};
+    
+    // Liste blanche des propriétés CSS valides
+    const validCSSProps = new Set([
+      'display', 'position', 'top', 'right', 'bottom', 'left',
+      'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
+      'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
+      'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+      'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft',
+      'borderWidth', 'borderStyle', 'borderColor', 'borderRadius',
+      'backgroundColor', 'color', 'fontSize', 'fontWeight', 'fontFamily',
+      'lineHeight', 'letterSpacing', 'textAlign', 'textDecoration', 'textTransform',
+      'listStyleType', 'listStylePosition', 'listStyle',
+      'cursor', 'outline', 'outlineOffset', 'transition',
+      'flexDirection', 'alignItems', 'justifyContent', 'gap',
+      'gridTemplateColumns', 'gridTemplateRows',
+      'objectFit', 'boxSizing', 'overflow', 'zIndex', 'opacity'
+    ]);
+    
+    Object.keys(styles).forEach(key => {
+      const value = (styles as any)[key];
+      
+      // Ne garder que les propriétés CSS valides avec des valeurs primitives
+      if (validCSSProps.has(key) && (typeof value === 'string' || typeof value === 'number')) {
+        finalStyles[key] = value;
+      }
+    });
 
     const handleClick = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -170,6 +210,7 @@ export function Canvas() {
         content: getDefaultContent(childType),
         styles: { desktop: getDefaultStyles(childType) },
         children: [],
+        ...(childType === 'list' ? { listItems: getDefaultListItems(childType) } : {}),
       };
     };
 
@@ -258,6 +299,7 @@ export function Canvas() {
           desktop: getDefaultStyles(draggedType),
         },
         children: [],
+        ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
       };
 
       if (canvasState.dropPosition === 'inside' && canContainChildren(element.type) && canAccept) {
@@ -329,7 +371,7 @@ export function Canvas() {
     const mediaProps = {
       element,
       elements: handlers.elements,
-      styles,
+      styles: finalStyles,
       parentId,
       parentType,
       handleClick,
@@ -376,7 +418,7 @@ export function Canvas() {
           <Tag 
             ref={(el) => el && elementRefs.current.set(element.id, el)}
             data-element-id={element.id}
-            style={styles} 
+            style={finalStyles} 
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             onMouseEnter={handleMouseEnter}
@@ -389,16 +431,35 @@ export function Canvas() {
             {renderLabel()}
             {renderEmptyState()}
             {isTextElement && isEditing ? (
-              <div
-                ref={(el) => { canvasState.editableRefs.current[element.id] = el; }}
+              <span
+                ref={(el) => { 
+                  canvasState.editableRefs.current[element.id] = el;
+                  if (el && element.content && el.innerHTML !== element.content) {
+                    el.innerHTML = element.content;
+                    // Placer le curseur à la fin
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    if (el.childNodes.length > 0) {
+                      range.selectNodeContents(el);
+                      range.collapse(false);
+                      sel?.removeAllRanges();
+                      sel?.addRange(range);
+                    }
+                    el.focus();
+                  }
+                }}
                 contentEditable
                 suppressContentEditableWarning
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                style={{ outline: 'none', cursor: 'text' }}
-              >
-                {element.content}
-              </div>
+                style={{ outline: 'none', cursor: 'text', display: 'block', width: '100%' }}
+              />
+            ) : element.type === 'list' ? (
+              element.listItems?.map((item: string, index: number) => (
+                <li key={index}>{item}</li>
+              ))
+            ) : isTextElement ? (
+              <div dangerouslySetInnerHTML={{ __html: element.content || '' }} />
             ) : (
               element.content
             )}
@@ -447,6 +508,7 @@ export function Canvas() {
                             desktop: getDefaultStyles(draggedType),
                           },
                           children: [],
+                          ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
                         };
                         handlers.addElement(newElement, element.id, cellIndex);
                       }
@@ -458,7 +520,7 @@ export function Canvas() {
                         Glissez un élément ici
                       </span>
                     ) : (
-                      cellChildren.map((child: any) => child && renderElement(child, element.id, element.type, isLocked, element.isHidden))
+                      cellChildren.map((child: any, childIndex: number) => child && renderElement(child, element.id, element.type, isLocked, element.isHidden))
                     )}
                   </div>
                 );
@@ -522,6 +584,7 @@ export function Canvas() {
                 desktop: getDefaultStyles(draggedType),
               },
               children: [],
+              ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
             };
             handlers.addElement(newElement);
           }
@@ -540,6 +603,7 @@ export function Canvas() {
               width: getBreakpointWidth(currentBreakpoint),
               minHeight: '100vh',
               overflow: 'visible',
+              paddingBottom: '200px',
             }}
             onClick={() => handlers.selectElement(null)}
           >

@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ColorPicker } from './ColorPicker';
+import { RichTextEditor } from './RichTextEditor';
 import { AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { useState } from 'react';
 
@@ -30,14 +31,7 @@ export function TypographySection({ styles, content, onStyleChange, onContentCha
   return (
     <div className="space-y-4">
       {content !== undefined && onContentChange && (
-        <div>
-          <Label className="text-xs">Content</Label>
-          <textarea
-            className="w-full px-3 py-2 rounded-md border text-sm mt-1 min-h-[60px]"
-            value={content}
-            onChange={(e) => onContentChange(e.target.value)}
-          />
-        </div>
+        <RichTextEditor content={content} onContentChange={onContentChange} />
       )}
 
       {/* Unit Selector */}
@@ -175,6 +169,38 @@ export function TypographySection({ styles, content, onStyleChange, onContentCha
           <option value="uppercase">Uppercase</option>
           <option value="lowercase">Lowercase</option>
           <option value="capitalize">Capitalize</option>
+        </select>
+      </div>
+
+      <div>
+        <Label className="text-xs">List Style</Label>
+        <select
+          className="w-full h-9 px-3 rounded-md border text-sm mt-1"
+          value={styles.listStyleType || 'disc'}
+          onChange={(e) => onStyleChange('listStyleType', e.target.value)}
+        >
+          <option value="none">None</option>
+          <option value="disc">Disc (•)</option>
+          <option value="circle">Circle (○)</option>
+          <option value="square">Square (■)</option>
+          <option value="decimal">Decimal (1, 2, 3)</option>
+          <option value="decimal-leading-zero">Decimal Zero (01, 02)</option>
+          <option value="lower-alpha">Lower Alpha (a, b, c)</option>
+          <option value="upper-alpha">Upper Alpha (A, B, C)</option>
+          <option value="lower-roman">Lower Roman (i, ii, iii)</option>
+          <option value="upper-roman">Upper Roman (I, II, III)</option>
+        </select>
+      </div>
+
+      <div>
+        <Label className="text-xs">List Position</Label>
+        <select
+          className="w-full h-9 px-3 rounded-md border text-sm mt-1"
+          value={styles.listStylePosition || 'outside'}
+          onChange={(e) => onStyleChange('listStylePosition', e.target.value)}
+        >
+          <option value="outside">Outside</option>
+          <option value="inside">Inside</option>
         </select>
       </div>
     </div>

@@ -53,8 +53,6 @@ export function ElementContextMenu({
   const copyElement = useEditorStore((state) => state.copyElement);
   const pasteElement = useEditorStore((state) => state.pasteElement);
   
-  console.log('ElementContextMenu render - clipboard:', clipboard);
-  
   const isInGrid = parentType === 'grid';
   const getAllElements = () => {
     return ELEMENT_CATEGORIES.flatMap(cat => 
@@ -180,15 +178,12 @@ export function ElementContextMenu({
           Copier
         </ContextMenuItem>
         
-        {(() => {
-          console.log('Checking paste button - clipboard:', clipboard, 'canHaveChildren:', canHaveChildren, 'elementType:', elementType);
-          return clipboard && canHaveChildren && (
-            <ContextMenuItem onClick={() => pasteElement(elementId)}>
-              <Clipboard className="mr-2 h-4 w-4" />
-              Coller à l'intérieur ({clipboard.type})
-            </ContextMenuItem>
-          );
-        })()}
+        {clipboard && canHaveChildren && (
+          <ContextMenuItem onClick={() => pasteElement(elementId)}>
+            <Clipboard className="mr-2 h-4 w-4" />
+            Coller à l'intérieur ({clipboard.type})
+          </ContextMenuItem>
+        )}
         
         {(canMoveUp || canMoveDown) && (
           <>

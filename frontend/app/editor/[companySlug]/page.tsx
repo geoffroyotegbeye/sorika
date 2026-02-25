@@ -8,6 +8,7 @@ import { Canvas } from '@/components/editor/Canvas';
 import { PropertiesPanel } from '@/components/editor/PropertiesPanel';
 import { Toolbar } from '@/components/editor/Toolbar';
 import { PageManager } from '@/components/editor/PageManager';
+import { MediaManager } from '@/components/editor/MediaManager';
 import { ConfirmDialog } from '@/components/editor/ConfirmDialog';
 import { useEditorStore } from '@/lib/stores/editor-store';
 import { usePagesStore } from '@/lib/stores/pages-store';
@@ -20,6 +21,7 @@ export default function EditorPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isPagesOpen, setIsPagesOpen] = useState(false);
+  const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const { setElements, elements, hasUnsavedChanges, setHasUnsavedChanges } = useEditorStore();
@@ -203,8 +205,11 @@ export default function EditorPage() {
 
       {/* Layout principal */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Fine sidebar avec icône Pages */}
-        <IconSidebar onPagesClick={() => setIsPagesOpen(!isPagesOpen)} />
+        {/* Sidebar avec icônes */}
+        <IconSidebar 
+          onPagesClick={() => setIsPagesOpen(!isPagesOpen)}
+          onMediaClick={() => setIsMediaOpen(!isMediaOpen)}
+        />
 
         {/* Sliding panel Pages */}
         {companyId && (
@@ -212,6 +217,15 @@ export default function EditorPage() {
             companyId={companyId} 
             isOpen={isPagesOpen}
             onClose={() => setIsPagesOpen(false)}
+          />
+        )}
+
+        {/* Sliding panel Médias */}
+        {companyId && (
+          <MediaManager 
+            companyId={companyId} 
+            isOpen={isMediaOpen}
+            onClose={() => setIsMediaOpen(false)}
           />
         )}
         

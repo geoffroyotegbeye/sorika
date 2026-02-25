@@ -93,6 +93,12 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
   }, [openMenuId]);
 
   const renderElement = (element: Element, parentId?: string): JSX.Element => {
+    // Vérifier que l'élément a des styles valides
+    if (!element || !element.styles || !element.styles.desktop) {
+      console.warn('Element sans styles valides:', element);
+      return <div key={element?.id || Math.random()}>Élément invalide</div>;
+    }
+    
     const Tag = element.tag as keyof JSX.IntrinsicElements;
     const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(element.type);
     
@@ -142,6 +148,24 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       );
     }
 
+    // Pour les vidéos
+    if (element.tag === 'video') {
+      return (
+        <Tag
+          key={element.id}
+          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          data-element-id={element.id}
+          style={styles}
+          src={element.attributes?.src}
+          poster={element.attributes?.poster}
+          controls={element.attributes?.controls !== 'false'}
+          autoPlay={element.attributes?.autoplay === 'true'}
+          loop={element.attributes?.loop === 'true'}
+          muted={element.attributes?.muted === 'true'}
+        />
+      );
+    }
+
     // Pour les éléments texte avec HTML
     if (isTextElement && element.content) {
       return (
@@ -150,9 +174,8 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
           ref={(el) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
-        >
-          <div dangerouslySetInnerHTML={{ __html: element.content }} />
-        </ActualTag>
+          dangerouslySetInnerHTML={{ __html: element.content }}
+        />
       );
     }
 
@@ -204,13 +227,12 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
     // Pour list, afficher les listItems
     if (element.type === 'list') {
       const listItems = element.listItems || ['Item 1', 'Item 2', 'Item 3'];
-      const listStyle = element.attributes?.listStyle || 'disc';
       return (
         <Tag 
           key={element.id} 
           ref={(el) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
-          style={{ ...styles, listStyleType: listStyle }}
+          style={styles}
           {...htmlAttributes}
           {...hflexProps}
         >

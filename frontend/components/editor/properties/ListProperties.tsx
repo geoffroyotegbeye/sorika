@@ -12,7 +12,7 @@ interface ListPropertiesProps {
 }
 
 export function ListProperties({ elementId }: ListPropertiesProps) {
-  const { elements, updateElement, updateElementStyles } = useEditorStore();
+  const { elements, updateElement, updateElementStyles, currentBreakpoint } = useEditorStore();
 
   const findElement = (items: any[], id: string): any => {
     for (const item of items) {
@@ -29,8 +29,8 @@ export function ListProperties({ elementId }: ListPropertiesProps) {
   if (!element) return null;
 
   const listItems = element.listItems || ['Item 1', 'Item 2', 'Item 3'];
-  const listType = element.attributes?.listType || 'ul';
-  const listStyle = element.attributes?.listStyle || 'disc';
+  const currentTag = element.tag || 'ul';
+  const currentListStyle = element.styles?.desktop?.listStyleType || 'disc';
 
   const handleAddItem = () => {
     const newItems = [...listItems, `Item ${listItems.length + 1}`];
@@ -48,65 +48,65 @@ export function ListProperties({ elementId }: ListPropertiesProps) {
     updateElement(elementId, { listItems: newItems });
   };
 
-  const handleTypeChange = (type: string) => {
-    updateElement(elementId, {
-      attributes: { ...element.attributes, listType: type },
-      tag: type
-    });
-  };
-
-  const handleStyleChange = (style: string) => {
-    updateElement(elementId, {
-      attributes: { ...element.attributes, listStyle: style }
-    });
+  const handleTypeChange = (type: 'ul' | 'ol', style: string) => {
+    updateElement(elementId, { tag: type });
+    updateElementStyles(elementId, { listStyleType: style });
   };
 
   return (
     <div className="space-y-4">
       <div>
         <Label className="text-xs">Type de liste</Label>
-        <div className="grid grid-cols-3 gap-2 mt-1">
+        <div className="grid grid-cols-2 gap-2 mt-1">
           <Button
-            variant={listType === 'ul' ? 'default' : 'outline'}
+            variant={currentTag === 'ul' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => handleTypeChange('ul')}
+            onClick={() => handleTypeChange('ul', 'disc')}
             className="text-xs"
           >
             • Puces
           </Button>
           <Button
-            variant={listType === 'ol' ? 'default' : 'outline'}
+            variant={currentTag === 'ol' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => handleTypeChange('ol')}
+            onClick={() => handleTypeChange('ol', 'decimal')}
             className="text-xs"
           >
             1. Numéros
           </Button>
-          <Button
-            variant={listType === 'ul' && listStyle === 'none' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              handleTypeChange('ul');
-              handleStyleChange('none');
-            }}
-            className="text-xs"
-          >
-            Sans
-          </Button>
         </div>
       </div>
 
-      {listType === 'ul' && listStyle !== 'none' && (
+      {currentTag === 'ul' && (
         <div>
           <Label className="text-xs">Style des puces</Label>
           <select
             className="w-full h-9 px-3 rounded-md border text-sm mt-1"
-            value={listStyle}
-            onChange={(e) => handleStyleChange(e.target.value)}
+            value={currentListStyle}
+            onChange={(e) => updateElementStyles(elementId, { listStyleType: e.target.value })}
           >
+            <option value="none">Sans</option>
             <option value="disc">● Disque</option>
             <option value="circle">○ Cercle</option>
             <option value="square">■ Carré</option>
+          </select>
+        </div>
+      )}
+
+      {currentTag === 'ol' && (
+        <div>
+          <Label className="text-xs">Style des numéros</Label>
+          <select
+            className="w-full h-9 px-3 rounded-md border text-sm mt-1"
+            value={currentListStyle}
+            onChange={(e) => updateElementStyles(elementId, { listStyleType: e.target.value })}
+          >
+            <option value="decimal">1, 2, 3</option>
+            <option value="decimal-leading-zero">01, 02, 03</option>
+            <option value="lower-alpha">a, b, c</option>
+            <option value="upper-alpha">A, B, C</option>
+            <option value="lower-roman">i, ii, iii</option>
+            <option value="upper-roman">I, II, III</option>
           </select>
         </div>
       )}

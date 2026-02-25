@@ -1,13 +1,14 @@
 'use client';
 
-import { FileText } from 'lucide-react';
+import { FileText, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface IconSidebarProps {
   onPagesClick: () => void;
+  onMediaClick: () => void;
 }
 
-export function IconSidebar({ onPagesClick }: IconSidebarProps) {
+export function IconSidebar({ onPagesClick, onMediaClick }: IconSidebarProps) {
   return (
     <div className="w-14 bg-slate-900 flex flex-col items-center py-4 gap-2 relative z-50">
       <button
@@ -16,6 +17,13 @@ export function IconSidebar({ onPagesClick }: IconSidebarProps) {
         title="Pages"
       >
         <FileText className="w-5 h-5" />
+      </button>
+      <button
+        onClick={onMediaClick}
+        className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors text-slate-400 hover:bg-slate-800 hover:text-white"
+        title="Médias"
+      >
+        <Image className="w-5 h-5" />
       </button>
     </div>
   );
