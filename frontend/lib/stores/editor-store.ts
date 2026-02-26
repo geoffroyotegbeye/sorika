@@ -160,10 +160,40 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   addElement: (element, parentId, cellIndex) => {
     const { elements } = get();
     
-    const uniqueElement = {
-      ...element,
-      id: `${element.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    // Map des tags par défaut
+    const tagMap: Record<string, string> = {
+      container: 'div', grid: 'div', vflex: 'div', hflex: 'div', div: 'div',
+      'link-block': 'a', heading: 'h2', paragraph: 'p', text: 'span',
+      'text-link': 'a', blockquote: 'blockquote', button: 'button',
+      image: 'img', video: 'video', list: 'ul', form: 'form',
+      input: 'input', textarea: 'textarea', checkbox: 'input',
+      'file-upload': 'input', navbar: 'nav', section: 'section',
+      header: 'header', footer: 'footer',
     };
+    
+    // Fonction pour générer des IDs uniques récursivement
+    const generateIds = (el: any): Element => {
+      const newEl = {
+        ...el,
+        id: el.id || `${el.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        tag: el.tag || tagMap[el.type] || 'div',
+        children: el.children?.map((child: any) => generateIds(child)) || [],
+      };
+      
+      // Si c'est un grid, convertir children en tableau de cellules
+      if (newEl.type === 'grid' && newEl.children.length > 0) {
+        // Vérifier si c'est déjà un tableau de cellules
+        const isAlreadyCellArray = Array.isArray(newEl.children[0]);
+        if (!isAlreadyCellArray) {
+          // Convertir: chaque enfant devient une cellule
+          newEl.children = newEl.children.map((child: any) => [child]);
+        }
+      }
+      
+      return newEl;
+    };
+    
+    const uniqueElement = generateIds(element);
     
     const addToParent = (items: Element[]): Element[] => {
       if (!parentId) {
@@ -286,10 +316,23 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       if (!items) return [];
       return items
         .filter(item => item && item.id !== id)
-        .map(item => ({
-          ...item,
-          children: item.children ? deleteFromTree(item.children) : [],
-        }));
+        .map(item => {
+          // Pour les grids, traiter les cellules
+          if (item.type === 'grid' && item.children?.length > 0) {
+            const newChildren = item.children.map(cell => {
+              if (Array.isArray(cell)) {
+                return deleteFromTree(cell);
+              }
+              return cell;
+            });
+            return { ...item, children: newChildren };
+          }
+          
+          return {
+            ...item,
+            children: item.children ? deleteFromTree(item.children) : [],
+          };
+        });
     };
     
     set({ elements: deleteFromTree(elements), selectedElementId: null, hasUnsavedChanges: true });
@@ -459,11 +502,25 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     
     // Fonction pour régénérer tous les IDs récursivement
     const regenerateIds = (element: Element): Element => {
-      return {
+      const newEl = {
         ...element,
         id: `${element.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        children: element.children.map(regenerateIds),
+        children: [] as any,
       };
+      
+      // Pour les grids, traiter les cellules
+      if (element.type === 'grid' && element.children?.length > 0) {
+        newEl.children = element.children.map((cell: any) => {
+          if (Array.isArray(cell)) {
+            return cell.map(regenerateIds);
+          }
+          return cell;
+        });
+      } else {
+        newEl.children = element.children?.map(regenerateIds) || [];
+      }
+      
+      return newEl;
     };
     
     const findAndDuplicate = (items: Element[]): Element[] => {

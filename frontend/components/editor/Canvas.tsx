@@ -132,13 +132,18 @@ export function Canvas() {
       'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
       'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft',
       'borderWidth', 'borderStyle', 'borderColor', 'borderRadius',
-      'backgroundColor', 'color', 'fontSize', 'fontWeight', 'fontFamily',
+      'backgroundColor', 'background', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
+      'color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle',
       'lineHeight', 'letterSpacing', 'textAlign', 'textDecoration', 'textTransform',
       'listStyleType', 'listStylePosition', 'listStyle',
-      'cursor', 'outline', 'outlineOffset', 'transition',
-      'flexDirection', 'alignItems', 'justifyContent', 'gap',
-      'gridTemplateColumns', 'gridTemplateRows',
-      'objectFit', 'boxSizing', 'overflow', 'zIndex', 'opacity'
+      'cursor', 'outline', 'outlineOffset', 'transition', 'transform',
+      'flexDirection', 'flexWrap', 'flex', 'flexShrink', 'flexGrow',
+      'alignItems', 'justifyContent', 'alignSelf', 'gap',
+      'gridTemplateColumns', 'gridTemplateRows', 'gridColumn', 'gridRow',
+      'objectFit', 'boxSizing', 'overflow', 'overflowX', 'overflowY',
+      'zIndex', 'opacity', 'boxShadow', 'textShadow',
+      'backdropFilter', 'filter', 'perspective',
+      'WebkitBackgroundClip', 'WebkitTextFillColor'
     ]);
     
     Object.keys(styles).forEach(key => {
@@ -397,6 +402,46 @@ export function Canvas() {
 
     const isEditing = canvasState.editingElementId === element.id;
     const { canMoveUp, canMoveDown } = canMoveElement(handlers.elements, element.id, parentId);
+    
+    // Éléments void qui ne peuvent pas avoir d'enfants
+    const isVoidElement = ['input', 'textarea'].includes(element.type);
+
+    // Pour les éléments void, rendre sans children
+    if (isVoidElement) {
+      return (
+        <ElementContextMenu
+          key={element.id}
+          elementType={element.type}
+          elementId={element.id}
+          parentType={parentType}
+          onAddChild={handleAddChild}
+          onAddBefore={handleAddBefore}
+          onAddAfter={handleAddAfter}
+          onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
+          onMoveUp={canMoveUp ? handleMoveUp : undefined}
+          onMoveDown={canMoveDown ? handleMoveDown : undefined}
+          canMoveUp={canMoveUp}
+          canMoveDown={canMoveDown}
+        >
+          <div style={{ position: 'relative', pointerEvents: isLocked ? 'none' : 'auto' }}>
+            {renderLabel()}
+            <Tag 
+              ref={(el) => el && elementRefs.current.set(element.id, el)}
+              data-element-id={element.id}
+              style={finalStyles} 
+              onClick={handleClick}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              {...(element.attributes || {})}
+            />
+          </div>
+        </ElementContextMenu>
+      );
+    }
 
     return (
       <ElementContextMenu

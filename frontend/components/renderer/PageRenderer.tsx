@@ -93,14 +93,34 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
   }, [openMenuId]);
 
   const renderElement = (element: Element, parentId?: string): JSX.Element => {
-    // Vérifier que l'élément a des styles valides
-    if (!element || !element.styles || !element.styles.desktop) {
-      console.warn('Element sans styles valides:', element);
-      return <div key={element?.id || Math.random()}>Élément invalide</div>;
+    // Vérifier que l'élément existe
+    if (!element) {
+      console.warn('Element null ou undefined');
+      return <div key={Math.random()}>Élément invalide</div>;
+    }
+    
+    // Générer un ID si manquant
+    if (!element.id) {
+      element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    // Valider et corriger le tag
+    if (!element.tag || typeof element.tag !== 'string') {
+      console.warn('Element sans tag valide:', element);
+      element.tag = 'div';
+    }
+    
+    // Initialiser les styles par défaut si manquants
+    if (!element.styles) {
+      element.styles = { desktop: {} };
+    }
+    if (!element.styles.desktop) {
+      element.styles.desktop = {};
     }
     
     const Tag = element.tag as keyof JSX.IntrinsicElements;
     const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(element.type);
+    const isVoidElement = ['input', 'textarea'].includes(element.type);
     
     // Si le contenu contient des listes, utiliser div au lieu de p/span
     const hasListInContent = element.content && (element.content.includes('<ul>') || element.content.includes('<ol>'));
@@ -165,6 +185,19 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
         />
       );
     }
+    
+    // Pour les éléments void (input, textarea)
+    if (isVoidElement) {
+      return (
+        <Tag
+          key={element.id}
+          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          data-element-id={element.id}
+          style={styles}
+          {...htmlAttributes}
+        />
+      );
+    }
 
     // Pour les éléments texte avec HTML
     if (isTextElement && element.content) {
@@ -216,13 +249,39 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
           } : undefined}
         >
           {element.content}
-          {element.children?.length > 0 && element.children.map(renderElement)}
+          {element.children?.length > 0 && element.children.map(child => renderElement(child, element.id))}
         </Tag>
       );
     }
 
     // Pour les hflex, ajouter un data-hflex-id
     const hflexProps = element.type === 'hflex' ? { 'data-hflex-id': element.id } : {};
+
+    // Pour les grids, rendre les cellules
+    if (element.type === 'grid') {
+      const cols = (styles.gridTemplateColumns || '1fr').toString().split(' ').length;
+      const rows = (styles.gridTemplateRows || 'auto').toString().split(' ').length;
+      const totalCells = cols * rows;
+      
+      return (
+        <Tag 
+          key={element.id} 
+          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          data-element-id={element.id}
+          style={styles}
+          {...htmlAttributes}
+        >
+          {Array.from({ length: totalCells }).map((_, cellIndex) => {
+            const cellChildren = Array.isArray(element.children?.[cellIndex]) ? element.children[cellIndex] : [];
+            return (
+              <div key={`cell-${cellIndex}`}>
+                {cellChildren.map((child: Element) => renderElement(child, element.id))}
+              </div>
+            );
+          })}
+        </Tag>
+      );
+    }
 
     // Pour list, afficher les listItems
     if (element.type === 'list') {
@@ -261,7 +320,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
 
   return (
     <div className="min-h-screen">
-      {elements.map(renderElement)}
+      {elements.map(element => renderElement(element))}
     </div>
   );
 }
