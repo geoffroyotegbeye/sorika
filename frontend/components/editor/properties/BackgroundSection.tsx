@@ -4,16 +4,20 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ColorPicker } from './ColorPicker';
-import { Upload } from 'lucide-react';
+import { Upload, Image as ImageIcon, X } from 'lucide-react';
 import { useState, useRef } from 'react';
 
 interface BackgroundSectionProps {
   styles: any;
   onStyleChange: (property: string, value: string) => void;
+  companyId?: string;
 }
 
-export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionProps) {
+export function BackgroundSection({ styles, onStyleChange, companyId }: BackgroundSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [medias, setMedias] = useState<any[]>([]);
 
   const handleImageUrl = (url: string) => {
     if (url) {
@@ -23,15 +27,42 @@ export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionPr
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        handleImageUrl(dataUrl);
-      };
-      reader.readAsDataURL(file);
+    if (!file || !companyId) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const media = await response.json();
+        handleImageUrl(`http://localhost:3001${media.url}`);
+      }
+    } catch (error) {
+      console.error('Erreur upload:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const loadMedias = async () => {
+    if (!companyId) return;
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMedias(data.filter((m: any) => m.mimetype.startsWith('image/')));
+        setShowMediaLibrary(true);
+      }
+    } catch (error) {
+      console.error('Erreur chargement médias:', error);
     }
   };
 
@@ -67,16 +98,30 @@ export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionPr
       <div>
         <Label className="text-xs mb-2 block">Image de fond</Label>
         <div className="space-y-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Charger depuis l'ordinateur
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading || !companyId}
+              className="gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              {isUploading ? 'Upload...' : 'Upload'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={loadMedias}
+              disabled={!companyId}
+              className="gap-2"
+            >
+              <ImageIcon className="h-4 w-4" />
+              Bibliothèque
+            </Button>
+          </div>
           <input
             ref={fileInputRef}
             type="file"
@@ -93,6 +138,42 @@ export function BackgroundSection({ styles, onStyleChange }: BackgroundSectionPr
           />
         </div>
       </div>
+
+      {showMediaLibrary && (
+        <div className="border rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Sélectionner une image</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMediaLibrary(false)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {medias.map((media) => (
+              <button
+                key={media.id}
+                type="button"
+                onClick={() => {
+                  handleImageUrl(`http://localhost:3001${media.url}`);
+                  setShowMediaLibrary(false);
+                }}
+                className="border rounded overflow-hidden hover:border-blue-500 transition-colors"
+              >
+                <img
+                  src={`http://localhost:3001${media.url}`}
+                  alt={media.filename}
+                  className="w-full h-16 object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {styles.backgroundImage && (
         <>

@@ -101,16 +101,23 @@ export default function EditorPageWithSlug() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching company with slug:', companySlug);
         const companyRes = await fetch(`http://localhost:3001/companies/slug/${companySlug}`);
         if (!companyRes.ok) throw new Error('Company not found');
         
         const company = await companyRes.json();
+        console.log('Company found:', company);
         setCompanyId(company.id);
 
+        console.log('Fetching page with slug:', pageSlug);
         const pageRes = await fetch(`http://localhost:3001/companies/${company.id}/pages/${pageSlug}`);
         if (pageRes.ok) {
           const page = await pageRes.json();
+          console.log('Page data received:', page);
+          console.log('Elements to set:', page.elements);
           setElements(page.elements || []);
+        } else {
+          console.log('Page not found, status:', pageRes.status);
         }
       } catch (error) {
         console.error('Erreur:', error);

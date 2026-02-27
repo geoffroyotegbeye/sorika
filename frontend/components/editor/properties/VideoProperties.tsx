@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Video as VideoIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 interface VideoPropertiesProps {
@@ -11,22 +11,54 @@ interface VideoPropertiesProps {
   styles: any;
   onUpdate: (updates: any) => void;
   onStyleChange: (property: string, value: string) => void;
+  companyId?: string;
 }
 
-export function VideoProperties({ element, styles, onUpdate, onStyleChange }: VideoPropertiesProps) {
+export function VideoProperties({ element, styles, onUpdate, onStyleChange, companyId }: VideoPropertiesProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [unit, setUnit] = useState('px');
+  const [isUploading, setIsUploading] = useState(false);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [medias, setMedias] = useState<any[]>([]);
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    if (!file || !companyId) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const media = await response.json();
         onUpdate({
-          attributes: { ...element.attributes, src: reader.result as string }
+          attributes: { ...element.attributes, src: `http://localhost:3001${media.url}` }
         });
-      };
-      reader.readAsDataURL(file);
+      }
+    } catch (error) {
+      console.error('Erreur upload:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const loadMedias = async () => {
+    if (!companyId) return;
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMedias(data.filter((m: any) => m.mimetype.startsWith('video/')));
+        setShowMediaLibrary(true);
+      }
+    } catch (error) {
+      console.error('Erreur chargement médias:', error);
     }
   };
 
@@ -41,16 +73,69 @@ export function VideoProperties({ element, styles, onUpdate, onStyleChange }: Vi
           onChange={handleVideoUpload}
           className="hidden"
         />
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Télécharger une vidéo
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading || !companyId}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            {isUploading ? 'Upload...' : 'Upload'}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={loadMedias}
+            disabled={!companyId}
+          >
+            <VideoIcon className="h-4 w-4 mr-2" />
+            Bibliothèque
+          </Button>
+        </div>
       </div>
+
+      {showMediaLibrary && (
+        <div className="border rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Sélectionner une vidéo</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMediaLibrary(false)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {medias.map((media) => (
+              <button
+                key={media.id}
+                type="button"
+                onClick={() => {
+                  onUpdate({
+                    attributes: { ...element.attributes, src: `http://localhost:3001${media.url}` }
+                  });
+                  setShowMediaLibrary(false);
+                }}
+                className="border rounded overflow-hidden hover:border-blue-500 transition-colors bg-black"
+              >
+                <video
+                  src={`http://localhost:3001${media.url}`}
+                  className="w-full h-16 object-cover"
+                />
+                <div className="p-1 bg-white">
+                  <p className="text-xs truncate">{media.filename}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label>URL de la vidéo</Label>

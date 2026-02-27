@@ -23,6 +23,12 @@ export function Canvas() {
   const handlers = useElementHandlers();
   const elementRefs = useRef<Map<string, HTMLElement>>(new Map());
 
+  // Debug: log des éléments
+  useEffect(() => {
+    console.log('Canvas - Elements from store:', elements);
+    console.log('Canvas - Elements from handlers:', handlers.elements);
+  }, [elements, handlers.elements]);
+
   // Appliquer les interactions en mode preview
   useEffect(() => {
     // Petit délai pour s'assurer que les refs sont prêtes
@@ -565,7 +571,11 @@ export function Canvas() {
                         Glissez un élément ici
                       </span>
                     ) : (
-                      cellChildren.map((child: any, childIndex: number) => child && renderElement(child, element.id, element.type, isLocked, element.isHidden))
+                      cellChildren.map((child: any, childIndex: number) => child && (
+                        <div key={child.id || `child-${childIndex}`}>
+                          {renderElement(child, element.id, element.type, isLocked, element.isHidden)}
+                        </div>
+                      ))
                     )}
                   </div>
                 );
@@ -681,7 +691,17 @@ export function Canvas() {
                 </div>
               </div>
             ) : (
-              handlers.elements.map(renderElement)
+              <>
+                {console.log('Rendering elements:', handlers.elements)}
+                {handlers.elements.map((element, index) => {
+                  console.log(`Rendering element ${index}:`, element);
+                  return (
+                    <div key={element.id}>
+                      {renderElement(element)}
+                    </div>
+                  );
+                })}
+              </>
             )}
           </div>
         </div>

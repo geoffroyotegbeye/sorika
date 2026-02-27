@@ -181,7 +181,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       };
       
       // Si c'est un grid, convertir children en tableau de cellules
-      if (newEl.type === 'grid' && newEl.children.length > 0) {
+      if (newEl.type === 'grid' && newEl.children && newEl.children.length > 0) {
         // Vérifier si c'est déjà un tableau de cellules
         const isAlreadyCellArray = Array.isArray(newEl.children[0]);
         if (!isAlreadyCellArray) {
@@ -214,7 +214,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           }
           return { ...item, children: [...item.children, uniqueElement] };
         }
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           return { ...item, children: addToParent(item.children) };
         }
         return item;
@@ -429,7 +429,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           parentId = parent;
           return true;
         }
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           if (findElementAndParent(item.children, item.id)) {
             return true;
           }
@@ -445,7 +445,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const removeElement = (items: Element[]): Element[] => {
       return items.filter(item => item.id !== elementId).map(item => ({
         ...item,
-        children: item.children.length > 0 ? removeElement(item.children) : item.children,
+        children: item.children && item.children.length > 0 ? removeElement(item.children) : item.children,
       }));
     };
     
@@ -472,7 +472,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
             
             return { ...item, children: siblings };
           }
-          if (item.children.length > 0) {
+          if (item.children && item.children.length > 0) {
             return { ...item, children: moveInParent(item.children) };
           }
           return item;
@@ -534,7 +534,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           result.push(duplicate);
         }
         
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           result[result.length - 1].children = findAndDuplicate(item.children);
         }
       }
@@ -552,7 +552,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const findElement = (items: Element[]): Element | null => {
       for (const item of items) {
         if (item.id === id) return JSON.parse(JSON.stringify(item));
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           const found = findElement(item.children);
           if (found) return found;
         }
@@ -595,7 +595,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           if (item.id === parentId) {
             return { ...item, children: [...item.children, newElement] };
           }
-          if (item.children.length > 0) {
+          if (item.children && item.children.length > 0) {
             return { ...item, children: pasteInParent(item.children) };
           }
           return item;
@@ -651,7 +651,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         if (item.id === id) {
           return { ...item, isLocked: !item.isLocked };
         }
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           return { ...item, children: toggleInTree(item.children) };
         }
         return item;
@@ -667,7 +667,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         if (item.id === id) {
           return { ...item, isHidden: !item.isHidden };
         }
-        if (item.children.length > 0) {
+        if (item.children && item.children.length > 0) {
           return { ...item, children: toggleInTree(item.children) };
         }
         return item;

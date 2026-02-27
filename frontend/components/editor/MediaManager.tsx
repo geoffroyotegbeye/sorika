@@ -1,9 +1,18 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Upload, Trash2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+interface Media {
+  id: string;
+  filename: string;
+  url: string;
+  mimetype: string;
+  size: number;
+  createdAt: string;
+}
 
 interface MediaManagerProps {
   companyId: string;
@@ -12,44 +21,89 @@ interface MediaManagerProps {
 }
 
 export function MediaManager({ companyId, isOpen, onClose }: MediaManagerProps) {
-  const [medias, setMedias] = useState<any[]>([]);
+  const [medias, setMedias] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadMedias();
+    }
+  }, [isOpen, companyId]);
+
+  const loadMedias = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMedias(data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des médias:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
     
     for (const file of Array.from(files)) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newMedia = {
-          id: `media-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          type: file.type.startsWith('image/') ? 'image' : 'video',
-          url: reader.result as string,
-          size: file.size,
-          uploadedAt: new Date().toISOString(),
-        };
-        setMedias(prev => [...prev, newMedia]);
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        setUploadProgress(30);
+        const response = await fetch(`http://localhost:3001/media/${companyId}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        setUploadProgress(70);
+        if (response.ok) {
+          const newMedia = await response.json();
+          setMedias(prev => [newMedia, ...prev]);
+          setUploadProgress(100);
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'upload:', error);
+      }
     }
     
-    setIsUploading(false);
+    setTimeout(() => {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }, 500);
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const handleDelete = (id: string) => {
-    setMedias(prev => prev.filter(m => m.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/media/${companyId}/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setMedias(prev => prev.filter(m => m.id !== id));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
   };
 
   const handleCopyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
+    const fullUrl = `http://localhost:3001${url}`;
+    navigator.clipboard.writeText(fullUrl);
   };
 
   return (
@@ -92,11 +146,28 @@ export function MediaManager({ companyId, isOpen, onClose }: MediaManagerProps) 
               <Upload className="h-4 w-4 mr-2" />
               {isUploading ? 'Upload en cours...' : 'Uploader des médias'}
             </Button>
+            
+            {/* Progress Bar */}
+            {isUploading && (
+              <div className="mt-2 relative">
+                <div className="h-1 bg-slate-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-600 transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500 mt-1 text-center">{uploadProgress}%</p>
+              </div>
+            )}
           </div>
 
           {/* Media List */}
           <div className="flex-1 overflow-y-auto p-4">
-            {medias.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12 text-slate-400">
+                <p className="text-sm">Chargement...</p>
+              </div>
+            ) : medias.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
                 <Upload className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p className="text-sm">Aucun média</p>
@@ -109,15 +180,16 @@ export function MediaManager({ companyId, isOpen, onClose }: MediaManagerProps) 
                     key={media.id}
                     className="relative group border border-slate-200 rounded-lg overflow-hidden hover:border-blue-500 transition-colors"
                   >
-                    {media.type === 'image' ? (
+                    {media.mimetype.startsWith('image/') ? (
                       <img
-                        src={media.url}
-                        alt={media.name}
+                        src={`http://localhost:3001${media.url}`}
+                        alt={media.filename}
                         className="w-full h-24 object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <video
-                        src={media.url}
+                        src={`http://localhost:3001${media.url}`}
                         className="w-full h-24 object-cover"
                       />
                     )}
@@ -140,8 +212,8 @@ export function MediaManager({ companyId, isOpen, onClose }: MediaManagerProps) 
                     </div>
                     
                     <div className="p-2 bg-white">
-                      <p className="text-xs text-slate-600 truncate" title={media.name}>
-                        {media.name}
+                      <p className="text-xs text-slate-600 truncate" title={media.filename}>
+                        {media.filename}
                       </p>
                     </div>
                   </div>

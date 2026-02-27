@@ -8,6 +8,7 @@ import { LandingPageModule } from './landing-page/landing-page.module';
 import { CompaniesModule } from './companies/companies.module';
 import { PagesModule } from './pages/pages.module';
 import { AdminModule } from './admin/admin.module';
+import { MediaModule } from './media/media.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -22,6 +23,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     CompaniesModule,
     PagesModule,
     AdminModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

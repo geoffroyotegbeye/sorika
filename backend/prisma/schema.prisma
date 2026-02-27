@@ -48,6 +48,7 @@ model Company {
   landingPage  LandingPage?
   pages        Page[]
   products     Product[]
+  medias       Media[]
   createdAt    DateTime     @default(now())
 }
 
@@ -125,4 +126,21 @@ model Product {
   company     Company  @relation(fields: [companyId], references: [id])
   
   isActive    Boolean  @default(true)
+}
+
+// 7. Module Médias (Gestion des fichiers)
+model Media {
+  id          String   @id @default(uuid())
+  filename    String   // Nom original du fichier
+  filepath    String   // Chemin relatif: uploads/companyId/filename
+  mimetype    String   // image/jpeg, image/png, video/mp4, etc.
+  size        Int      // Taille en bytes
+  url         String   // URL complète pour accéder au fichier
+  
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([companyId])
 }

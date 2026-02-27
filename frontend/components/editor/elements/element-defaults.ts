@@ -49,6 +49,7 @@ export const getDefaultChildren = (type: string) => {
   if (type === 'grid') {
     return [null];
   }
+  // Tous les autres éléments ont un tableau vide par défaut
   return [];
 };
 
