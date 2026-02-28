@@ -21,10 +21,15 @@ import { ImageProperties } from './properties/ImageProperties';
 import { VideoProperties } from './properties/VideoProperties';
 import { FormProperties } from './properties/FormProperties';
 import { InputProperties } from './properties/InputProperties';
+import { GridSection } from './properties/GridSection';
 import { ListProperties } from './properties/ListProperties';
 import { useState } from 'react';
 
-export function PropertiesPanel() {
+interface PropertiesPanelProps {
+  companyId?: string | null;
+}
+
+export function PropertiesPanel({ companyId }: PropertiesPanelProps) {
   const { 
     elements, 
     selectedElementId, 
@@ -177,6 +182,17 @@ export function PropertiesPanel() {
                 </AccordionContent>
               </AccordionItem>
 
+              {selectedElement.type === 'grid' && (
+                <AccordionItem value="grid">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
+                    Grid
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <GridSection styles={currentStyles} onStyleChange={handleStyleChange} />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
               <AccordionItem value="spacing">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold">
                   Spacing
@@ -233,6 +249,7 @@ export function PropertiesPanel() {
                       styles={currentStyles}
                       onUpdate={(updates) => updateElement(selectedElement.id, updates)}
                       onStyleChange={handleStyleChange}
+                      companyId={companyId || undefined}
                     />
                   </AccordionContent>
                 </AccordionItem>

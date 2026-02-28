@@ -356,33 +356,25 @@ export const HERO_TEMPLATES: LayoutTemplate[] = [
                 },
                 // Colonne image
                 {
-                  type: 'div',
-                  tag: 'div',
+                  type: 'image',
+                  tag: 'img',
+                  content: '',
+                  attributes: {
+                    src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+                    alt: 'Image hero'
+                  },
                   styles: {
                     desktop: {
                       width: '100%',
                       height: '480px',
-                      background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+                      objectFit: 'cover',
                       borderRadius: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       border: '1px solid #e2e8f0',
                     },
                     tablet: { height: '320px' },
                     mobile: { height: '240px' },
                   },
-                  children: [
-                    {
-                      type: 'text',
-                      tag: 'span',
-                      content: '🖼  Votre image ici',
-                      styles: {
-                        desktop: { fontSize: '16px', color: '#94a3b8', fontWeight: '500' },
-                      },
-                      children: [],
-                    },
-                  ],
+                  children: [],
                 },
               ],
             },

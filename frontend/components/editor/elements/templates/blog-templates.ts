@@ -50,7 +50,24 @@ export const BLOG_TEMPLATES: LayoutTemplate[] = [
                 tag: 'div',
                 styles: { desktop: { display: 'flex', flexDirection: 'column', gap: '16px', padding: '0', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', backgroundColor: '#ffffff' } },
                 children: [
-                  { type: 'div', tag: 'div', styles: { desktop: { width: '100%', height: '200px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, children: [{ type: 'text', tag: 'span', content: '📷 Image', styles: { desktop: { fontSize: '14px', color: '#94a3b8' } }, children: [] }] },
+                  { 
+                    type: 'image', 
+                    tag: 'img', 
+                    content: '',
+                    attributes: {
+                      src: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=400&h=200&fit=crop',
+                      alt: 'Article de blog'
+                    },
+                    styles: { 
+                      desktop: { 
+                        width: '100%', 
+                        height: '200px', 
+                        objectFit: 'cover',
+                        display: 'block'
+                      } 
+                    }, 
+                    children: [] 
+                  },
                   {
                     type: 'vflex',
                     tag: 'div',
@@ -69,7 +86,24 @@ export const BLOG_TEMPLATES: LayoutTemplate[] = [
                 tag: 'div',
                 styles: { desktop: { display: 'flex', flexDirection: 'column', gap: '16px', padding: '0', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', backgroundColor: '#ffffff' } },
                 children: [
-                  { type: 'div', tag: 'div', styles: { desktop: { width: '100%', height: '200px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, children: [{ type: 'text', tag: 'span', content: '📷 Image', styles: { desktop: { fontSize: '14px', color: '#94a3b8' } }, children: [] }] },
+                  { 
+                    type: 'image', 
+                    tag: 'img', 
+                    content: '',
+                    attributes: {
+                      src: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=200&fit=crop',
+                      alt: 'Article de blog'
+                    },
+                    styles: { 
+                      desktop: { 
+                        width: '100%', 
+                        height: '200px', 
+                        objectFit: 'cover',
+                        display: 'block'
+                      } 
+                    }, 
+                    children: [] 
+                  },
                   {
                     type: 'vflex',
                     tag: 'div',
@@ -88,7 +122,24 @@ export const BLOG_TEMPLATES: LayoutTemplate[] = [
                 tag: 'div',
                 styles: { desktop: { display: 'flex', flexDirection: 'column', gap: '16px', padding: '0', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', backgroundColor: '#ffffff' } },
                 children: [
-                  { type: 'div', tag: 'div', styles: { desktop: { width: '100%', height: '200px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, children: [{ type: 'text', tag: 'span', content: '📷 Image', styles: { desktop: { fontSize: '14px', color: '#94a3b8' } }, children: [] }] },
+                  { 
+                    type: 'image', 
+                    tag: 'img', 
+                    content: '',
+                    attributes: {
+                      src: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=400&h=200&fit=crop',
+                      alt: 'Article de blog'
+                    },
+                    styles: { 
+                      desktop: { 
+                        width: '100%', 
+                        height: '200px', 
+                        objectFit: 'cover',
+                        display: 'block'
+                      } 
+                    }, 
+                    children: [] 
+                  },
                   {
                     type: 'vflex',
                     tag: 'div',

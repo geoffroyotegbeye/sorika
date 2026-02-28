@@ -70,11 +70,25 @@ export function Canvas() {
     const isDropTarget = element.id === canvasState.dropTargetId;
     const isLocked = element.isLocked || parentLocked;
     
+    // Calculer les styles avec cascade normale
     let baseStyles = {
       ...element.styles.desktop,
       ...(currentBreakpoint === 'tablet' && element.styles.tablet ? element.styles.tablet : {}),
       ...(currentBreakpoint === 'mobile' && element.styles.mobile ? element.styles.mobile : {}),
     };
+
+    // Pour la propriété display, utiliser une logique indépendante par breakpoint
+    // Si display n'est pas défini pour le breakpoint actuel, utiliser 'block' par défaut
+    const currentBreakpointStyles = element.styles[currentBreakpoint];
+    if (currentBreakpoint !== 'desktop' && currentBreakpointStyles) {
+      // Si display est explicitement défini pour ce breakpoint, l'utiliser
+      if (currentBreakpointStyles.display !== undefined) {
+        baseStyles.display = currentBreakpointStyles.display;
+      } else if (element.styles.desktop?.display) {
+        // Sinon, utiliser desktop comme fallback
+        baseStyles.display = element.styles.desktop.display;
+      }
+    }
 
     // Nettoyer les conflits de propriétés CSS
     baseStyles = cleanStyleConflicts(baseStyles);
@@ -257,6 +271,9 @@ export function Canvas() {
       e.preventDefault();
       e.stopPropagation();
       
+      console.log('🎯 DragOver sur:', element.type, element.id);
+      console.log('   canContainChildren:', canContainChildren(element.type));
+      
       const rect = e.currentTarget.getBoundingClientRect();
       const y = e.clientY - rect.top;
       const height = rect.height;
@@ -264,16 +281,21 @@ export function Canvas() {
       if (canContainChildren(element.type)) {
         if (y < height * 0.25) {
           canvasState.setDropPosition('before');
+          console.log('   Position: BEFORE');
         } else if (y > height * 0.75) {
           canvasState.setDropPosition('after');
+          console.log('   Position: AFTER');
         } else {
           canvasState.setDropPosition('inside');
+          console.log('   Position: INSIDE');
         }
       } else {
         if (y < height / 2) {
           canvasState.setDropPosition('before');
+          console.log('   Position: BEFORE');
         } else {
           canvasState.setDropPosition('after');
+          console.log('   Position: AFTER');
         }
       }
       
@@ -293,13 +315,20 @@ export function Canvas() {
       const draggedType = e.dataTransfer.getData('elementType');
       const draggedTag = e.dataTransfer.getData('elementTag');
       
+      console.log('📦 DROP sur:', element.type, element.id);
+      console.log('   Element draggé:', draggedType, draggedTag);
+      console.log('   Position:', canvasState.dropPosition);
+      console.log('   ParentId:', parentId);
+      
       if (!draggedType || !draggedTag) {
+        console.log('   ❌ Pas de type/tag');
         canvasState.setDropTargetId(null);
         canvasState.setDropPosition(null);
         return;
       }
       
       const canAccept = canAcceptChild(element.type, draggedType);
+      console.log('   canAcceptChild:', canAccept);
       
       const newElement = {
         id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -314,11 +343,16 @@ export function Canvas() {
       };
 
       if (canvasState.dropPosition === 'inside' && canContainChildren(element.type) && canAccept) {
+        console.log('   ✅ Ajout INSIDE');
         handlers.addElement(newElement, element.id);
       } else if (canvasState.dropPosition === 'before') {
+        console.log('   ✅ Ajout BEFORE');
         handlers.addElementAt(newElement, parentId, element.id, 'before');
       } else if (canvasState.dropPosition === 'after') {
+        console.log('   ✅ Ajout AFTER');
         handlers.addElementAt(newElement, parentId, element.id, 'after');
+      } else {
+        console.log('   ❌ Aucune condition remplie');
       }
 
       canvasState.setDropTargetId(null);
@@ -430,7 +464,7 @@ export function Canvas() {
           canMoveUp={canMoveUp}
           canMoveDown={canMoveDown}
         >
-          <div style={{ position: 'relative', pointerEvents: isLocked ? 'none' : 'auto' }}>
+          <div style={{ position: 'relative' }}>
             {renderLabel()}
             <Tag 
               ref={(el) => el && elementRefs.current.set(element.id, el)}
@@ -465,7 +499,7 @@ export function Canvas() {
         canMoveUp={canMoveUp}
         canMoveDown={canMoveDown}
       >
-        <div style={{ position: 'relative', pointerEvents: isLocked ? 'none' : 'auto' }}>
+        <div style={{ position: 'relative' }}>
           <Tag 
             ref={(el) => el && elementRefs.current.set(element.id, el)}
             data-element-id={element.id}
@@ -519,67 +553,88 @@ export function Canvas() {
               const rows = (element.styles[currentBreakpoint]?.gridTemplateRows || element.styles.desktop?.gridTemplateRows || 'auto').split(' ').length;
               const totalCells = cols * rows;
               
-              return Array.from({ length: totalCells }).map((_, cellIndex) => {
-                const cellChildren = Array.isArray(element.children?.[cellIndex]) ? element.children[cellIndex] : [];
-                const isEmpty = cellChildren.length === 0;
-                
+              // Si c'est un grid éditeur avec des cellules (children est un tableau de tableaux)
+              const isEditorGrid = element.children?.length > 0 && Array.isArray(element.children[0]);
+              
+              if (isEditorGrid) {
+                return Array.from({ length: totalCells }).map((_, cellIndex) => {
+                  const cellChildren = Array.isArray(element.children?.[cellIndex]) ? element.children[cellIndex] : [];
+                  const isEmpty = cellChildren.length === 0;
+                  
+                  return (
+                    <div
+                      key={`cell-${cellIndex}`}
+                      className="grid-cell"
+                      style={{
+                        border: '1px dashed #cbd5e1',
+                        minHeight: '80px',
+                        padding: '8px',
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        alignItems: 'stretch',
+                        backgroundColor: isEmpty ? '#f8fafc' : undefined,
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const draggedType = e.dataTransfer.getData('elementType');
+                        const draggedTag = e.dataTransfer.getData('elementTag');
+                        
+                        if (draggedType && draggedTag) {
+                          const newElement = {
+                            id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                            type: draggedType,
+                            tag: draggedTag,
+                            content: getDefaultContent(draggedType),
+                            styles: {
+                              desktop: getDefaultStyles(draggedType),
+                            },
+                            children: [],
+                            ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
+                          };
+                          handlers.addElement(newElement, element.id, cellIndex);
+                        }
+                      }}
+                    >
+                      {isEmpty ? (
+                        <span className="text-xs text-slate-400 text-center m-auto">
+                          Cellule {cellIndex + 1}<br/>
+                          Glissez un élément ici
+                        </span>
+                      ) : (
+                        cellChildren.map((child: any, childIndex: number) => child && (
+                          <div key={child.id || `child-${childIndex}`}>
+                            {renderElement(child, element.id, element.type, isLocked, element.isHidden)}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  );
+                });
+              } else {
+                // Grid normal - render children directement et accepter le drag & drop
                 return (
-                  <div
-                    key={`cell-${cellIndex}`}
-                    className="grid-cell"
-                    style={{
-                      border: '1px dashed #cbd5e1',
-                      minHeight: '80px',
-                      padding: '8px',
-                      position: 'relative',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      alignItems: 'stretch',
-                      backgroundColor: isEmpty ? '#f8fafc' : undefined,
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      
-                      const draggedType = e.dataTransfer.getData('elementType');
-                      const draggedTag = e.dataTransfer.getData('elementTag');
-                      
-                      if (draggedType && draggedTag) {
-                        const newElement = {
-                          id: `${draggedType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                          type: draggedType,
-                          tag: draggedTag,
-                          content: getDefaultContent(draggedType),
-                          styles: {
-                            desktop: getDefaultStyles(draggedType),
-                          },
-                          children: [],
-                          ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
-                        };
-                        handlers.addElement(newElement, element.id, cellIndex);
-                      }
-                    }}
-                  >
-                    {isEmpty ? (
-                      <span className="text-xs text-slate-400 text-center m-auto">
-                        Cellule {cellIndex + 1}<br/>
-                        Glissez un élément ici
-                      </span>
-                    ) : (
-                      cellChildren.map((child: any, childIndex: number) => child && (
-                        <div key={child.id || `child-${childIndex}`}>
-                          {renderElement(child, element.id, element.type, isLocked, element.isHidden)}
-                        </div>
-                      ))
+                  <>
+                    {element.children?.map((child: any) => (
+                      <div key={child.id}>
+                        {renderElement(child, element.id, element.type, isLocked, element.isHidden)}
+                      </div>
+                    ))}
+                    {element.children?.length === 0 && (
+                      <div className="text-center text-slate-400 py-8">
+                        Glissez des éléments ici
+                      </div>
                     )}
-                  </div>
+                  </>
                 );
-              });
+              }
             })() : (
               element.children?.length > 0 && element.children.map((child: any) => (
                 <div key={child.id}>

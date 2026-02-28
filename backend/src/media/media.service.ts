@@ -25,7 +25,7 @@ export class MediaService {
         filepath: `uploads/${companyId}/${filename}`,
         mimetype: file.mimetype,
         size: file.size,
-        url: `/api/media/${companyId}/${filename}`,
+        url: `/uploads/${companyId}/${filename}`,
         companyId,
       },
     });

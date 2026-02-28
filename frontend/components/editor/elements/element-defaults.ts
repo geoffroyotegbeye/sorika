@@ -45,11 +45,7 @@ export const getDefaultContent = (type: string) => {
 };
 
 export const getDefaultChildren = (type: string) => {
-  // Pour les grids, initialiser avec un tableau de null (1 cellule par défaut)
-  if (type === 'grid') {
-    return [null];
-  }
-  // Tous les autres éléments ont un tableau vide par défaut
+  // Tous les éléments ont un tableau vide par défaut (y compris grid)
   return [];
 };
 

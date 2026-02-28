@@ -236,7 +236,7 @@ export default function EditorPage() {
         <Canvas />
 
         {/* Panneau droit: Propriétés */}
-        <PropertiesPanel />
+        <PropertiesPanel companyId={companyId} />
       </div>
     </div>
   );
