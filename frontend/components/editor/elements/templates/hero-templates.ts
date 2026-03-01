@@ -17,6 +17,9 @@ export const HERO_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'hero-centered'
+      },
       styles: {
         desktop: {
           display: 'block',
@@ -205,6 +208,9 @@ export const HERO_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'hero-split'
+      },
       styles: {
         desktop: { display: 'block', padding: '80px 20px', backgroundColor: '#ffffff' },
         tablet: { padding: '60px 20px' },
@@ -392,6 +398,9 @@ export const HERO_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'hero-gradient-dark'
+      },
       styles: {
         desktop: {
           display: 'block',

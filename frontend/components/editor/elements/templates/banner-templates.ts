@@ -17,6 +17,9 @@ export const BANNER_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'banner-announcement'
+      },
       styles: {
         desktop: { display: 'block', padding: '12px 20px', backgroundColor: '#2563eb', textAlign: 'center' },
         mobile: { padding: '10px 16px' },

@@ -17,6 +17,9 @@ export const FOOTER_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'footer',
+      attributes: {
+        'data-template-id': 'footer-full'
+      },
       styles: {
         desktop: { display: 'block', padding: '72px 20px 32px', backgroundColor: '#0f172a' },
         tablet: { padding: '48px 20px 24px' },
@@ -134,6 +137,9 @@ export const FOOTER_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'footer',
+      attributes: {
+        'data-template-id': 'footer-minimal'
+      },
       styles: {
         desktop: { display: 'block', padding: '40px 20px', backgroundColor: '#f8fafc', borderTop: '1px solid #e2e8f0' },
         mobile: { padding: '28px 16px' },

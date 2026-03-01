@@ -17,6 +17,9 @@ export const BLOG_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'blog-grid-3'
+      },
       styles: {
         desktop: { display: 'block', padding: '96px 20px', backgroundColor: '#ffffff' },
         tablet: { padding: '64px 20px' },

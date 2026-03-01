@@ -17,6 +17,9 @@ export const HEADER_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'header',
+      attributes: {
+        'data-template-id': 'header-nav-light'
+      },
       styles: {
         desktop: {
           display: 'block',
@@ -207,6 +210,9 @@ export const HEADER_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'header',
+      attributes: {
+        'data-template-id': 'header-nav-dark'
+      },
       styles: {
         desktop: {
           display: 'block',

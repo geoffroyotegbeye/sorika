@@ -17,6 +17,9 @@ export const CONTACT_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'contact-split'
+      },
       styles: {
         desktop: { display: 'block', padding: '96px 20px', backgroundColor: '#f8fafc' },
         tablet: { padding: '64px 20px' },
@@ -149,6 +152,9 @@ export const CONTACT_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'contact-newsletter'
+      },
       styles: {
         desktop: { display: 'block', padding: '72px 20px', backgroundColor: '#eff6ff' },
         tablet: { padding: '48px 20px' },

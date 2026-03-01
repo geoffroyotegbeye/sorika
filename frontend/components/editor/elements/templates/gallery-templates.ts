@@ -17,6 +17,9 @@ export const GALLERY_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'gallery-grid-4'
+      },
       styles: {
         desktop: { display: 'block', padding: '96px 20px', backgroundColor: '#f8fafc' },
         tablet: { padding: '64px 20px' },

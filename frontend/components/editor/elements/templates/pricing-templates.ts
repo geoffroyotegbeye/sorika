@@ -17,6 +17,9 @@ export const PRICING_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'pricing-3-cards'
+      },
       styles: {
         desktop: { display: 'block', padding: '96px 20px', backgroundColor: '#f8fafc' },
         tablet: { padding: '64px 20px' },

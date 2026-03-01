@@ -17,6 +17,9 @@ export const CTA_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'cta-centered'
+      },
       styles: {
         desktop: {
           display: 'block',
@@ -102,6 +105,9 @@ export const CTA_TEMPLATES: LayoutTemplate[] = [
     template: {
       type: 'section',
       tag: 'section',
+      attributes: {
+        'data-template-id': 'cta-split'
+      },
       styles: {
         desktop: { display: 'block', padding: '72px 20px', backgroundColor: '#0f172a' },
         tablet: { padding: '48px 20px' },

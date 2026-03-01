@@ -81,6 +81,7 @@ export interface Element {
   id: string;
   type: string; // 'section', 'container', 'heading', 'text', 'button', 'image', etc.
   tag: string; // 'section', 'div', 'h1', 'p', 'button', 'img', etc.
+  templateId?: string; // ID du template pour le système de propriétés par bloc
   content?: string;
   attributes?: Record<string, string>; // src, href, alt, etc.
   menuItems?: MenuItem[]; // Pour les headers responsives
