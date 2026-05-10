@@ -13,7 +13,7 @@ import {
   canMoveElement 
 } from './canvas-utils';
 import { getDefaultContent, getDefaultStyles, getDefaultListItems } from './elements/element-defaults';
-import { CSSProperties, useEffect, useRef } from 'react';
+import { CSSProperties, useEffect, useRef, ReactElement, JSX } from 'react';
 import { interactionEngine } from '@/lib/interactions/engine';
 import { cleanStyleConflicts } from '@/lib/utils/style-utils';
 
@@ -57,13 +57,13 @@ export function Canvas() {
     };
   }, [elements]);
 
-  const renderElement = (element: any, parentId?: string, parentType?: string, parentLocked = false, parentHidden = false): JSX.Element => {
+  const renderElement = (element: any, parentId?: string, parentType?: string, parentLocked = false, parentHidden = false): ReactElement => {
     // Si l'élément ou son parent est caché, ne pas le rendre
     if (element.isHidden || parentHidden) {
       return <div key={element.id} style={{ display: 'none' }} />;
     }
     
-    const Tag = element.tag as keyof JSX.IntrinsicElements;
+    const Tag = element.tag as 'div';
     const isSelected = element.id === selectedElementId;
     const isHovered = element.id === canvasState.hoveredElementId;
     const isEmpty = canContainChildren(element.type) && element.children?.length === 0;
@@ -467,7 +467,7 @@ export function Canvas() {
           <div style={{ position: 'relative' }}>
             {renderLabel()}
             <Tag 
-              ref={(el) => el && elementRefs.current.set(element.id, el)}
+              ref={(el) => { if (el) elementRefs.current.set(element.id, el); }}
               data-element-id={element.id}
               style={finalStyles} 
               onClick={handleClick}
@@ -501,7 +501,7 @@ export function Canvas() {
       >
         <div style={{ position: 'relative' }}>
           <Tag 
-            ref={(el) => el && elementRefs.current.set(element.id, el)}
+            ref={(el) => { if (el) elementRefs.current.set(element.id, el); }}
             data-element-id={element.id}
             style={finalStyles} 
             onClick={handleClick}
@@ -665,7 +665,7 @@ export function Canvas() {
       },
       children: [],
     };
-    handlers.addElement(newSection);
+    handlers.addElement(newSection, undefined);
   };
 
   return (
@@ -696,7 +696,7 @@ export function Canvas() {
               children: [],
               ...(draggedType === 'list' ? { listItems: getDefaultListItems(draggedType) } : {}),
             };
-            handlers.addElement(newElement);
+            handlers.addElement(newElement, undefined);
           }
         }
       }}

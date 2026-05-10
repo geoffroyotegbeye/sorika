@@ -145,7 +145,7 @@ export default function EditorPageWithSlug() {
       <Toolbar companyId={companyId} companySlug={companySlug} pageSlug={pageSlug} />
 
       <div className="flex-1 flex overflow-hidden">
-        <IconSidebar onPagesClick={() => setIsPagesOpen(!isPagesOpen)} />
+        <IconSidebar onPagesClick={() => setIsPagesOpen(!isPagesOpen)} onMediaClick={() => {}} />
 
         {companyId && (
           <PageManager 

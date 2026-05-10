@@ -38,12 +38,16 @@ export class AuthService {
     const { password, ...userWithoutPassword } = user;
 
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        mustChangePassword: user.mustChangePassword,
+      },
       companies: user.memberships.map((m) => ({
         id: m.company.id,
         name: m.company.name,
         slug: m.company.slug,
         role: m.role,
+        modules: m.company.modules, // liste des modules activés ex: ['LANDING_PAGE', 'MEDIA']
       })),
     };
   }
@@ -92,7 +96,8 @@ export class AuthService {
           name: dto.companyName,
           slug: finalSlug, // Utiliser le slug unique généré
           phoneNumber: dto.phoneNumber,
-          modules: dto.modules || ['LANDING_PAGE'], // Par défaut LANDING_PAGE
+          // Activer tous les modules par défaut (pas encore de système de tenant/facturation)
+          modules: dto.modules || ['LANDING_PAGE', 'MEDIA', 'CRM', 'HR', 'ECOMMERCE', 'ANALYTICS', 'MESSAGING', 'BLOG'],
         },
       });
 

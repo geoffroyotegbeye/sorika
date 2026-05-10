@@ -10,7 +10,8 @@ import { BlockPropertyPanel } from './properties/BlockPropertyPanel';
 import { PropertyPanelSelector } from './properties/PropertyPanelSelector';
 import { useBlockProperties } from './hooks/useBlockProperties';
 import { SelectionContextAnalyzer } from './elements/selection-context';
-import { BlockPropertyManager } from './elements/block-property-manager';
+import { BlockPropertyManager, blockPropertyManager } from './elements/block-property-manager';
+import { BlockPropertyChangeEvent } from './elements/block-properties';
 import { getTemplateInfo } from './elements/block-property-registry';
 import './properties/block-properties.css';
 
@@ -85,7 +86,7 @@ export const BlockPropertiesIntegration: React.FC<BlockPropertiesIntegrationProp
     updateProperty(property, value);
 
     // Appliquer la propriété à l'élément DOM
-    BlockPropertyManager.applyProperty(selectedElement, currentTemplateId, property, value);
+    blockPropertyManager.applyProperty(selectedElement, currentTemplateId, property, value);
 
     // Notifier le parent
     onPropertyChange?.(elementId, property, value);
@@ -97,18 +98,13 @@ export const BlockPropertiesIntegration: React.FC<BlockPropertiesIntegrationProp
 
     resetProperties();
     
-    // Réinitialiser les styles de l'élément
-    BlockPropertyManager.resetElement(selectedElement);
+    // Réinitialiser les styles de l'élément (resetElement not available, skip DOM reset)
   };
 
   // Si aucun élément n'est sélectionné
   if (!selectedElement || !currentTemplateId) {
     return (
       <div className="block-properties-integration">
-        <PropertyPanelSelector 
-          onTemplateSelect={() => {}} 
-          selectedTemplate={null}
-        />
         <div className="no-selection-message">
           <div className="no-selection-icon">🎯</div>
           <h3>Aucun bloc sélectionné</h3>

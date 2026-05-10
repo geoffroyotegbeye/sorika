@@ -1,0 +1,39 @@
+'use client';
+
+import { use } from 'react';
+import { ModuleSidebar } from '@/components/layout/ModuleSidebar';
+import { getModuleConfig } from '@/config/modules.config';
+
+export default function CRMLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const moduleConfig = getModuleConfig('crm');
+
+  if (!moduleConfig) {
+    return <div>{children}</div>;
+  }
+
+  // Convertir les items du menu en format attendu par ModuleSidebar
+  const sidebarItems = moduleConfig.menu.map((item) => ({
+    ...item,
+    href: `/dashboard/${slug}${item.href}`,
+  }));
+
+  return (
+    <div className="flex min-h-screen">
+      <ModuleSidebar
+        title={moduleConfig.name}
+        items={sidebarItems}
+        companySlug={slug}
+      />
+      <div className="flex-1 lg:pl-72">
+        {children}
+      </div>
+    </div>
+  );
+}

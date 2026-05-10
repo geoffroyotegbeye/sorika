@@ -9,6 +9,10 @@ import { CompaniesModule } from './companies/companies.module';
 import { PagesModule } from './pages/pages.module';
 import { AdminModule } from './admin/admin.module';
 import { MediaModule } from './media/media.module';
+import { MembersModule } from './members/members.module';
+import { HRModule } from './hr/hr.module';
+import { CrmModule } from './crm/crm.module';
+import { AccountingModule } from './accounting/accounting.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -24,6 +28,10 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     PagesModule,
     AdminModule,
     MediaModule,
+    MembersModule,
+    HRModule,
+    CrmModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

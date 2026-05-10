@@ -13,9 +13,11 @@ import {
   selectionContextAnalyzer 
 } from '../elements/selection-context';
 import { 
-  blockPropertyManager, 
-  BlockPropertyChangeEvent 
+  blockPropertyManager
 } from '../elements/block-property-manager';
+import { 
+  BlockPropertyChangeEvent 
+} from '../elements/block-properties';
 import { 
   getBlockDefinition 
 } from '../elements/block-property-registry';

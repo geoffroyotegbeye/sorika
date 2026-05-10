@@ -1,6 +1,7 @@
 /**
  * Test simple du système de propriétés avec synchronisation
  */
+'use client';
 
 import React, { useState } from 'react';
 import { SimpleBlockProperties } from '../properties/SimpleBlockProperties';

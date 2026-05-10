@@ -6,7 +6,7 @@ export function useCanvasState() {
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside' | null>(null);
   const [editingElementId, setEditingElementId] = useState<string | null>(null);
-  const editableRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const editableRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   useEffect(() => {
     if (editingElementId && editableRefs.current[editingElementId]) {

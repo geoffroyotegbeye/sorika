@@ -24,7 +24,7 @@ export default function EditorPage() {
   const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
-  const { setElements, elements, hasUnsavedChanges, setHasUnsavedChanges } = useEditorStore();
+  const { setElements, elements, hasUnsavedChanges, markAsSaved } = useEditorStore();
   const { currentPageSlug, setPages, setCurrentPage, pages } = usePagesStore();
 
   const handleSave = async () => {
@@ -41,7 +41,7 @@ export default function EditorPage() {
       );
 
       if (response.ok) {
-        setHasUnsavedChanges(false);
+        markAsSaved();
         return true;
       }
       return false;
@@ -176,7 +176,19 @@ export default function EditorPage() {
       {/* Modal de confirmation pour modifications non enregistrées */}
       <ConfirmDialog
         open={showUnsavedDialog}
-        onOpenChange={setShowUnsavedDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Cancel: navigate without saving
+            if (pendingNavigation) {
+              markAsSaved();
+              router.push(pendingNavigation);
+            }
+            setShowUnsavedDialog(false);
+            setPendingNavigation(null);
+          } else {
+            setShowUnsavedDialog(open);
+          }
+        }}
         title="Modifications non enregistrées"
         description="Vous avez des modifications non enregistrées. Voulez-vous les enregistrer avant de continuer ?"
         confirmText="Enregistrer"
@@ -185,14 +197,6 @@ export default function EditorPage() {
         onConfirm={async () => {
           const saved = await handleSave();
           if (saved && pendingNavigation) {
-            router.push(pendingNavigation);
-          }
-          setShowUnsavedDialog(false);
-          setPendingNavigation(null);
-        }}
-        onCancel={() => {
-          if (pendingNavigation) {
-            setHasUnsavedChanges(false);
             router.push(pendingNavigation);
           }
           setShowUnsavedDialog(false);

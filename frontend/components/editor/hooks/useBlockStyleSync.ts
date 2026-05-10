@@ -4,6 +4,7 @@
  * Hook professionnel qui gère la synchronisation bidirectionnelle
  * entre les propriétés de bloc et les styles d'élément.
  */
+'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useEditorStore } from '@/lib/stores/editor-store';

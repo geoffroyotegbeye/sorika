@@ -319,10 +319,10 @@ export class BlockPropertyManager {
         if (isNaN(numValue)) {
           return { isValid: false, error: 'Value must be a number' };
         }
-        if ('min' in property && numValue < property.min) {
+        if ('min' in property && property.min !== undefined && numValue < property.min) {
           return { isValid: false, error: `Value must be >= ${property.min}` };
         }
-        if ('max' in property && numValue > property.max) {
+        if ('max' in property && property.max !== undefined && numValue > property.max) {
           return { isValid: false, error: `Value must be <= ${property.max}` };
         }
         break;

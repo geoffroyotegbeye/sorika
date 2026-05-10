@@ -11,24 +11,36 @@ generator client {
 
 // 1. L'Utilisateur (Le gérant)
 model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
-  password      String
-  firstName     String?
-  lastName      String?
-  isSuperAdmin  Boolean      @default(false) // Super Admin avec tous les droits
-  memberships   Membership[] // Un utilisateur peut appartenir à plusieurs entreprises
-  createdAt     DateTime     @default(now())
+  id                  String       @id @default(uuid())
+  email               String       @unique
+  username            String?      @unique
+  password            String
+  firstName           String?
+  lastName            String?
+  isSuperAdmin        Boolean      @default(false) // Super Admin avec tous les droits
+  mustChangePassword  Boolean      @default(false) // Forcer le changement de mot de passe à la première connexion
+  memberships         Membership[] // Un utilisateur peut appartenir à plusieurs entreprises
+  employee            Employee?    // Lien optionnel vers une fiche employé
+  
+  // Relations CRM
+  ownedContacts       Contact[]       @relation("ContactOwner")
+  ownedClientCompanies ClientCompany[] @relation("ClientCompanyOwner")
+  ownedOpportunities  Opportunity[]   @relation("OpportunityOwner")
+  ownedActivities     Activity[]      @relation("ActivityOwner")
+  
+  createdAt           DateTime     @default(now())
 }
 
 // 2. Table de liaison (Pour le multi-entreprises)
 model Membership {
-  id        String   @id @default(uuid())
-  role      String   @default("OWNER") // OWNER, ADMIN, ou STAFF
-  userId    String
-  companyId String
-  user      User     @relation(fields: [userId], references: [id])
-  company   Company  @relation(fields: [companyId], references: [id])
+  id          String   @id @default(uuid())
+  role        String   @default("OWNER") // OWNER, ADMIN, ou STAFF
+  permissions Json     @default("{}") // { "CRM": ["READ","CREATE"], "HR": ["READ"] }
+  userId      String
+  companyId   String
+  user        User     @relation(fields: [userId], references: [id])
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
 
   @@unique([userId, companyId]) // Un utilisateur ne peut pas être membre deux fois de la même entreprise
 }
@@ -41,14 +53,33 @@ model Company {
   logo         String?
   phoneNumber  String?  // Très important pour le bouton WhatsApp
   address      String?
+  currency     String   @default("XOF") // Devise par défaut de l'organisation
   modules      String[] @default(["LANDING_PAGE"]) // Liste des modules activés
   globalElements Json   @default("[]") // Éléments globaux (navbar, footer) affichés sur toutes les pages
   
   members      Membership[]
+  invitations  Invitation[]
+  departments  Department[]
+  employees    Employee[]
   landingPage  LandingPage?
   pages        Page[]
   products     Product[]
   medias       Media[]
+  
+  // Relations CRM
+  contacts     Contact[]
+  clientCompanies ClientCompany[]
+  opportunities Opportunity[]
+  activities   Activity[]
+
+  // Relations Comptabilité
+  invoices     Invoice[]
+  quotes       Quote[]
+  suppliers    Supplier[]
+  bills        Bill[]
+  payments     Payment[]
+  taxRates     TaxRate[]
+  
   createdAt    DateTime     @default(now())
 }
 
@@ -143,4 +174,632 @@ model Media {
   createdAt   DateTime @default(now())
   
   @@index([companyId])
+}
+
+// 8. Invitations (Gestion des membres)
+model Invitation {
+  id          String    @id @default(uuid())
+  email       String
+  token       String    @unique @default(uuid())
+  role        String    @default("STAFF")
+  permissions Json      @default("{}")
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([token])
+  @@index([companyId])
+}
+
+// 9. Départements (Module RH)
+model Department {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  companyId   String
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+
+  @@unique([companyId, name])
+  @@index([companyId])
+}
+
+// 9.5. Postes/Fonctions (Module RH)
+model Position {
+  id          String     @id @default(uuid())
+  title       String     // Titre du poste (ex: "Directeur", "Manager", "Développeur")
+  description String?    @db.Text
+  level       String?    // Niveau hiérarchique (ex: "EXECUTIVE", "MANAGER", "STAFF", "INTERN")
+  companyId   String
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+
+  @@unique([companyId, title])
+  @@index([companyId])
+}
+
+// 10. Employés (Module RH)
+model Employee {
+  id           String      @id @default(uuid())
+  firstName    String
+  lastName     String
+  positionId   String?     // Relation vers Position
+  position     Position?   @relation(fields: [positionId], references: [id])
+  contractType String?
+  salary       Float?
+  hireDate     DateTime
+  isActive     Boolean     @default(true)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  
+  // Hiérarchie managériale
+  managerId    String?     // Manager direct (chef hiérarchique)
+  manager      Employee?   @relation("ManagerSubordinates", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates Employee[]  @relation("ManagerSubordinates")
+  
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId       String?     @unique
+  user         User?       @relation(fields: [userId], references: [id])
+  
+  // Relations RH
+  leaves       Leave[]
+  documents    EmployeeDocument[]
+  expenses     Expense[]
+  leaveBalances LeaveBalance[]
+  attendances  Attendance[]
+  assignments  Assignment[] @relation("EmployeeAssignments")
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([companyId])
+  @@index([departmentId])
+  @@index([positionId])
+  @@index([managerId])
+}
+
+// 10.5. Historique des affectations (changements de poste/département)
+model Assignment {
+  id           String    @id @default(uuid())
+  employeeId   String
+  employee     Employee  @relation("EmployeeAssignments", fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  // Changements
+  fromPositionId String?
+  toPositionId   String?
+  fromDepartmentId String?
+  toDepartmentId   String?
+  
+  reason       String?   @db.Text // Promotion, Mutation, Réorganisation, etc.
+  effectiveDate DateTime // Date d'effet du changement
+  notes        String?   @db.Text
+  
+  createdBy    String?   // userId de celui qui a fait le changement
+  companyId    String
+  createdAt    DateTime  @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([effectiveDate])
+}
+
+// 11. Types de congés
+model LeaveType {
+  id          String   @id @default(uuid())
+  name        String   // Congé payé, RTT, Maladie, Sans solde, Autre
+  code        String   // CP, RTT, SICK, UNPAID, OTHER
+  isPaid      Boolean  @default(true)
+  requiresApproval Boolean @default(true)
+  color       String   @default("#3b82f6") // Couleur pour le calendrier
+  companyId   String
+  leaves      Leave[]
+  leaveBalances LeaveBalance[]
+  createdAt   DateTime @default(now())
+
+  @@unique([companyId, code])
+  @@index([companyId])
+}
+
+// 12. Soldes de congés par employé
+model LeaveBalance {
+  id          String     @id @default(uuid())
+  employeeId  String
+  employee    Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId String
+  leaveType   LeaveType  @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  year        Int        // Année du solde
+  total       Float      // Jours totaux alloués
+  used        Float      @default(0) // Jours utilisés
+  remaining   Float      // Jours restants (calculé: total - used)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([employeeId, leaveTypeId, year])
+  @@index([employeeId])
+}
+
+// 13. Demandes de congés
+model Leave {
+  id          String     @id @default(uuid())
+  employeeId  String
+  employee    Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId String
+  leaveType   LeaveType  @relation(fields: [leaveTypeId], references: [id])
+  startDate   DateTime
+  endDate     DateTime
+  days        Float      // Nombre de jours (peut être 0.5 pour demi-journée)
+  reason      String?    @db.Text
+  status      String     @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
+  approvedBy  String?    // userId du validateur
+  approvedAt  DateTime?
+  rejectionReason String? @db.Text
+  companyId   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([status])
+}
+
+// 14. Documents employés
+model EmployeeDocument {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  name        String   // Nom du document
+  category    String   // CONTRACT, IDENTITY, DIPLOMA, CERTIFICATE, OTHER
+  fileUrl     String   // URL du fichier (stocké via module Media)
+  fileSize    Int?     // Taille en bytes
+  mimeType    String?  // Type MIME
+  uploadedBy  String?  // userId de celui qui a uploadé
+  companyId   String
+  createdAt   DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+// 15. Notes de frais
+model Expense {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title       String    // Titre de la note de frais
+  description String?   @db.Text
+  amount      Float     // Montant
+  currency    String    @default("XOF") // Devise
+  category    String    // TRANSPORT, MEAL, ACCOMMODATION, OTHER
+  date        DateTime  // Date de la dépense
+  receiptUrl  String?   // URL du justificatif
+  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED, REIMBURSED
+  approvedBy  String?   // userId du validateur
+  approvedAt  DateTime?
+  rejectionReason String? @db.Text
+  reimbursedAt DateTime?
+  companyId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([status])
+}
+
+// 16. Jours fériés (par organisation)
+model PublicHoliday {
+  id          String   @id @default(uuid())
+  name        String   // Nom du jour férié (ex: "Jour de l'An", "Fête du Travail")
+  date        DateTime // Date du jour férié
+  isRecurring Boolean  @default(true) // Si true, se répète chaque année
+  companyId   String
+  createdAt   DateTime @default(now())
+
+  @@index([companyId])
+  @@index([date])
+}
+
+// 17. Présences/Pointages
+model Attendance {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime  @default(now()) // Date du pointage
+  checkIn     DateTime? // Heure d'arrivée
+  checkOut    DateTime? // Heure de départ
+  status      String    @default("PRESENT") // PRESENT, ABSENT, LATE, HALF_DAY, REMOTE
+  hoursWorked Float?    // Heures travaillées (calculé automatiquement)
+  notes       String?   @db.Text // Notes ou justificatifs
+  companyId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([date])
+  @@index([status])
+}
+
+// ============================================
+// MODULE CRM (Customer Relationship Management)
+// ============================================
+
+// 18. Contact (Personne - Client/Prospect)
+model Contact {
+  id              String    @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  status          String    @default("LEAD") // LEAD, PROSPECT, CLIENT, PARTNER
+  source          String?   // WEBSITE, REFERRAL, SOCIAL_MEDIA, EVENT, OTHER
+  tags            String[]  @default([])
+  notes           String?   @db.Text
+  
+  // Relations
+  companyId       String?
+  company         ClientCompany? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  ownerId         String    // Commercial responsable
+  owner           User      @relation("ContactOwner", fields: [ownerId], references: [id])
+  
+  opportunities   Opportunity[]
+  activities      Activity[]
+  
+  organizationId  String
+  organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastContactedAt DateTime?
+  
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@index([ownerId])
+  @@index([status])
+}
+
+// 19. Entreprise cliente (Organisation cliente)
+model ClientCompany {
+  id              String    @id @default(uuid())
+  name            String
+  industry        String?   // Secteur d'activité
+  size            String?   // SMALL, MEDIUM, LARGE, ENTERPRISE
+  website         String?
+  address         String?   @db.Text
+  phone           String?
+  notes           String?   @db.Text
+  
+  // Relations
+  ownerId         String    // Commercial responsable
+  owner           User      @relation("ClientCompanyOwner", fields: [ownerId], references: [id])
+  
+  contacts        Contact[]
+  opportunities   Opportunity[]
+  activities      Activity[]
+  invoices        Invoice[]
+  quotes          Quote[]
+  
+  organizationId  String
+  organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([name, organizationId])
+  @@index([organizationId])
+  @@index([ownerId])
+}
+
+// 20. Opportunité de vente (Deal)
+model Opportunity {
+  id              String    @id @default(uuid())
+  title           String
+  amount          Float
+  currency        String    @default("XOF")
+  probability     Int       @default(50) // 0-100%
+  stage           String    @default("LEAD") // LEAD, QUALIFIED, PROPOSAL, NEGOTIATION, WON, LOST
+  
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  lostReason        String?   @db.Text
+  notes             String?   @db.Text
+  
+  // Relations
+  contactId       String?
+  contact         Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  companyId       String?
+  company         ClientCompany? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  
+  ownerId         String    // Commercial responsable
+  owner           User      @relation("OpportunityOwner", fields: [ownerId], references: [id])
+  
+  activities      Activity[]
+  
+  organizationId  String
+  organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([organizationId])
+  @@index([ownerId])
+  @@index([stage])
+}
+
+// 21. Activité CRM (Appel, Email, Réunion, Tâche)
+model Activity {
+  id              String    @id @default(uuid())
+  type            String    // CALL, EMAIL, MEETING, TASK, NOTE
+  subject         String
+  description     String?   @db.Text
+  status          String    @default("PLANNED") // PLANNED, COMPLETED, CANCELLED
+  
+  dueDate         DateTime?
+  completedAt     DateTime?
+  duration        Int?      // En minutes
+  
+  // Relations
+  contactId       String?
+  contact         Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  companyId       String?
+  company         ClientCompany? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  
+  opportunityId   String?
+  opportunity     Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  
+  ownerId         String    // Qui doit faire l'activité
+  owner           User      @relation("ActivityOwner", fields: [ownerId], references: [id])
+  
+  organizationId  String
+  organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([organizationId])
+  @@index([ownerId])
+  @@index([type])
+  @@index([status])
+}
+
+
+// ============================================
+// MODULE COMPTABILITE
+// ============================================
+
+// Taux de TVA configurables par organisation
+model TaxRate {
+  id          String   @id @default(uuid())
+  name        String   // ex: TVA 18%, Exonéré
+  rate        Float    // ex: 18.0, 0.0
+  isDefault   Boolean  @default(false)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoiceItems InvoiceItem[]
+  quoteItems   QuoteItem[]
+  billItems    BillItem[]
+  createdAt   DateTime @default(now())
+
+  @@index([companyId])
+}
+
+// Fournisseurs (tiers distincts des clients CRM)
+model Supplier {
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?  @db.Text
+  taxNumber   String?  // Numéro fiscal / RCCM
+  notes       String?  @db.Text
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  bills       Bill[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, companyId])
+  @@index([companyId])
+}
+
+// Devis
+model Quote {
+  id            String      @id @default(uuid())
+  quoteNumber   String      // DEV-2026-001
+  status        String      @default("DRAFT") // DRAFT, SENT, ACCEPTED, REFUSED, EXPIRED, CONVERTED
+  issueDate     DateTime    @default(now())
+  expiryDate    DateTime?
+  notes         String?     @db.Text
+  termsAndConditions String? @db.Text
+
+  // Totaux (calculés et stockés)
+  subtotal      Float       @default(0)
+  taxAmount     Float       @default(0)
+  total         Float       @default(0)
+  currency      String      @default("XOF")
+
+  // Client (depuis CRM)
+  clientId      String?
+  client        ClientCompany? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientName    String?     // Nom libre si pas de client CRM
+  clientEmail   String?
+  clientAddress String?     @db.Text
+
+  // Converti en facture
+  convertedToInvoiceId String? @unique
+  convertedAt   DateTime?
+
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById   String?     // userId
+  items         QuoteItem[]
+  invoice       Invoice?    @relation("QuoteInvoice")
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([clientId])
+}
+
+// Lignes de devis
+model QuoteItem {
+  id          String   @id @default(uuid())
+  quoteId     String
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  taxRateId   String?
+  taxRate     TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  taxAmount   Float    @default(0)
+  total       Float    // quantity * unitPrice + taxAmount
+  position    Int      @default(0) // Ordre d affichage
+  createdAt   DateTime @default(now())
+
+  @@index([quoteId])
+}
+
+// Factures
+model Invoice {
+  id            String      @id @default(uuid())
+  invoiceNumber String      // FAC-2026-001
+  status        String      @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED, PARTIAL
+  issueDate     DateTime    @default(now())
+  dueDate       DateTime?
+  paidAt        DateTime?
+  notes         String?     @db.Text
+  termsAndConditions String? @db.Text
+
+  // Totaux
+  subtotal      Float       @default(0)
+  taxAmount     Float       @default(0)
+  total         Float       @default(0)
+  amountPaid    Float       @default(0)
+  amountDue     Float       @default(0)
+  currency      String      @default("XOF")
+
+  // Client (depuis CRM)
+  clientId      String?
+  client        ClientCompany? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientName    String?
+  clientEmail   String?
+  clientAddress String?     @db.Text
+
+  // Depuis devis
+  quoteId       String?     @unique
+  quote         Quote?      @relation("QuoteInvoice", fields: [quoteId], references: [id], onDelete: SetNull)
+
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById   String?
+  items         InvoiceItem[]
+  payments      Payment[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([clientId])
+  @@index([dueDate])
+}
+
+// Lignes de facture
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  taxRateId   String?
+  taxRate     TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  taxAmount   Float    @default(0)
+  total       Float
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([invoiceId])
+}
+
+// Paiements reçus (sur factures)
+model Payment {
+  id            String   @id @default(uuid())
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String   @default("XOF")
+  method        String   @default("CASH") // CASH, BANK_TRANSFER, CHECK, MOBILE_MONEY, CARD
+  reference     String?  // Numéro de chèque, référence virement, etc.
+  paidAt        DateTime @default(now())
+  notes         String?  @db.Text
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([companyId])
+  @@index([paidAt])
+}
+
+// Factures fournisseurs / Charges
+model Bill {
+  id            String      @id @default(uuid())
+  billNumber    String?     // Numéro de la facture fournisseur
+  status        String      @default("PENDING") // PENDING, APPROVED, PAID, CANCELLED
+  issueDate     DateTime    @default(now())
+  dueDate       DateTime?
+  paidAt        DateTime?
+  notes         String?     @db.Text
+
+  // Totaux
+  subtotal      Float       @default(0)
+  taxAmount     Float       @default(0)
+  total         Float       @default(0)
+  currency      String      @default("XOF")
+
+  // Fournisseur
+  supplierId    String?
+  supplier      Supplier?   @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplierName  String?     // Nom libre si pas de fournisseur enregistré
+
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById   String?
+  items         BillItem[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([supplierId])
+}
+
+// Lignes de facture fournisseur
+model BillItem {
+  id          String   @id @default(uuid())
+  billId      String
+  bill        Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  taxRateId   String?
+  taxRate     TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  taxAmount   Float    @default(0)
+  total       Float
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([billId])
 }

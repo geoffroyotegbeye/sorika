@@ -1,0 +1,4 @@
+"Prénom","Nom","Email","Poste","Département","Manager Email","Date Embauche","Type Contrat","Salaire","Actif"
+"Jean","Dupont","jean.dupont@example.com","Directeur Commercial","Commercial","","2024-01-15","CDI","80000","Oui"
+"Marie","Martin","marie.martin@example.com","Commercial","Commercial","jean.dupont@example.com","2024-02-01","CDI","45000","Oui"
+"Paul","Durand","paul.durand@example.com","Développeur","IT","","2024-03-10","CDI","55000","Oui"

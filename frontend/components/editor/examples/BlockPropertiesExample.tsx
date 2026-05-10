@@ -11,7 +11,7 @@ import React, { useState, useEffect } from 'react';
 import { PropertyPanelSelector } from '../properties/PropertyPanelSelector';
 import { useBlockProperties } from '../hooks/useBlockProperties';
 import { SelectionContext } from '../elements/selection-context';
-import { BlockPropertyChangeEvent } from '../elements/block-property-manager';
+import { BlockPropertyChangeEvent } from '../elements/block-properties';
 
 // Import the CSS
 import '../properties/block-properties.css';
@@ -171,7 +171,6 @@ const MockEditorCanvas: React.FC<{
             padding: '8px 16px',
             backgroundColor: '#2563eb',
             color: '#ffffff',
-            border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
             border: selectedElement?.tagName === 'BUTTON' ? '2px solid #f59e0b' : 'none'
@@ -236,7 +235,6 @@ const MockEditorCanvas: React.FC<{
             padding: '12px 24px',
             backgroundColor: '#2563eb',
             color: '#ffffff',
-            border: 'none',
             borderRadius: '8px',
             fontSize: '16px',
             cursor: 'pointer',
@@ -285,8 +283,8 @@ const MockEditorCanvas: React.FC<{
                 padding: '8px 16px',
                 backgroundColor: '#2563eb',
                 color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                border: 'none'
               }}>
                 Choisir
               </button>

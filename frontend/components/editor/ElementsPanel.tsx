@@ -33,7 +33,7 @@ export function ElementsPanel() {
       id: `${type}-${Date.now()}`,
       type,
       tag,
-      content: getDefaultContent(type, label),
+      content: getDefaultContent(type),
       styles: {
         desktop: getDefaultStyles(type),
       },
@@ -50,17 +50,13 @@ export function ElementsPanel() {
 
     // Les sections sont toujours ajoutées à la racine
     if (type === 'section') {
-      addElement(newElement);
+      addElement(newElement, undefined);
     } else {
       // Pour les autres éléments, on les ajoute à la racine pour l'instant
       // TODO: Implémenter le drag & drop pour choisir le parent
-      addElement(newElement);
+      addElement(newElement, undefined);
     }
   };
-
-  const getDefaultContent = (type: string) => getDefaultContent(type);
-
-  const getDefaultStyles = (type: string) => getDefaultStyles(type);
 
   const handleAddLayout = (template: any) => {
     const generateIds = (element: any): any => {
@@ -74,7 +70,7 @@ export function ElementsPanel() {
     };
     
     const newLayout = generateIds(template);
-    addElement(newLayout);
+    addElement(newLayout, undefined);
   };
 
   const filteredCategories = ELEMENT_CATEGORIES.map(cat => ({
@@ -90,9 +86,10 @@ export function ElementsPanel() {
   };
 
   const handleNameBlur = (elementId: string, originalName: string) => {
-    if (editingNameValue && editingNameValue !== originalName) {
-      updateElement(elementId, { name: editingNameValue });
-    }
+    // TODO: Ajouter la propriété 'name' au type Element si nécessaire
+    // if (editingNameValue && editingNameValue !== originalName) {
+    //   updateElement(elementId, { name: editingNameValue });
+    // }
     setEditingNameId(null);
   };
 

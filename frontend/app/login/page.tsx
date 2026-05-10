@@ -42,6 +42,8 @@ export default function LoginPage() {
       
       // Stocker les infos utilisateur
       localStorage.setItem('user', JSON.stringify(result));
+      // Stocker le userId séparément pour les requêtes API
+      localStorage.setItem('userId', result.user.id);
       
       toast.success('Connexion réussie!');
       
@@ -49,7 +51,7 @@ export default function LoginPage() {
       if (result.user.isSuperAdmin) {
         window.location.href = '/admin';
       } else if (result.companies && result.companies.length > 0) {
-        window.location.href = `/editor/${result.companies[0].slug}`;
+        window.location.href = `/dashboard/${result.companies[0].slug}`;
       } else {
         toast.error('Aucune entreprise trouvée');
       }

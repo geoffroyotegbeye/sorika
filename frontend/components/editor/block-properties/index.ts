@@ -41,6 +41,13 @@ export type {
 // REGISTRY AND MANAGEMENT
 // ─────────────────────────────────────────────
 
+import {
+  getAllTemplateIds as _getAllTemplateIds,
+  registerBlockDefinition as _registerBlockDefinition,
+} from '../elements/block-property-registry';
+import type { BlockDefinition } from '../elements/block-properties';
+import { blockPropertyManager as _blockPropertyManager } from '../elements/block-property-manager';
+
 export {
   BLOCK_DEFINITIONS,
   getBlockDefinition,
@@ -109,7 +116,8 @@ export { BlockPropertiesExample } from '../examples/BlockPropertiesExample';
  */
 export function initializeBlockPropertiesSystem() {
   console.log('Block Properties System initialized');
-  console.log(`Registered ${getAllTemplateIds().length} block definitions`);
+  const ids = _getAllTemplateIds();
+  console.log(`Registered ${ids.length} block definitions`);
   
   // You can add any global initialization logic here
   // For example, registering custom property appliers or validators
@@ -120,7 +128,7 @@ export function initializeBlockPropertiesSystem() {
  * Useful for plugins or dynamic block registration
  */
 export function registerCustomBlock(definition: BlockDefinition) {
-  registerBlockDefinition(definition);
+  _registerBlockDefinition(definition);
   console.log(`Registered custom block: ${definition.id}`);
 }
 
@@ -129,8 +137,8 @@ export function registerCustomBlock(definition: BlockDefinition) {
  */
 export function getSystemDebugInfo() {
   return {
-    registeredBlocks: getAllTemplateIds(),
-    managerState: blockPropertyManager.getDebugInfo()
+    registeredBlocks: _getAllTemplateIds(),
+    managerState: _blockPropertyManager.getDebugInfo()
   };
 }
 
