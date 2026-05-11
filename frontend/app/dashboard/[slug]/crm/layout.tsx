@@ -31,7 +31,7 @@ export default function CRMLayout({
         items={sidebarItems}
         companySlug={slug}
       />
-      <div className="flex-1 lg:pl-72">
+      <div className="flex-1">
         {children}
       </div>
     </div>

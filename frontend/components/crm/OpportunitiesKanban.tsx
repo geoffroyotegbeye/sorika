@@ -78,10 +78,6 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
     console.log('Opportunities updated:', opportunities);
   }, [opportunities]);
 
-  useEffect(() => {
-    fetchOpportunities();
-  }, [fetchOpportunities]);
-
   const getOpportunitiesByStage = (stage: OpportunityStage) => {
     return opportunities.filter((opp) => opp.stage === stage);
   };
@@ -171,7 +167,7 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
                     {stageOpportunities.length > 1 ? 's' : ''}
                   </div>
                   <div className="text-xs font-medium">
-                    {totalValue.toLocaleString()} XOF
+                    {totalValue.toLocaleString()} {currency}
                   </div>
                 </div>
 

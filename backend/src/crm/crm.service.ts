@@ -14,8 +14,25 @@ import { UpdateActivityDto } from './dto/activities/update-activity.dto';
 export class CrmService {
   constructor(private prisma: PrismaService) {}
 
-  // Helper pour récupérer l'ID de l'organisation à partir du slug
+  // Helper pour récupérer l'ID de l'organisation à partir du slug ou ID
   private async getOrganizationId(slugOrId: string): Promise<string> {
+    // Si c'est déjà un UUID, le retourner directement
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(slugOrId)) {
+      // Vérifier que l'organisation existe
+      const organization = await this.prisma.company.findUnique({
+        where: { id: slugOrId },
+        select: { id: true },
+      });
+      
+      if (!organization) {
+        throw new NotFoundException('Organisation non trouvée');
+      }
+      
+      return slugOrId;
+    }
+
+    // Sinon, chercher par slug
     const organization = await this.prisma.company.findUnique({
       where: { slug: slugOrId },
       select: { id: true },

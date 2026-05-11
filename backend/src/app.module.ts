@@ -13,6 +13,10 @@ import { MembersModule } from './members/members.module';
 import { HRModule } from './hr/hr.module';
 import { CrmModule } from './crm/crm.module';
 import { AccountingModule } from './accounting/accounting.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { PosModule } from './pos/pos.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { ProjectsModule } from './projects/projects.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -32,6 +36,10 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     HRModule,
     CrmModule,
     AccountingModule,
+    InventoryModule,
+    PosModule,
+    AnalyticsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

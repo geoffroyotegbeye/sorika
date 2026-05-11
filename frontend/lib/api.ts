@@ -36,7 +36,19 @@ async function apiClient<T>(path: string, options: RequestInit = {}): Promise<T>
     throw new Error(err.message || `Erreur ${res.status}`);
   }
   if (res.status === 204) return undefined as T;
-  return res.json();
+  
+  // Vérifier si la réponse a du contenu
+  const text = await res.text();
+  if (!text || text.trim() === '') {
+    return null as T;
+  }
+  
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error('Failed to parse JSON:', text);
+    throw new Error('Invalid JSON response');
+  }
 }
 
 export const api = {

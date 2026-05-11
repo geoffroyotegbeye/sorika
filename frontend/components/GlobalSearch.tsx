@@ -17,7 +17,8 @@ import {
   Home, Users, FileText, Image, UserCircle, Briefcase,
   Calculator, ShoppingCart, BarChart3, MessageSquare, BookOpen,
   Settings, Receipt, CreditCard, Building2, ClipboardList,
-  Calendar, User, LayoutTemplate,
+  Calendar, User, LayoutTemplate, Package, FolderTree, ArrowUpDown,
+  AlertTriangle, Banknote, DollarSign, ListChecks, ClipboardCheck,
 } from 'lucide-react';
 
 interface SearchItem {
@@ -108,6 +109,24 @@ export function GlobalSearch({ slug, modules }: GlobalSearchProps) {
       { id: 'acc-bills',    label: 'Comptabilité — Charges',         icon: Receipt,    href: d('/accounting/bills'),        group: 'Comptabilité' },
       { id: 'acc-suppliers',label: 'Comptabilité — Fournisseurs',    icon: Building2,  href: d('/accounting/suppliers'),    group: 'Comptabilité' },
       { id: 'acc-payments', label: 'Comptabilité — Paiements',       icon: CreditCard, href: d('/accounting/payments'),     group: 'Comptabilité' },
+    ] : []),
+
+    // Inventaire
+    ...(modules.includes('INVENTORY') ? [
+      { id: 'inv',          label: 'Inventaire — Vue d\'ensemble',   icon: Package,       href: d('/inventory'),              group: 'Inventaire' },
+      { id: 'inv-products', label: 'Inventaire — Produits',          icon: Package,       href: d('/inventory/products'),     group: 'Inventaire' },
+      { id: 'inv-categories',label: 'Inventaire — Catégories',       icon: FolderTree,    href: d('/inventory/categories'),   group: 'Inventaire' },
+      { id: 'inv-movements',label: 'Inventaire — Mouvements',        icon: ArrowUpDown,   href: d('/inventory/movements'),    group: 'Inventaire' },
+      { id: 'inv-alerts',   label: 'Inventaire — Alertes',           icon: AlertTriangle, href: d('/inventory/alerts'),       group: 'Inventaire' },
+    ] : []),
+
+    // Point de Vente
+    ...(modules.includes('POS') ? [
+      { id: 'pos',          label: 'Point de Vente — Dashboard',     icon: Banknote,      href: d('/pos'),                    group: 'Point de Vente' },
+      { id: 'pos-cashier',  label: 'Point de Vente — Caisse',        icon: DollarSign,    href: d('/pos/cashier'),            group: 'Point de Vente' },
+      { id: 'pos-registers',label: 'Point de Vente — Caisses',       icon: Banknote,      href: d('/pos/registers'),          group: 'Point de Vente' },
+      { id: 'pos-sessions', label: 'Point de Vente — Sessions',      icon: ClipboardCheck,href: d('/pos/sessions'),           group: 'Point de Vente' },
+      { id: 'pos-sales',    label: 'Point de Vente — Ventes',        icon: ListChecks,    href: d('/pos/sales'),              group: 'Point de Vente' },
     ] : []),
   ];
 

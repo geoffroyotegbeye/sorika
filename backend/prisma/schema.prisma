@@ -80,6 +80,20 @@ model Company {
   payments     Payment[]
   taxRates     TaxRate[]
   
+  // Relations Inventaire
+  productCategories ProductCategory[]
+  inventoryProducts InventoryProduct[]
+  stockMovements    StockMovement[]
+  stockAlerts       StockAlert[]
+  
+  // Relations POS
+  cashRegisters CashRegister[]
+  cashSessions  CashSession[]
+  sales         Sale[]
+  
+  // Relations Projets
+  projects      Project[]
+  
   createdAt    DateTime     @default(now())
 }
 
@@ -252,6 +266,15 @@ model Employee {
   leaveBalances LeaveBalance[]
   attendances  Attendance[]
   assignments  Assignment[] @relation("EmployeeAssignments")
+  
+  // Relations POS
+  cashSessions CashSession[]
+  sales        Sale[]
+  
+  // Relations Projets
+  projectMemberships ProjectMember[]
+  assignedTasks      Task[]          @relation("TaskAssignee")
+  timeEntries        TimeEntry[]
   
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -450,6 +473,9 @@ model Contact {
   opportunities   Opportunity[]
   activities      Activity[]
   
+  // Relations POS
+  sales           Sale[]
+  
   organizationId  String
   organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   
@@ -483,6 +509,7 @@ model ClientCompany {
   activities      Activity[]
   invoices        Invoice[]
   quotes          Quote[]
+  projects        Project[]
   
   organizationId  String
   organization    Company   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -703,7 +730,10 @@ model Invoice {
   createdById   String?
   items         InvoiceItem[]
   payments      Payment[]
-
+  
+  // Relations POS
+  sale          Sale?
+  
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -802,4 +832,514 @@ model BillItem {
   createdAt   DateTime @default(now())
 
   @@index([billId])
+}
+
+// ============================================
+// MODULE INVENTAIRE (Gestion des stocks)
+// ============================================
+
+// Catégories de produits
+model ProductCategory {
+  id          String            @id @default(uuid())
+  name        String
+  description String?           @db.Text
+  parentId    String?           // Catégories imbriquées
+  parent      ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  products    InventoryProduct[]
+  companyId   String
+  company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([name, companyId])
+  @@index([companyId])
+  @@index([parentId])
+}
+
+// Produits en stock
+model InventoryProduct {
+  id          String         @id @default(uuid())
+  name        String
+  sku         String?        // Code produit (Stock Keeping Unit)
+  barcode     String?        // Code-barres
+  description String?        @db.Text
+  
+  // Catégorie
+  categoryId  String?
+  category    ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  // Prix et coûts
+  salePrice   Float          // Prix de vente
+  costPrice   Float?         // Prix d'achat/coût
+  currency    String         @default("XOF")
+  
+  // Stock
+  stockQuantity Int          @default(0)
+  minStock    Int?           // Seuil d'alerte stock bas
+  maxStock    Int?           // Stock maximum
+  unit        String         @default("pièce") // pièce, kg, litre, mètre, etc.
+  
+  // Informations produit
+  imageUrl    String?
+  weight      Float?         // Poids (en kg)
+  dimensions  Json?          // { length, width, height } en cm
+  
+  // Statut
+  isActive    Boolean        @default(true)
+  isSellable  Boolean        @default(true)  // Peut être vendu
+  isPurchasable Boolean      @default(true)  // Peut être acheté
+  
+  // Relations
+  companyId   String
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  movements   StockMovement[]
+  stockAlerts StockAlert[]
+  
+  // Relations POS
+  saleItems   SaleItem[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([sku, companyId])
+  @@unique([barcode, companyId])
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+// Mouvements de stock (entrées/sorties)
+model StockMovement {
+  id          String           @id @default(uuid())
+  type        String           // IN (entrée), OUT (sortie), ADJUSTMENT (ajustement)
+  quantity    Int              // Quantité (positif ou négatif)
+  reason      String?          // Raison du mouvement
+  reference   String?          // Référence (facture, commande, etc.)
+  notes       String?          @db.Text
+  
+  // Produit concerné
+  productId   String
+  product     InventoryProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Stock avant/après
+  stockBefore Int              // Stock avant le mouvement
+  stockAfter  Int              // Stock après le mouvement
+  
+  // Coût unitaire au moment du mouvement
+  unitCost    Float?
+  totalCost   Float?           // quantity * unitCost
+  
+  // Qui a fait le mouvement
+  createdById String?          // userId
+  
+  companyId   String
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime         @default(now())
+
+  @@index([companyId])
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// Alertes de stock
+model StockAlert {
+  id          String           @id @default(uuid())
+  type        String           // LOW_STOCK, OUT_OF_STOCK, OVERSTOCK
+  message     String
+  isResolved  Boolean          @default(false)
+  resolvedAt  DateTime?
+  
+  productId   String
+  product     InventoryProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  companyId   String
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime         @default(now())
+
+  @@index([companyId])
+  @@index([productId])
+  @@index([isResolved])
+}
+
+// ============================================
+// MODULE POINT DE VENTE (POS)
+// ============================================
+
+// Caisses enregistreuses
+model CashRegister {
+  id          String        @id @default(uuid())
+  name        String        // "Caisse 1", "Caisse principale"
+  code        String        // "CASH-001"
+  location    String?       // "Magasin principal", "Succursale Nord"
+  isActive    Boolean       @default(true)
+  
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  sessions    CashSession[]
+  sales       Sale[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@unique([code, companyId])
+  @@index([companyId])
+  @@index([isActive])
+}
+
+// Sessions de caisse (ouverture/fermeture)
+model CashSession {
+  id              String       @id @default(uuid())
+  
+  registerId      String
+  register        CashRegister @relation(fields: [registerId], references: [id], onDelete: Cascade)
+  
+  cashierId       String
+  cashier         Employee     @relation(fields: [cashierId], references: [id])
+  
+  openingAmount   Float        // Fonds de départ
+  closingAmount   Float?       // Fonds de fin (null si session ouverte)
+  expectedAmount  Float?       // Montant attendu (calculé)
+  difference      Float?       // Écart (closingAmount - expectedAmount)
+  
+  openedAt        DateTime     @default(now())
+  closedAt        DateTime?
+  
+  status          String       @default("OPEN") // OPEN, CLOSED
+  notes           String?      @db.Text // Notes de fermeture
+  
+  sales           Sale[]
+  
+  companyId       String
+  company         Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@index([companyId])
+  @@index([registerId])
+  @@index([cashierId])
+  @@index([status])
+  @@index([openedAt])
+}
+
+// Ventes POS
+model Sale {
+  id              String       @id @default(uuid())
+  saleNumber      String       // "POS-2026-00001"
+  
+  registerId      String
+  register        CashRegister @relation(fields: [registerId], references: [id])
+  
+  sessionId       String
+  session         CashSession  @relation(fields: [sessionId], references: [id])
+  
+  cashierId       String
+  cashier         Employee     @relation(fields: [cashierId], references: [id])
+  
+  customerId      String?      // Optionnel (lien CRM)
+  customer        Contact?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  
+  // Montants
+  subtotal        Float        // Sous-total HT
+  discountAmount  Float        @default(0)
+  discountPercent Float        @default(0)
+  taxAmount       Float        @default(0)
+  taxPercent      Float        @default(18) // TVA 18%
+  total           Float        // Total TTC
+  
+  // Paiement
+  paymentMethod   String       // CASH, CARD, MOBILE_MONEY, MIXED
+  amountPaid      Float
+  changeAmount    Float        @default(0)
+  
+  // Statut
+  status          String       @default("COMPLETED") // COMPLETED, CANCELLED, REFUNDED
+  
+  // Facture liée (Comptabilité)
+  invoiceId       String?      @unique
+  invoice         Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  
+  items           SaleItem[]
+  payments        SalePayment[]
+  
+  notes           String?      @db.Text
+  
+  companyId       String
+  company         Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@unique([saleNumber, companyId])
+  @@index([companyId])
+  @@index([registerId])
+  @@index([sessionId])
+  @@index([cashierId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Lignes de vente
+model SaleItem {
+  id          String           @id @default(uuid())
+  
+  saleId      String
+  sale        Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  
+  productId   String
+  product     InventoryProduct @relation(fields: [productId], references: [id])
+  
+  productName String           // Nom au moment de la vente
+  productSku  String?          // SKU au moment de la vente
+  
+  quantity    Int
+  unitPrice   Float            // Prix unitaire HT
+  discount    Float            @default(0)
+  taxPercent  Float            @default(18)
+  subtotal    Float            // (quantity * unitPrice) - discount
+  total       Float            // subtotal + tax
+  
+  createdAt   DateTime         @default(now())
+  
+  @@index([saleId])
+  @@index([productId])
+}
+
+// Paiements (pour paiements mixtes)
+model SalePayment {
+  id          String   @id @default(uuid())
+  
+  saleId      String
+  sale        Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  
+  method      String   // CASH, CARD, MOBILE_MONEY
+  amount      Float
+  reference   String?  // Référence transaction (pour carte/mobile money)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([saleId])
+}
+
+// ============================================
+// MODULE PROJETS (Project Management)
+// ============================================
+
+// Projets
+model Project {
+  id              String        @id @default(uuid())
+  name            String
+  description     String?       @db.Text
+  code            String?       // Code projet (ex: PROJ-2026-001)
+  
+  // Statut et priorité
+  status          String        @default("PENDING") // PENDING, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED
+  priority        String        @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  
+  // Dates
+  startDate       DateTime?
+  endDate         DateTime?
+  completedAt     DateTime?
+  
+  // Budget
+  budget          Float?
+  currency        String        @default("XOF")
+  actualCost      Float         @default(0)
+  
+  // Progression
+  progress        Int           @default(0) // 0-100%
+  
+  // Client (optionnel - lien CRM)
+  clientId        String?
+  client          ClientCompany? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  
+  // Relations
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  tasks           Task[]
+  members         ProjectMember[]
+  timeEntries     TimeEntry[]
+  documents       ProjectDocument[]
+  
+  createdById     String?       // userId du créateur
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@unique([code, companyId])
+  @@index([companyId])
+  @@index([status])
+  @@index([clientId])
+}
+
+// Membres du projet (équipe)
+model ProjectMember {
+  id          String    @id @default(uuid())
+  
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  role        String    @default("MEMBER") // OWNER, MANAGER, MEMBER, VIEWER
+  
+  joinedAt    DateTime  @default(now())
+  leftAt      DateTime?
+  
+  @@unique([projectId, employeeId])
+  @@index([projectId])
+  @@index([employeeId])
+}
+
+// Tâches (Kanban)
+model Task {
+  id              String        @id @default(uuid())
+  title           String
+  description     String?       @db.Text
+  
+  // Statut Kanban
+  status          String        @default("TODO") // TODO, IN_PROGRESS, IN_REVIEW, DONE
+  priority        String        @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  
+  // Dates
+  dueDate         DateTime?
+  startDate       DateTime?
+  completedAt     DateTime?
+  
+  // Estimation et temps
+  estimatedHours  Float?        // Temps estimé en heures
+  actualHours     Float         @default(0) // Temps réel passé
+  
+  // Assignation
+  assigneeId      String?
+  assignee        Employee?     @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  
+  // Projet
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Tâche parente (sous-tâches)
+  parentId        String?
+  parent          Task?         @relation("TaskHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  subtasks        Task[]        @relation("TaskHierarchy")
+  
+  // Position dans le Kanban
+  position        Int           @default(0)
+  
+  // Labels/Tags
+  tags            String[]      @default([])
+  
+  // Relations
+  timeEntries     TimeEntry[]
+  comments        TaskComment[]
+  attachments     TaskAttachment[]
+  
+  companyId       String
+  createdById     String?       // userId du créateur
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([parentId])
+}
+
+// Commentaires sur les tâches
+model TaskComment {
+  id          String    @id @default(uuid())
+  
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  authorId    String    // userId
+  content     String    @db.Text
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([taskId])
+  @@index([authorId])
+}
+
+// Pièces jointes des tâches
+model TaskAttachment {
+  id          String    @id @default(uuid())
+  
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  filename    String
+  fileUrl     String
+  fileSize    Int?      // Taille en bytes
+  mimeType    String?
+  
+  uploadedById String?  // userId
+  createdAt   DateTime  @default(now())
+  
+  @@index([taskId])
+}
+
+// Suivi du temps (Time tracking)
+model TimeEntry {
+  id          String    @id @default(uuid())
+  
+  // Projet et tâche
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  taskId      String?
+  task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  
+  // Employé
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  // Temps
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Float?    // Durée en heures (calculé)
+  
+  // Description
+  description String?   @db.Text
+  
+  // Facturable
+  isBillable  Boolean   @default(true)
+  hourlyRate  Float?    // Taux horaire
+  
+  companyId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([taskId])
+  @@index([employeeId])
+  @@index([startTime])
+}
+
+// Documents du projet
+model ProjectDocument {
+  id          String    @id @default(uuid())
+  
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?   @db.Text
+  fileUrl     String
+  fileSize    Int?
+  mimeType    String?
+  
+  uploadedById String?  // userId
+  createdAt   DateTime  @default(now())
+  
+  @@index([projectId])
 }

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronRight, ChevronLeft, Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccounting } from '@/hooks/useAccounting';
 import type { Bill, CreateBillDto, AccountingLineItem } from '@/types/accounting';
@@ -41,6 +41,7 @@ const emptyLine = (): LineItem => ({
 export function BillFormDialog({ companyId, bill, open, onClose, currency, prefill }: Props) {
   const { createBill, updateBill, fetchTaxRates, fetchSuppliers, taxRates, suppliers, loading } = useAccounting(companyId);
 
+  const [step, setStep] = useState(1);
   const [issueDate, setIssueDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [supplierId, setSupplierId] = useState('');
@@ -91,6 +92,7 @@ export function BillFormDialog({ companyId, bill, open, onClose, currency, prefi
       setNotes('');
       setLines([emptyLine()]);
     }
+    setStep(1);
   }, [bill, open]);
 
   const updateLine = (id: string, field: keyof LineItem, value: any) => {
@@ -122,10 +124,14 @@ export function BillFormDialog({ companyId, bill, open, onClose, currency, prefi
     if (s) setSupplierName(s.name);
   };
 
+  const handleClose = () => {
+    setStep(1);
+    onClose();
+  };
+
   const fmt = (n: number) => n.toLocaleString('fr-FR') + ' ' + currency;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (lines.some(l => !l.description.trim())) {
       toast.error('Chaque ligne doit avoir une description');
       return;
@@ -148,185 +154,245 @@ export function BillFormDialog({ companyId, bill, open, onClose, currency, prefi
         await createBill(dto);
         toast.success('Charge créée');
       }
-      onClose();
+      handleClose();
     } catch (err: any) {
       toast.error(err.message || 'Erreur');
     }
   };
 
+  const canGoToStep2 = supplierName.trim() !== '';
+  const canSubmit = canGoToStep2 && lines.some(l => l.description.trim() !== '');
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="!max-w-5xl max-h-[85vh] overflow-y-auto w-full">
         <DialogHeader>
           <DialogTitle>{bill ? 'Modifier la charge' : prefill ? 'Nouvelle charge (depuis note de frais RH)' : 'Nouvelle charge'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Fournisseur */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Fournisseur (liste)</Label>
-              <Combobox
-                options={supplierOptions}
-                value={supplierId}
-                onValueChange={handleSupplierSelect}
-                placeholder="Sélectionner un fournisseur..."
-                searchPlaceholder="Rechercher..."
-                emptyText="Aucun fournisseur trouvé"
-              />
+        {/* Indicateur d'étapes */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 1 ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'}`}>
+            1
+          </div>
+          <div className={`h-1 w-12 ${step === 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step === 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+            2
+          </div>
+        </div>
+
+        {/* Étape 1 : Informations fournisseur */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Fournisseur (depuis liste)</Label>
+                <Combobox
+                  options={supplierOptions}
+                  value={supplierId}
+                  onValueChange={handleSupplierSelect}
+                  placeholder="Sélectionner un fournisseur..."
+                  searchPlaceholder="Rechercher..."
+                  emptyText="Aucun fournisseur trouvé"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Nom du fournisseur *</Label>
+                <Input
+                  value={supplierName}
+                  onChange={e => setSupplierName(e.target.value)}
+                  placeholder="Nom du fournisseur"
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Nom libre (si hors liste)</Label>
-              <Input
-                value={supplierName}
-                onChange={e => setSupplierName(e.target.value)}
-                placeholder="Nom du fournisseur"
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Date de la charge</Label>
+                <Input 
+                  type="date" 
+                  value={issueDate} 
+                  onChange={e => setIssueDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Date d'échéance</Label>
+                <Input 
+                  type="date" 
+                  value={dueDate} 
+                  onChange={e => setDueDate(e.target.value)}
+                  min={issueDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Date de la charge</Label>
-              <Input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Date d'échéance</Label>
-              <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={handleClose}>
+                Annuler
+              </Button>
+              <Button onClick={() => setStep(2)} disabled={!canGoToStep2}>
+                Suivant
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
             </div>
           </div>
+        )}
 
-          {/* Lignes */}
-          <div className="space-y-2">
-            <Label>Lignes</Label>
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium text-slate-600 w-[40%]">Description</th>
-                    <th className="px-3 py-2 text-left font-medium text-slate-600 w-[10%]">Qté</th>
-                    <th className="px-3 py-2 text-left font-medium text-slate-600 w-[18%]">Prix unit.</th>
-                    <th className="px-3 py-2 text-left font-medium text-slate-600 w-[18%]">TVA</th>
-                    <th className="px-3 py-2 text-right font-medium text-slate-600 w-[10%]">Total</th>
-                    <th className="w-8" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {lines.map(line => (
-                    <tr key={line._id}>
-                      <td className="px-2 py-1.5">
-                        <Input
-                          value={line.description}
-                          onChange={e => updateLine(line._id, 'description', e.target.value)}
-                          placeholder="Description..."
-                          className="h-8 text-sm"
-                        />
-                      </td>
-                      <td className="px-2 py-1.5">
-                        <Input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          value={line.quantity}
-                          onChange={e => updateLine(line._id, 'quantity', parseFloat(e.target.value) || 0)}
-                          className="h-8 text-sm"
-                        />
-                      </td>
-                      <td className="px-2 py-1.5">
-                        <Input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          value={line.unitPrice}
-                          onChange={e => updateLine(line._id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                          className="h-8 text-sm"
-                        />
-                      </td>
-                      <td className="px-2 py-1.5">
-                        <Select
-                          value={line.taxRateId ?? 'none'}
-                          onValueChange={v => updateLine(line._id, 'taxRateId', v === 'none' ? undefined : v)}
-                        >
-                          <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Aucune" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Aucune</SelectItem>
-                            {taxRates.map(tr => (
-                              <SelectItem key={tr.id} value={tr.id}>
-                                {tr.name} ({tr.rate}%)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="px-2 py-1.5 text-right font-medium text-slate-700">
-                        {fmt(getLineTotal(line))}
-                      </td>
-                      <td className="px-1 py-1.5">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeLine(line._id)}
-                          disabled={lines.length === 1}
-                          className="h-8 w-8 p-0 text-slate-400 hover:text-red-500"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </td>
+        {/* Étape 2 : Lignes et détails */}
+        {step === 2 && (
+          <div className="space-y-6">
+            {/* Récapitulatif fournisseur */}
+            <div className="p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Receipt className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900">{supplierName}</p>
+                  {issueDate && <p className="text-sm text-slate-600">Date: {new Date(issueDate).toLocaleDateString('fr-FR')}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Lignes de la charge */}
+            <div className="space-y-3">
+              <Label>Lignes de la charge</Label>
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-slate-600 w-[40%]">Description</th>
+                      <th className="px-3 py-2 text-left font-medium text-slate-600 w-[10%]">Qté</th>
+                      <th className="px-3 py-2 text-left font-medium text-slate-600 w-[18%]">Prix unit.</th>
+                      <th className="px-3 py-2 text-left font-medium text-slate-600 w-[18%]">TVA</th>
+                      <th className="px-3 py-2 text-right font-medium text-slate-600 w-[10%]">Total</th>
+                      <th className="w-8" />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {lines.map(line => (
+                      <tr key={line._id}>
+                        <td className="px-2 py-1.5">
+                          <Input
+                            value={line.description}
+                            onChange={e => updateLine(line._id, 'description', e.target.value)}
+                            placeholder="Description..."
+                            className="h-8 text-sm"
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <Input
+                            type="number" min={0} step="0.01"
+                            value={line.quantity}
+                            onChange={e => updateLine(line._id, 'quantity', parseFloat(e.target.value) || 0)}
+                            className="h-8 text-sm"
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <Input
+                            type="number" min={0} step="0.01"
+                            value={line.unitPrice}
+                            onChange={e => updateLine(line._id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                            className="h-8 text-sm"
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <Select
+                            value={line.taxRateId ?? 'none'}
+                            onValueChange={v => updateLine(line._id, 'taxRateId', v === 'none' ? undefined : v)}
+                          >
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue placeholder="Aucune" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Aucune</SelectItem>
+                              {taxRates.map(tr => (
+                                <SelectItem key={tr.id} value={tr.id}>
+                                  {tr.name} ({tr.rate}%)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-2 py-1.5 text-right font-medium text-slate-900">
+                          {fmt(getLineTotal(line))}
+                        </td>
+                        <td className="px-1 py-1.5">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeLine(line._id)}
+                            disabled={lines.length === 1}
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-red-500"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setLines(prev => [...prev, emptyLine()])}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Ajouter une ligne
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setLines(prev => [...prev, emptyLine()])}
-              className="mt-1"
-            >
-              <Plus className="h-3.5 w-3.5 mr-1" />
-              Ajouter une ligne
-            </Button>
-          </div>
 
-          {/* Totaux */}
-          <div className="flex justify-end">
-            <div className="w-64 space-y-1 text-sm">
-              <div className="flex justify-between text-slate-600">
-                <span>Sous-total HT</span>
-                <span>{fmt(subtotal)}</span>
+            {/* Totaux */}
+            <div className="flex justify-end">
+              <div className="w-64 space-y-2 text-sm">
+                <div className="flex justify-between text-slate-600">
+                  <span>Sous-total HT</span>
+                  <span>{fmt(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-slate-600">
+                  <span>TVA</span>
+                  <span>{fmt(taxTotal)}</span>
+                </div>
+                <div className="flex justify-between font-semibold text-lg text-slate-900 border-t pt-2">
+                  <span>Total TTC</span>
+                  <span>{fmt(total)}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>TVA</span>
-                <span>{fmt(taxTotal)}</span>
-              </div>
-              <div className="flex justify-between font-semibold text-slate-900 border-t pt-1">
-                <span>Total TTC</span>
-                <span>{fmt(total)}</span>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label>Notes internes</Label>
+              <Textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={3}
+                placeholder="Notes internes, références..."
+              />
+            </div>
+
+            <div className="flex justify-between gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setStep(1)}>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Retour
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleClose}>
+                  Annuler
+                </Button>
+                <Button onClick={handleSubmit} disabled={!canSubmit || loading}>
+                  {loading ? 'Enregistrement...' : bill ? 'Mettre à jour' : 'Créer la charge'}
+                </Button>
               </div>
             </div>
           </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label>Notes</Label>
-            <Textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              rows={2}
-              placeholder="Notes internes..."
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Annuler
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Enregistrement...' : bill ? 'Mettre à jour' : 'Créer la charge'}
-            </Button>
-          </div>
-        </form>
+        )}
       </DialogContent>
     </Dialog>
   );

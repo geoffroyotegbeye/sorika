@@ -14,15 +14,6 @@ import {
   Shield, 
   Settings, 
   Users,
-  FileText,
-  Image,
-  UserCircle,
-  Briefcase,
-  ShoppingCart,
-  BarChart3,
-  MessageSquare,
-  BookOpen,
-  Calculator,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlobalSearch } from '@/components/GlobalSearch';
@@ -80,7 +71,7 @@ export default function DashboardLayout({
 
   // Détecter si on est dans un module avec sa propre sidebar
   const isInModuleWithSidebar = () => {
-    const modulesWithSidebar = ['crm', 'hr', 'accounting'];
+    const modulesWithSidebar = ['crm', 'hr', 'accounting', 'inventory', 'pos'];
     const pathParts = pathname.replace(`/dashboard/${slug}`, '').split('/').filter(Boolean);
     return pathParts.length > 0 && modulesWithSidebar.includes(pathParts[0]);
   };
@@ -88,29 +79,8 @@ export default function DashboardLayout({
   const showMainSidebar = !isInModuleWithSidebar();
 
   const isActive = (href: string) => pathname === href;
-  const isModuleActive = (modulePrefix: string) => {
-    // Pour le site vitrine, vérifier si on est sur /site-vitrine ou /editor/
-    if (modulePrefix === 'site-vitrine') {
-      return pathname.startsWith(`/dashboard/${slug}/site-vitrine`) || pathname.startsWith('/editor/');
-    }
-    // Pour les autres modules, vérifier sous /dashboard/
-    return pathname.startsWith(`/dashboard/${slug}/${modulePrefix}`);
-  };
   const userInitial = user.firstName?.[0] || user.email[0].toUpperCase();
   const userName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.email;
-
-  // Modules disponibles
-  const modules = [
-    { name: 'Site Vitrine', icon: FileText, href: `/dashboard/${slug}/site-vitrine`, prefix: 'site-vitrine' },
-    { name: 'Médias', icon: Image, href: `/dashboard/${slug}/media`, prefix: 'media' },
-    { name: 'CRM', icon: UserCircle, href: `/dashboard/${slug}/crm`, prefix: 'crm' },
-    { name: 'RH', icon: Briefcase, href: `/dashboard/${slug}/hr/employees`, prefix: 'hr' },
-    { name: 'Comptabilité', icon: Calculator, href: `/dashboard/${slug}/accounting`, prefix: 'accounting' },
-    { name: 'E-commerce', icon: ShoppingCart, href: `/dashboard/${slug}/ecommerce`, prefix: 'ecommerce' },
-    { name: 'Analytiques', icon: BarChart3, href: `/dashboard/${slug}/analytics`, prefix: 'analytics' },
-    { name: 'Messagerie', icon: MessageSquare, href: `/dashboard/${slug}/messaging`, prefix: 'messaging' },
-    { name: 'Blog', icon: BookOpen, href: `/dashboard/${slug}/blog`, prefix: 'blog' },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -150,27 +120,13 @@ export default function DashboardLayout({
             <Users className="h-4 w-4 shrink-0" />
             Membres
           </a>
-
-          {/* Séparateur */}
-          <div className="pt-4 pb-2 px-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Modules</p>
-          </div>
-
-          {/* Modules */}
-          {modules.map((module) => {
-            const Icon = module.icon;
-            const active = isModuleActive(module.prefix);
-            return (
-              <a
-                key={module.prefix}
-                href={module.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${active ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {module.name}
-              </a>
-            );
-          })}
+          <a
+            href={`/dashboard/${slug}/settings`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/settings`) ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            Paramètres
+          </a>
         </nav>
       </aside>
       )}
