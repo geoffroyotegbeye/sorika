@@ -124,7 +124,7 @@ export function ActivitiesList({ companyId }: ActivitiesListProps) {
         const Icon = typeIcons[val as ActivityType];
         return (
           <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4 text-slate-400" />
+            <Icon className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm">{typeLabels[val as ActivityType]}</span>
           </div>
         );
@@ -147,9 +147,9 @@ export function ActivitiesList({ companyId }: ActivitiesListProps) {
             </div>
           )}
           {row.company && (
-            <div className="text-slate-500">{row.company.name}</div>
+            <div className="text-muted-foreground">{row.company.name}</div>
           )}
-          {!row.contact && !row.company && <span className="text-slate-400">—</span>}
+          {!row.contact && !row.company && <span className="text-muted-foreground">—</span>}
         </div>
       ),
     },

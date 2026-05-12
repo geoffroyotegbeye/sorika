@@ -68,7 +68,7 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
       header: 'Nom',
       render: (val) => (
         <div className="flex items-center gap-2 font-medium">
-          <Building2 className="h-4 w-4 text-slate-400" />
+          <Building2 className="h-4 w-4 text-muted-foreground" />
           {val as string}
         </div>
       ),
@@ -76,7 +76,7 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
     {
       key: 'industry',
       header: 'Secteur',
-      render: (val) => (val ? <span>{val as string}</span> : <span className="text-slate-400">—</span>),
+      render: (val) => (val ? <span>{val as string}</span> : <span className="text-muted-foreground">—</span>),
     },
     {
       key: 'size',
@@ -85,7 +85,7 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
         val ? (
           <Badge variant="outline">{sizeLabels[val as CompanySize]}</Badge>
         ) : (
-          <span className="text-slate-400">—</span>
+          <span className="text-muted-foreground">—</span>
         ),
     },
     {
@@ -95,7 +95,7 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
       searchable: false,
       render: (_, row) => (
         <div className="flex items-center gap-1">
-          <Users className="h-4 w-4 text-slate-400" />
+          <Users className="h-4 w-4 text-muted-foreground" />
           {row._count?.contacts || 0}
         </div>
       ),

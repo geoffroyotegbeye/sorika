@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { formatJobPositionLabel } from '@/lib/hr-display';
 import type { AttendanceStatus } from '@/types/attendance';
 
 const STATUS_CONFIG: Record<AttendanceStatus, { bg: string; text: string; label: string }> = {
@@ -64,7 +65,7 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
   if (!company) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
@@ -73,16 +74,19 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
     {
       key: 'employee',
       header: 'Employé',
-      render: (_, row) => (
-        <div>
-          <p className="font-medium text-foreground">
-            {row.employee ? `${row.employee.firstName} ${row.employee.lastName}` : 'Inconnu'}
-          </p>
-          {row.employee?.position && (
-            <p className="text-xs text-muted-foreground">{row.employee.position}</p>
-          )}
-        </div>
-      ),
+      render: (_, row) => {
+        const pos = formatJobPositionLabel(row.employee?.position);
+        return (
+          <div>
+            <p className="font-medium text-foreground">
+              {row.employee
+                ? `${row.employee.firstName} ${row.employee.lastName}`
+                : 'Inconnu'}
+            </p>
+            {pos ? <p className="text-xs text-muted-foreground">{pos}</p> : null}
+          </div>
+        );
+      },
     },
     {
       key: 'date',

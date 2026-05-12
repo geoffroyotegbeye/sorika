@@ -71,7 +71,7 @@ export function DataGrid<T extends object>({
       <div className={cn('overflow-x-auto', className)}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50">
+            <tr className="border-b border-border bg-muted/50">
               {selectable && (
                 <th className="w-10 px-4 py-3">
                   <Checkbox
@@ -89,8 +89,9 @@ export function DataGrid<T extends object>({
                   key={`${col.key}-${idx}`}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    'px-4 py-3 text-left font-medium text-slate-600 whitespace-nowrap',
-                    col.sortable !== false && 'cursor-pointer select-none hover:text-slate-900'
+                    'px-4 py-3 text-left font-medium text-muted-foreground whitespace-nowrap',
+                    col.sortable !== false &&
+                      'cursor-pointer select-none hover:text-foreground'
                   )}
                   onClick={() => col.sortable !== false && handleSort(col.key)}
                 >
@@ -115,9 +116,9 @@ export function DataGrid<T extends object>({
                   key={i}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    'border-b border-slate-100 transition-colors',
-                    onRowClick && 'cursor-pointer hover:bg-slate-50',
-                    isSelected(row) && 'bg-blue-50 hover:bg-blue-50'
+                    'border-b border-border transition-colors',
+                    onRowClick && 'cursor-pointer hover:bg-muted/50',
+                    isSelected(row) && 'bg-primary/10 hover:bg-primary/10'
                   )}
                 >
                   {selectable && (
@@ -130,7 +131,7 @@ export function DataGrid<T extends object>({
                     </td>
                   )}
                   {columns.map((col, idx) => (
-                    <td key={`${col.key}-${idx}`} className="px-4 py-3 text-slate-700">
+                    <td key={`${col.key}-${idx}`} className="px-4 py-3 text-foreground">
                       {col.render
                         ? col.render(row[col.key as keyof T], row)
                         : (row[col.key as keyof T] as React.ReactNode) ?? '—'}
@@ -159,7 +160,9 @@ export function DataGrid<T extends object>({
 
 // Icône de tri
 function SortIcon({ column, sort }: { column: string; sort: { column: string | null; direction: string | null } }) {
-  if (sort.column !== column) return <ChevronsUpDown className="h-3.5 w-3.5 text-slate-400" />;
-  if (sort.direction === 'asc') return <ChevronUp className="h-3.5 w-3.5 text-blue-500" />;
-  return <ChevronDown className="h-3.5 w-3.5 text-blue-500" />;
+  if (sort.column !== column)
+    return <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />;
+  if (sort.direction === 'asc')
+    return <ChevronUp className="h-3.5 w-3.5 text-primary" />;
+  return <ChevronDown className="h-3.5 w-3.5 text-primary" />;
 }

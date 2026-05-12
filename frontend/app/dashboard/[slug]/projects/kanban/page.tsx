@@ -47,30 +47,48 @@ export default function KanbanPage({
   }, [companyId, selectedProjectId, fetchTasks]);
 
   const columns = [
-    { id: 'TODO', title: 'À faire', color: 'bg-muted' },
-    { id: 'IN_PROGRESS', title: 'En cours', color: 'bg-blue-100' },
-    { id: 'IN_REVIEW', title: 'En révision', color: 'bg-purple-100' },
-    { id: 'DONE', title: 'Terminé', color: 'bg-green-100' },
+    { id: 'TODO', title: 'À faire', color: 'bg-muted text-foreground' },
+    {
+      id: 'IN_PROGRESS',
+      title: 'En cours',
+      color:
+        'bg-blue-100 text-blue-900 dark:bg-blue-950/50 dark:text-blue-100',
+    },
+    {
+      id: 'IN_REVIEW',
+      title: 'En révision',
+      color:
+        'bg-purple-100 text-purple-900 dark:bg-purple-950/50 dark:text-purple-100',
+    },
+    {
+      id: 'DONE',
+      title: 'Terminé',
+      color:
+        'bg-green-100 text-green-900 dark:bg-green-950/45 dark:text-green-100',
+    },
   ];
+
+  const getPriorityColor = (priority: string) => {
+    const colors: Record<string, string> = {
+      LOW: 'bg-muted text-foreground',
+      MEDIUM:
+        'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+      HIGH:
+        'bg-orange-100 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200',
+      URGENT:
+        'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-200',
+    };
+    return colors[priority] || 'bg-muted text-foreground';
+  };
 
   const getTasksByStatus = (status: string) => {
     return tasks.filter((task) => task.status === status);
   };
 
-  const getPriorityColor = (priority: string) => {
-    const colors: Record<string, string> = {
-      LOW: 'bg-muted text-foreground',
-      MEDIUM: 'bg-blue-100 text-blue-700',
-      HIGH: 'bg-orange-100 text-orange-700',
-      URGENT: 'bg-red-100 text-red-700',
-    };
-    return colors[priority] || 'bg-muted text-foreground';
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+        <div className="flex h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
@@ -92,7 +110,7 @@ export default function KanbanPage({
           return (
             <Card key={column.id} className="border border-border">
               <CardHeader className={`${column.color} pb-3`}>
-                <CardTitle className="text-sm font-semibold text-foreground flex items-center justify-between">
+                <CardTitle className="flex items-center justify-between text-sm font-semibold">
                   <span>{column.title}</span>
                   <span className="text-xs font-normal text-muted-foreground">
                     {columnTasks.length}
@@ -110,7 +128,7 @@ export default function KanbanPage({
                     {columnTasks.map((task) => (
                       <div
                         key={task.id}
-                        className="p-3 bg-white border border-border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                        className="cursor-pointer rounded-lg border border-border bg-card p-3 transition-shadow hover:shadow-md"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <h4 className="text-sm font-semibold text-foreground line-clamp-2">

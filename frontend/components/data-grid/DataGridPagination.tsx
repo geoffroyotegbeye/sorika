@@ -20,7 +20,7 @@ export function DataGridPagination({ page, totalPages, totalRows, pageSize, onPa
 
   return (
     <div className="flex items-center justify-between pt-3">
-      <span className="text-sm text-slate-500">
+      <span className="text-sm text-muted-foreground">
         {totalRows === 0 ? "0 résultat" : `${from}–${to} sur ${totalRows}`}
       </span>
       <div className="flex items-center gap-1">
@@ -31,7 +31,9 @@ export function DataGridPagination({ page, totalPages, totalRows, pageSize, onPa
           const prev = pages[i - 1];
           return (
             <span key={p} className="flex items-center gap-1">
-              {prev && p - prev > 1 && <span className="text-slate-400 px-1">…</span>}
+              {prev && p - prev > 1 && (
+                <span className="px-1 text-muted-foreground">…</span>
+              )}
               <Button
                 variant={p === page ? "default" : "outline"}
                 size="icon"

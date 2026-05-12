@@ -7,7 +7,8 @@ export interface Attendance {
     id: string;
     firstName: string;
     lastName: string;
-    position: string;
+    /** Chaîne ou objet Position renvoyé par l’API */
+    position?: string | { id: string; title: string } | null;
   };
   date: string;
   checkIn: string | null;

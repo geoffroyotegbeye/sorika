@@ -54,8 +54,8 @@ export function ActivityCard({ activity, onClick }: ActivityCardProps) {
       <CardContent className="p-4 space-y-2">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4 text-slate-400" />
-            <span className="text-xs text-slate-500">{typeLabels[activity.type]}</span>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">{typeLabels[activity.type]}</span>
           </div>
           <Badge className={statusColors[activity.status]}>
             {statusLabels[activity.status]}
@@ -65,27 +65,27 @@ export function ActivityCard({ activity, onClick }: ActivityCardProps) {
         <h4 className="font-medium text-sm">{activity.subject}</h4>
 
         {activity.description && (
-          <p className="text-xs text-slate-600 line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-2">
             {activity.description}
           </p>
         )}
 
         {activity.dueDate && (
-          <div className="flex items-center gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
             <span>{formatDate(activity.dueDate)}</span>
           </div>
         )}
 
         {activity.duration && (
-          <div className="flex items-center gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>{activity.duration} min</span>
           </div>
         )}
 
         {(activity.contact || activity.company) && (
-          <div className="text-xs text-slate-500 pt-1 border-t">
+          <div className="border-t border-border pt-1 text-xs text-muted-foreground">
             {activity.contact && (
               <div>
                 {activity.contact.firstName} {activity.contact.lastName}

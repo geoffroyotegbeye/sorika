@@ -21,41 +21,45 @@ interface OpportunitiesKanbanProps {
 }
 
 const stages: { value: OpportunityStage; label: string; color: string; description: string }[] = [
-  { 
-    value: 'LEAD', 
-    label: 'Lead', 
-    color: 'bg-slate-100',
-    description: 'Premiers contacts, prospects non qualifiés'
+  {
+    value: 'LEAD',
+    label: 'Lead',
+    color: 'bg-muted text-foreground',
+    description: 'Premiers contacts, prospects non qualifiés',
   },
-  { 
-    value: 'QUALIFIED', 
-    label: 'Qualifié', 
-    color: 'bg-blue-100',
-    description: 'Prospects qualifiés avec budget et besoin confirmés'
+  {
+    value: 'QUALIFIED',
+    label: 'Qualifié',
+    color:
+      'bg-blue-100 text-blue-900 dark:bg-blue-950/50 dark:text-blue-100',
+    description: 'Prospects qualifiés avec budget et besoin confirmés',
   },
-  { 
-    value: 'PROPOSAL', 
-    label: 'Proposition', 
-    color: 'bg-yellow-100',
-    description: 'Proposition commerciale envoyée au client'
+  {
+    value: 'PROPOSAL',
+    label: 'Proposition',
+    color:
+      'bg-yellow-100 text-yellow-900 dark:bg-yellow-950/40 dark:text-yellow-100',
+    description: 'Proposition commerciale envoyée au client',
   },
-  { 
-    value: 'NEGOTIATION', 
-    label: 'Négociation', 
-    color: 'bg-orange-100',
-    description: 'En cours de négociation des termes et conditions'
+  {
+    value: 'NEGOTIATION',
+    label: 'Négociation',
+    color:
+      'bg-orange-100 text-orange-900 dark:bg-orange-950/45 dark:text-orange-100',
+    description: 'En cours de négociation des termes et conditions',
   },
-  { 
-    value: 'WON', 
-    label: 'Gagné', 
-    color: 'bg-green-100',
-    description: 'Affaire conclue avec succès'
+  {
+    value: 'WON',
+    label: 'Gagné',
+    color:
+      'bg-green-100 text-green-900 dark:bg-green-950/45 dark:text-green-100',
+    description: 'Affaire conclue avec succès',
   },
-  { 
-    value: 'LOST', 
-    label: 'Perdu', 
-    color: 'bg-red-100',
-    description: 'Opportunité perdue ou abandonnée'
+  {
+    value: 'LOST',
+    label: 'Perdu',
+    color: 'bg-red-100 text-red-900 dark:bg-red-950/45 dark:text-red-100',
+    description: 'Opportunité perdue ou abandonnée',
   },
 ];
 
@@ -116,7 +120,9 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
   };
 
   if (loading) {
-    return <div className="text-center py-8 text-slate-500">Chargement...</div>;
+    return (
+      <div className="py-8 text-center text-muted-foreground">Chargement…</div>
+    );
   }
 
   if (error) {
@@ -154,7 +160,7 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-slate-500 cursor-help" />
+                          <Info className="h-4 w-4 cursor-help text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="max-w-xs">{stage.description}</p>
@@ -162,7 +168,7 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <div className="text-xs text-slate-600 mt-0.5">
+                  <div className="mt-0.5 text-xs text-muted-foreground">
                     {stageOpportunities.length} opportunité
                     {stageOpportunities.length > 1 ? 's' : ''}
                   </div>
@@ -172,7 +178,7 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
                 </div>
 
                 {/* Corps colonne — prend toute la hauteur restante, scroll vertical */}
-                <div className="border border-t-0 rounded-b-lg bg-slate-50 overflow-y-auto overflow-x-hidden flex-1">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden rounded-b-lg border border-t-0 border-border bg-muted/25 dark:bg-muted/10">
                   <div className="p-2 space-y-2">
                     {stageOpportunities.map((opportunity) => (
                       <OpportunityCard
@@ -186,7 +192,9 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
                       />
                     ))}
                     {stageOpportunities.length === 0 && (
-                      <p className="text-xs text-slate-400 text-center py-6">Aucune opportunité</p>
+                      <p className="py-6 text-center text-xs text-muted-foreground">
+                        Aucune opportunité
+                      </p>
                     )}
                   </div>
                 </div>

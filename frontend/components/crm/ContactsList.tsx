@@ -84,7 +84,7 @@ export function ContactsList({ companyId }: ContactsListProps) {
       header: 'Email',
       render: (val) => (
         <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 text-slate-400" />
+          <Mail className="h-4 w-4 text-muted-foreground" />
           {val as string}
         </div>
       ),
@@ -95,11 +95,11 @@ export function ContactsList({ companyId }: ContactsListProps) {
       render: (val) =>
         val ? (
           <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-slate-400" />
+            <Phone className="h-4 w-4 text-muted-foreground" />
             {val as string}
           </div>
         ) : (
-          <span className="text-slate-400">—</span>
+          <span className="text-muted-foreground">—</span>
         ),
     },
     {
@@ -115,7 +115,7 @@ export function ContactsList({ companyId }: ContactsListProps) {
       key: 'company',
       header: 'Entreprise',
       sortable: false,
-      render: (_, row) => row.company?.name ?? <span className="text-slate-400">—</span>,
+      render: (_, row) => row.company?.name ?? <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'owner',

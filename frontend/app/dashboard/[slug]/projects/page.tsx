@@ -59,8 +59,8 @@ export default function ProjectsDashboardPage({
 
   if (loading || !stats) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+      <div className="flex h-96 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
@@ -90,8 +90,8 @@ export default function ProjectsDashboardPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Projets actifs
             </CardTitle>
-            <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Briefcase className="h-4 w-4 text-blue-600" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/40">
+              <Briefcase className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
@@ -109,8 +109,8 @@ export default function ProjectsDashboardPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Tâches
             </CardTitle>
-            <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <ListChecks className="h-4 w-4 text-purple-600" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950/40">
+              <ListChecks className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
           </CardHeader>
           <CardContent>
@@ -131,8 +131,8 @@ export default function ProjectsDashboardPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Temps total
             </CardTitle>
-            <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <Clock className="h-4 w-4 text-green-600" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950/40">
+              <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
           </CardHeader>
           <CardContent>
@@ -182,9 +182,12 @@ export default function ProjectsDashboardPage({
               {activeProjects.slice(0, 5).map((project) => {
                 const priorityColors = {
                   LOW: 'bg-muted text-foreground',
-                  MEDIUM: 'bg-blue-100 text-blue-700',
-                  HIGH: 'bg-orange-100 text-orange-700',
-                  URGENT: 'bg-red-100 text-red-700',
+                  MEDIUM:
+                    'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+                  HIGH:
+                    'bg-orange-100 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200',
+                  URGENT:
+                    'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-200',
                 };
 
                 return (
@@ -196,8 +199,8 @@ export default function ProjectsDashboardPage({
                     className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Briefcase className="h-6 w-6 text-blue-600" />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+                        <Briefcase className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -238,7 +241,7 @@ export default function ProjectsDashboardPage({
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 rounded-full transition-all"
+                          className="h-full rounded-full bg-primary transition-all"
                           style={{ width: `${project.progress}%` }}
                         />
                       </div>
@@ -275,11 +278,11 @@ export default function ProjectsDashboardPage({
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 En pause
               </CardTitle>
-              <AlertCircle className="h-4 w-4 text-orange-500" />
+              <AlertCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
               {projects.filter((p) => p.status === 'ON_HOLD').length}
             </div>
           </CardContent>
@@ -291,11 +294,11 @@ export default function ProjectsDashboardPage({
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Terminés
               </CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 text-green-500 dark:text-green-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {stats.completedProjects}
             </div>
           </CardContent>
@@ -307,11 +310,11 @@ export default function ProjectsDashboardPage({
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Annulés
               </CardTitle>
-              <AlertCircle className="h-4 w-4 text-red-500" />
+              <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
               {projects.filter((p) => p.status === 'CANCELLED').length}
             </div>
           </CardContent>

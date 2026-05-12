@@ -107,9 +107,12 @@ export default function TasksPage({
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       TODO: 'bg-muted text-foreground',
-      IN_PROGRESS: 'bg-blue-100 text-blue-700',
-      IN_REVIEW: 'bg-purple-100 text-purple-700',
-      DONE: 'bg-green-100 text-green-700',
+      IN_PROGRESS:
+        'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+      IN_REVIEW:
+        'bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-200',
+      DONE:
+        'bg-green-100 text-green-800 dark:bg-green-950/45 dark:text-green-200',
     };
     return colors[status] || 'bg-muted text-foreground';
   };
@@ -117,9 +120,12 @@ export default function TasksPage({
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
       LOW: 'bg-muted text-foreground',
-      MEDIUM: 'bg-blue-100 text-blue-700',
-      HIGH: 'bg-orange-100 text-orange-700',
-      URGENT: 'bg-red-100 text-red-700',
+      MEDIUM:
+        'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+      HIGH:
+        'bg-orange-100 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200',
+      URGENT:
+        'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-200',
     };
     return colors[priority] || 'bg-muted text-foreground';
   };
@@ -127,7 +133,7 @@ export default function TasksPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
@@ -228,7 +234,7 @@ export default function TasksPage({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(task)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                      className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300 cursor-pointer"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

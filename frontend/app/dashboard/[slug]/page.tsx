@@ -135,18 +135,52 @@ const MODULE_CATEGORIES = [
   },
 ];
 
-const COLORS: Record<string, { bg: string; icon: string; border: string; hover: string }> = {
-  blue:   { bg: 'bg-blue-50',   icon: 'text-blue-600',   border: 'border-blue-100',   hover: 'hover:border-blue-300 hover:bg-blue-50' },
-  purple: { bg: 'bg-purple-50', icon: 'text-purple-600', border: 'border-purple-100', hover: 'hover:border-purple-300 hover:bg-purple-50' },
-  green:  { bg: 'bg-green-50',  icon: 'text-green-600',  border: 'border-green-100',  hover: 'hover:border-green-300 hover:bg-green-50' },
-  orange: { bg: 'bg-orange-50', icon: 'text-orange-600', border: 'border-orange-100', hover: 'hover:border-orange-300 hover:bg-orange-50' },
-  cyan:   { bg: 'bg-cyan-50',   icon: 'text-cyan-600',   border: 'border-cyan-100',   hover: 'hover:border-cyan-300 hover:bg-cyan-50' },
-  pink:   { bg: 'bg-pink-50',   icon: 'text-pink-600',   border: 'border-pink-100',   hover: 'hover:border-pink-300 hover:bg-pink-50' },
-  yellow: { bg: 'bg-yellow-50', icon: 'text-yellow-600', border: 'border-yellow-100', hover: 'hover:border-yellow-300 hover:bg-yellow-50' },
-  teal:   { bg: 'bg-teal-50',   icon: 'text-teal-600',   border: 'border-teal-100',   hover: 'hover:border-teal-300 hover:bg-teal-50' },
-  indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-600', border: 'border-indigo-100', hover: 'hover:border-indigo-300 hover:bg-indigo-50' },
-  amber:  { bg: 'bg-amber-50',  icon: 'text-amber-600',  border: 'border-amber-100',  hover: 'hover:border-amber-300 hover:bg-amber-50' },
-  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100', hover: 'hover:border-emerald-300 hover:bg-emerald-50' },
+/** Pastels lisibles en clair + fonds plus saturés en sombre */
+const COLORS: Record<string, { iconBg: string; icon: string }> = {
+  blue: {
+    iconBg: 'bg-blue-600/12 dark:bg-blue-400/20',
+    icon: 'text-blue-600 dark:text-blue-300',
+  },
+  purple: {
+    iconBg: 'bg-purple-600/12 dark:bg-purple-400/20',
+    icon: 'text-purple-600 dark:text-purple-300',
+  },
+  green: {
+    iconBg: 'bg-green-600/12 dark:bg-green-400/20',
+    icon: 'text-green-600 dark:text-green-300',
+  },
+  orange: {
+    iconBg: 'bg-orange-600/12 dark:bg-orange-400/20',
+    icon: 'text-orange-600 dark:text-orange-300',
+  },
+  cyan: {
+    iconBg: 'bg-cyan-600/12 dark:bg-cyan-400/20',
+    icon: 'text-cyan-600 dark:text-cyan-300',
+  },
+  pink: {
+    iconBg: 'bg-pink-600/12 dark:bg-pink-400/20',
+    icon: 'text-pink-600 dark:text-pink-300',
+  },
+  yellow: {
+    iconBg: 'bg-yellow-500/15 dark:bg-yellow-400/18',
+    icon: 'text-yellow-700 dark:text-yellow-300',
+  },
+  teal: {
+    iconBg: 'bg-teal-600/12 dark:bg-teal-400/20',
+    icon: 'text-teal-600 dark:text-teal-300',
+  },
+  indigo: {
+    iconBg: 'bg-indigo-600/12 dark:bg-indigo-400/20',
+    icon: 'text-indigo-600 dark:text-indigo-300',
+  },
+  amber: {
+    iconBg: 'bg-amber-600/12 dark:bg-amber-400/20',
+    icon: 'text-amber-600 dark:text-amber-300',
+  },
+  emerald: {
+    iconBg: 'bg-emerald-600/12 dark:bg-emerald-400/20',
+    icon: 'text-emerald-600 dark:text-emerald-300',
+  },
 };
 
 const RECENT_KEY = (slug: string) => `sorika_recent_apps_${slug}`;
@@ -197,7 +231,7 @@ export default function DashboardPage({ params }: { params: Promise<{ slug: stri
   if (!company) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
@@ -232,9 +266,12 @@ export default function DashboardPage({ params }: { params: Promise<{ slug: stri
                   <button
                     key={mod.id}
                     onClick={() => handleAppClick(mod.id, mod.href(slug))}
-                    className={`group flex items-center gap-3 p-3 rounded-lg border ${c.border} bg-white ${c.hover} transition-all text-left w-full`}
+                    type="button"
+                    className="group flex w-full items-center gap-3 rounded-lg border border-border bg-card p-3 text-left text-card-foreground shadow-sm transition-all hover:border-primary/30 hover:bg-accent/60 dark:hover:bg-accent/30"
                   >
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${c.bg}`}>
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${c.iconBg}`}
+                    >
                       <Icon className={`h-4 w-4 ${c.icon}`} />
                     </div>
                     <div className="flex-1 min-w-0">

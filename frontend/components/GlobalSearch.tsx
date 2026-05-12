@@ -147,13 +147,13 @@ export function GlobalSearch({ slug, modules }: GlobalSearchProps) {
       {/* Input déclencheur dans la topbar */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 w-full max-w-md px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:border-blue-300 hover:bg-white transition-colors text-left"
+        className="flex items-center gap-2 w-full max-w-md px-3 py-2 text-sm rounded-lg border border-border bg-muted/40 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-accent hover:text-accent-foreground text-left"
       >
         <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
         </svg>
         <span className="flex-1">Rechercher...</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-slate-200 text-slate-500 rounded">
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
           <span>⌘</span><span>K</span>
         </kbd>
       </button>
@@ -169,7 +169,7 @@ export function GlobalSearch({ slug, modules }: GlobalSearchProps) {
         />
         <CommandList>
           {query.length < 2 ? (
-            <div className="py-8 text-center text-sm text-slate-400">
+            <div className="py-8 text-center text-sm text-muted-foreground">
               Commencez à écrire pour rechercher…
             </div>
           ) : filtered.length === 0 ? (
@@ -188,7 +188,7 @@ export function GlobalSearch({ slug, modules }: GlobalSearchProps) {
                         onSelect={() => go(item.href)}
                         className="flex items-center gap-3 cursor-pointer"
                       >
-                        <Icon className="h-4 w-4 text-slate-400 shrink-0" />
+                        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <span>{item.label}</span>
                       </CommandItem>
                     );

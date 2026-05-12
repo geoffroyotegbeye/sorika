@@ -43,18 +43,18 @@ export function ContactCard({ contact, onClick }: ContactCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Mail className="h-4 w-4" />
           <span>{contact.email}</span>
         </div>
         {contact.phone && (
-          <div className="flex items-center gap-2 text-sm text-slate-600">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Phone className="h-4 w-4" />
             <span>{contact.phone}</span>
           </div>
         )}
         {contact.company && (
-          <div className="flex items-center gap-2 text-sm text-slate-600">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Building2 className="h-4 w-4" />
             <span>{contact.company.name}</span>
           </div>

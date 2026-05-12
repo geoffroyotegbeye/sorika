@@ -23,7 +23,7 @@ const stageLabels: Record<string, string> = {
 };
 
 const stageColors: Record<string, string> = {
-  LEAD: 'bg-slate-500',
+  LEAD: 'bg-muted-foreground',
   QUALIFIED: 'bg-blue-500',
   PROPOSAL: 'bg-yellow-500',
   NEGOTIATION: 'bg-orange-500',
@@ -51,17 +51,17 @@ export function PipelineChart({ stages, totalValue }: PipelineChartProps) {
                     <span className="text-sm font-medium">
                       {stageLabels[stage.stage] || stage.stage}
                     </span>
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-muted-foreground">
                       {stage.count} ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-3">
+                  <div className="h-3 w-full rounded-full bg-muted">
                     <div
-                      className={`${stageColors[stage.stage] || 'bg-slate-500'} h-3 rounded-full transition-all`}
+                      className={`${stageColors[stage.stage] || 'bg-muted-foreground'} h-3 rounded-full transition-all`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     {stage.value.toLocaleString()} XOF
                   </div>
                 </div>
@@ -70,14 +70,14 @@ export function PipelineChart({ stages, totalValue }: PipelineChartProps) {
           </div>
 
           {/* Légende */}
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t border-border">
             <div className="grid grid-cols-2 gap-2">
               {stages.map((stage) => (
                 <div key={stage.stage} className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded ${stageColors[stage.stage] || 'bg-slate-500'}`}
+                    className={`h-3 w-3 rounded ${stageColors[stage.stage] || 'bg-muted-foreground'}`}
                   />
-                  <span className="text-xs text-slate-600">
+                  <span className="text-xs text-muted-foreground">
                     {stageLabels[stage.stage] || stage.stage}
                   </span>
                 </div>

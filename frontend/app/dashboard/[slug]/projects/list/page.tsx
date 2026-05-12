@@ -76,10 +76,14 @@ export default function ProjectsListPage({
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       PENDING: 'bg-muted text-foreground',
-      IN_PROGRESS: 'bg-blue-100 text-blue-700',
-      ON_HOLD: 'bg-orange-100 text-orange-700',
-      COMPLETED: 'bg-green-100 text-green-700',
-      CANCELLED: 'bg-red-100 text-red-700',
+      IN_PROGRESS:
+        'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+      ON_HOLD:
+        'bg-orange-100 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200',
+      COMPLETED:
+        'bg-green-100 text-green-800 dark:bg-green-950/45 dark:text-green-200',
+      CANCELLED:
+        'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-200',
     };
     return colors[status] || 'bg-muted text-foreground';
   };
@@ -87,9 +91,12 @@ export default function ProjectsListPage({
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
       LOW: 'bg-muted text-foreground',
-      MEDIUM: 'bg-blue-100 text-blue-700',
-      HIGH: 'bg-orange-100 text-orange-700',
-      URGENT: 'bg-red-100 text-red-700',
+      MEDIUM:
+        'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200',
+      HIGH:
+        'bg-orange-100 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200',
+      URGENT:
+        'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-200',
     };
     return colors[priority] || 'bg-muted text-foreground';
   };
@@ -97,7 +104,7 @@ export default function ProjectsListPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
       </div>
     );
   }
@@ -141,12 +148,12 @@ export default function ProjectsListPage({
             <div
               key={project.id}
               onClick={() => handleEdit(project)}
-              className="border border-border rounded-lg p-5 hover:shadow-md transition-shadow bg-white cursor-pointer"
+              className="cursor-pointer rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md"
             >
               {/* En-tête */}
               <div className="flex items-start justify-between mb-3">
-                <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Briefcase className="h-5 w-5 text-blue-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
+                  <Briefcase className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex gap-2">
                   <Badge className={getStatusColor(project.status)}>
@@ -179,7 +186,7 @@ export default function ProjectsListPage({
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 rounded-full transition-all"
+                    className="h-full rounded-full bg-primary transition-all"
                     style={{ width: `${project.progress}%` }}
                   />
                 </div>

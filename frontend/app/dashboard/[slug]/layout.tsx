@@ -191,28 +191,28 @@ export default function DashboardLayout({
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-sm text-sidebar-foreground truncate">{company.name}</p>
-            <p className="text-xs text-muted-foreground truncate">sorika.bj/{company.slug}</p>
+            <p className="truncate text-xs text-sidebar-foreground/60">sorika.bj/{company.slug}</p>
           </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
           <a
             href={`/dashboard/${slug}`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive(`/dashboard/${slug}`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-muted-foreground hover:bg-sidebar-accent/60'}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive(`/dashboard/${slug}`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
           >
             <Home className="h-4 w-4 shrink-0" />
             Tableau de bord
           </a>
           <a
             href={`/dashboard/${slug}/members`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/members`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-muted-foreground hover:bg-sidebar-accent/60'}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/members`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
           >
             <Users className="h-4 w-4 shrink-0" />
             Membres
           </a>
           <a
             href={`/dashboard/${slug}/settings`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/settings`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-muted-foreground hover:bg-sidebar-accent/60'}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/settings`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
           >
             <Settings className="h-4 w-4 shrink-0" />
             Paramètres
@@ -313,7 +313,7 @@ export default function DashboardLayout({
                     </a>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
                     >
                       <LogOut className="h-4 w-4" />
                       Déconnexion

@@ -70,24 +70,24 @@ export function OpportunityCard({
           )}
         </div>
 
-        <div className="text-lg font-semibold text-slate-900">
+        <div className="text-lg font-semibold text-foreground">
           {opportunity.amount.toLocaleString()} {opportunity.currency}
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-600">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <TrendingUp className="h-3 w-3" />
           <span>{opportunity.probability}% de probabilité</span>
         </div>
 
         {opportunity.expectedCloseDate && (
-          <div className="flex items-center gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
             <span>{formatDate(opportunity.expectedCloseDate)}</span>
           </div>
         )}
 
         {opportunity.contact && (
-          <div className="text-xs text-slate-500 truncate">
+          <div className="truncate text-xs text-muted-foreground">
             {opportunity.contact.firstName} {opportunity.contact.lastName}
           </div>
         )}
@@ -103,7 +103,7 @@ export function OpportunityCard({
           <Button
             size="sm"
             variant="outline"
-            className="w-full h-7 text-xs mt-1 border-green-300 text-green-700 hover:bg-green-50"
+            className="mt-1 h-7 w-full border-green-600/40 text-xs text-green-700 hover:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-950/40"
             onClick={(e) => { e.stopPropagation(); onCreateQuote(opportunity); }}
           >
             <FileText className="h-3 w-3 mr-1" />
