@@ -6,23 +6,73 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
-  Banknote,
-  Search,
-  ShoppingCart,
-  Trash2,
-  Plus,
-  Minus,
-  DollarSign,
-  User,
-  Percent,
-  CreditCard,
-  Smartphone,
-  X,
-  LogOut,
-  LogIn,
+  Banknote, Search, ShoppingCart, Plus, Minus,
+  DollarSign, Percent, CreditCard, Smartphone,
+  X, LogOut, LogIn, Package, CheckCircle2,
 } from 'lucide-react';
 import { usePOS } from '@/hooks/usePOS';
+import { api } from '@/lib/api';
 import type { CashRegister, CashSession, CartItem } from '@/types/pos';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+// ── Modal confirmation vente ──────────────────────────────────────────────────
+function SaleSuccessModal({
+  sale,
+  onClose,
+}: {
+  sale: { saleNumber: string; total: number; amountPaid: number; changeAmount: number; paymentMethod: string };
+  onClose: () => void;
+}) {
+  const methodLabel: Record<string, string> = {
+    CASH: 'Espèces', CARD: 'Carte bancaire', MOBILE_MONEY: 'Mobile Money',
+  };
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        {/* Header vert */}
+        <div className="bg-emerald-500 px-6 py-8 text-center">
+          <CheckCircle2 className="h-16 w-16 text-white mx-auto mb-3" />
+          <p className="text-white font-bold text-xl">Vente enregistrée !</p>
+          <p className="text-emerald-100 text-sm mt-1">{sale.saleNumber}</p>
+        </div>
+
+        {/* Détails */}
+        <div className="px-6 py-5 space-y-3">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Mode de paiement</span>
+            <span className="font-medium text-slate-800">{methodLabel[sale.paymentMethod] ?? sale.paymentMethod}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Total</span>
+            <span className="font-bold text-slate-900 text-base">{sale.total.toLocaleString()} XOF</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Reçu</span>
+            <span className="font-medium text-slate-800">{sale.amountPaid.toLocaleString()} XOF</span>
+          </div>
+          {sale.changeAmount > 0 && (
+            <div className="flex justify-between text-sm bg-amber-50 rounded-lg px-3 py-2">
+              <span className="text-amber-700 font-medium">Monnaie à rendre</span>
+              <span className="font-bold text-amber-700 text-base">{sale.changeAmount.toLocaleString()} XOF</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action */}
+        <div className="px-6 pb-6">
+          <Button
+            className="w-full bg-emerald-600 hover:bg-emerald-700 h-11 text-base"
+            onClick={onClose}
+            autoFocus
+          >
+            Nouvelle vente
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CashierPage({
   params,
@@ -31,324 +81,231 @@ export default function CashierPage({
 }) {
   const { slug } = use(params);
   const [companyId, setCompanyId] = useState<string>('');
-  const [userId, setUserId] = useState<string>('');
-  
-  // État de la session
+  const [userId,    setUserId]    = useState<string>('');
+
+  // Session
   const [selectedRegister, setSelectedRegister] = useState<CashRegister | null>(null);
-  const [currentSession, setCurrentSession] = useState<CashSession | null>(null);
-  const [registers, setRegisters] = useState<CashRegister[]>([]);
-  
-  // État du panier
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [currentSession,   setCurrentSession]   = useState<CashSession | null>(null);
+  const [registers,        setRegisters]        = useState<CashRegister[]>([]);
+  const [showOpenSession,  setShowOpenSession]  = useState(false);
+  const [openingAmount,    setOpeningAmount]    = useState('');
+
+  // Recherche produits
+  const [searchQuery,   setSearchQuery]   = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching,     setSearching]     = useState(false);
+
+  // Panier
+  const [cart,            setCart]            = useState<CartItem[]>([]);
   const [discountPercent, setDiscountPercent] = useState(0);
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-  
-  // Modals
-  const [showOpenSession, setShowOpenSession] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [openingAmount, setOpeningAmount] = useState('');
-  
+
+  // Modal confirmation vente
+  const [lastSale, setLastSale] = useState<any>(null);
+
   const pos = usePOS(companyId);
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) return;
     const parsed = JSON.parse(userData);
     const company = parsed.companies?.find((c: any) => c.slug === slug);
-    if (company) {
-      setCompanyId(company.id);
-      // Récupérer l'employé lié à l'utilisateur connecté
-      const currentUserId = parsed.user?.id;
-      if (currentUserId && company.id) {
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/companies/${company.id}/hr/employees`,
-          { headers: { 'x-user-id': currentUserId, 'x-company-id': company.id } }
-        )
-          .then((r) => r.ok ? r.json() : [])
-          .then((employees: any[]) => {
-            const linked = employees.find((e: any) => e.userId === currentUserId);
-            if (linked) setUserId(linked.id); // ID employé
-          })
-          .catch(() => {});
-      }
+    if (!company) return;
+    setCompanyId(company.id);
+
+    const currentUserId = parsed.user?.id;
+    if (currentUserId) {
+      fetch(`${API_URL}/companies/${company.id}/hr/employees`, {
+        headers: { 'x-user-id': currentUserId, 'x-company-id': company.id },
+      })
+        .then((r) => r.ok ? r.json() : [])
+        .then((employees: any[]) => {
+          const linked = employees.find((e: any) => e.userId === currentUserId);
+          if (linked) setUserId(linked.id);
+        })
+        .catch(() => {});
     }
   }, [slug]);
 
   useEffect(() => {
-    if (companyId) {
-      loadRegisters();
-    }
+    if (companyId) loadRegisters();
   }, [companyId]);
 
+  // ── Recherche produits (debounce 300ms) ───────────────────────────────────
+  useEffect(() => {
+    if (!companyId || !searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const results = await api.get<any[]>(
+          `/companies/${companyId}/inventory/products?search=${encodeURIComponent(searchQuery)}&isActive=true`,
+        );
+        setSearchResults(results ?? []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, companyId]);
+
+  // ── Caisses ───────────────────────────────────────────────────────────────
   const loadRegisters = async () => {
     const data = await pos.getRegisters();
-    if (data) {
-      const active = data.filter((r) => r.isActive);
-      
-      // Si aucune caisse n'existe, créer une caisse par défaut
-      if (active.length === 0) {
-        const defaultRegister = await pos.createRegister({
-          name: 'Caisse 1',
-          code: 'CASH-001',
-          location: 'Magasin principal',
-          isActive: true,
-        });
-        
-        if (defaultRegister) {
-          setRegisters([defaultRegister]);
-        }
-      } else {
-        setRegisters(active);
-      }
+    if (!data) return;
+    const active = data.filter((r) => r.isActive);
+    if (active.length === 0) {
+      const def = await pos.createRegister({ name: 'Caisse 1', code: 'CASH-001', location: 'Magasin principal', isActive: true });
+      if (def) setRegisters([def]);
+    } else {
+      setRegisters(active);
     }
   };
 
   const handleSelectRegister = async (register: CashRegister) => {
     setSelectedRegister(register);
-    // Vérifier s'il y a une session ouverte
-    try {
-      const session = await pos.getCurrentSession(register.id);
-      if (session) {
-        setCurrentSession(session);
-      } else {
-        setShowOpenSession(true);
-      }
-    } catch (error) {
-      // Aucune session ouverte, afficher le modal d'ouverture
-      setShowOpenSession(true);
-    }
+    const session = await pos.getCurrentSession(register.id);
+    if (session) setCurrentSession(session);
+    else setShowOpenSession(true);
   };
 
   const handleOpenSession = async () => {
     if (!selectedRegister || !openingAmount) return;
-    
     const session = await pos.openSession({
-      registerId: selectedRegister.id,
-      cashierId: userId,
+      registerId:    selectedRegister.id,
+      cashierId:     userId || undefined,
       openingAmount: parseFloat(openingAmount),
-    });
-    
-    if (session) {
-      setCurrentSession(session);
-      setShowOpenSession(false);
-      setOpeningAmount('');
-    }
+    } as any);
+    if (session) { setCurrentSession(session); setShowOpenSession(false); setOpeningAmount(''); }
   };
 
   const handleCloseSession = async () => {
     if (!currentSession) return;
-    
-    const closingAmount = calculateTotal();
+    const closingAmount = cart.reduce((s, i) => s + i.unitPrice * i.quantity - i.discount, 0);
     await pos.closeSession(currentSession.id, {
       closingAmount,
-      notes: 'Session fermée depuis l\'interface de caisse',
+      notes: "Session fermée depuis l'interface de caisse",
     });
-    
-    setCurrentSession(null);
-    setSelectedRegister(null);
-    setCart([]);
+    setCurrentSession(null); setSelectedRegister(null); setCart([]);
   };
 
-  // Calculs du panier
-  const calculateSubtotal = () => {
-    return cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0);
-  };
-
-  const calculateDiscountAmount = () => {
-    return (calculateSubtotal() * discountPercent) / 100;
-  };
-
-  const calculateTaxAmount = () => {
-    const afterDiscount = calculateSubtotal() - calculateDiscountAmount();
-    return (afterDiscount * 18) / 100; // TVA 18%
-  };
-
-  const calculateTotal = () => {
-    return calculateSubtotal() - calculateDiscountAmount() + calculateTaxAmount();
-  };
-
+  // ── Panier ────────────────────────────────────────────────────────────────
   const addToCart = (product: any) => {
-    const existing = cart.find((item) => item.productId === product.id);
-    if (existing) {
-      setCart(
-        cart.map((item) =>
-          item.productId === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([
-        ...cart,
-        {
-          productId: product.id,
-          productName: product.name,
-          productSku: product.sku,
-          quantity: 1,
-          unitPrice: product.sellingPrice,
-          discount: 0,
-          imageUrl: product.imageUrl,
-          stockAvailable: product.quantity,
-        },
-      ]);
-    }
+    setCart((prev) => {
+      const existing = prev.find((i) => i.productId === product.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.productId === product.id
+            ? { ...i, quantity: Math.min(i.quantity + 1, i.stockAvailable) }
+            : i,
+        );
+      }
+      return [...prev, {
+        productId:      product.id,
+        productName:    product.name,
+        productSku:     product.sku ?? '',
+        quantity:       1,
+        unitPrice:      product.salePrice,
+        discount:       0,
+        imageUrl:       product.imageUrl,
+        stockAvailable: product.stockQuantity,
+      }];
+    });
+    setSearchQuery('');
+    setSearchResults([]);
   };
 
-  const updateQuantity = (productId: string, delta: number) => {
-    setCart(
-      cart.map((item) => {
-        if (item.productId === productId) {
-          const newQty = Math.max(1, Math.min(item.quantity + delta, item.stockAvailable));
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      })
+  const updateQuantity = (productId: string, delta: number) =>
+    setCart((prev) =>
+      prev.map((i) =>
+        i.productId === productId
+          ? { ...i, quantity: Math.max(1, Math.min(i.quantity + delta, i.stockAvailable)) }
+          : i,
+      ),
     );
-  };
 
-  const removeFromCart = (productId: string) => {
-    setCart(cart.filter((item) => item.productId !== productId));
-  };
+  const removeFromCart = (productId: string) =>
+    setCart((prev) => prev.filter((i) => i.productId !== productId));
 
+  // ── Calculs ───────────────────────────────────────────────────────────────
+  const subtotal        = cart.reduce((s, i) => s + i.unitPrice * i.quantity - i.discount, 0);
+  const discountAmount  = (subtotal * discountPercent) / 100;
+  const taxAmount       = ((subtotal - discountAmount) * 18) / 100;
+  const total           = subtotal - discountAmount + taxAmount;
+
+  // ── Paiement ──────────────────────────────────────────────────────────────
   const handlePayment = async (method: 'CASH' | 'CARD' | 'MOBILE_MONEY') => {
     if (!currentSession || !selectedRegister || cart.length === 0) return;
-
-    const saleData = {
-      registerId: selectedRegister.id,
-      sessionId: currentSession.id,
-      cashierId: userId,
-      customerId: selectedCustomer?.id,
-      items: cart.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        discount: item.discount,
-      })),
+    const sale = await pos.createSale({
+      registerId:     selectedRegister.id,
+      sessionId:      currentSession.id,
+      cashierId:      userId,
+      items:          cart.map((i) => ({ productId: i.productId, quantity: i.quantity, unitPrice: i.unitPrice, discount: i.discount })),
       discountPercent,
-      paymentMethod: method,
-      amountPaid: calculateTotal(),
-    };
-
-    const sale = await pos.createSale(saleData);
-    
+      paymentMethod:  method,
+      amountPaid:     total,
+    });
     if (sale) {
-      // Réinitialiser le panier
+      setLastSale(sale);
       setCart([]);
       setDiscountPercent(0);
-      setSelectedCustomer(null);
-      setShowPayment(false);
-      alert(`Vente ${sale.saleNumber} enregistrée avec succès !`);
     }
   };
 
-  // Si aucune caisse sélectionnée
+  // ── Sélection caisse ──────────────────────────────────────────────────────
   if (!selectedRegister) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Interface de Caisse</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Sélectionnez une caisse pour commencer
-          </p>
+          <p className="text-sm text-slate-500 mt-1">Sélectionnez une caisse pour commencer</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {registers.map((register) => (
-            <Card
-              key={register.id}
-              className="cursor-pointer hover:border-emerald-500 transition-colors"
-              onClick={() => handleSelectRegister(register)}
-            >
+          {registers.map((r) => (
+            <Card key={r.id} className="cursor-pointer hover:border-emerald-500 transition-colors" onClick={() => handleSelectRegister(r)}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Banknote className="h-5 w-5 text-emerald-600" />
-                    {register.name}
-                  </span>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700">
-                    {register.code}
-                  </Badge>
+                  <span className="flex items-center gap-2"><Banknote className="h-5 w-5 text-emerald-600" />{r.name}</span>
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700">{r.code}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {register.location && (
-                  <p className="text-sm text-slate-600">{register.location}</p>
-                )}
-                <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700">
-                  Ouvrir cette caisse
-                </Button>
+                {r.location && <p className="text-sm text-slate-600">{r.location}</p>}
+                <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700">Ouvrir cette caisse</Button>
               </CardContent>
             </Card>
           ))}
         </div>
-
         {registers.length === 0 && (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Banknote className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-              <p className="text-slate-500 mb-4">
-                Aucune caisse active disponible
-              </p>
-              <Button variant="outline" onClick={() => window.location.href = `/dashboard/${slug}/pos/registers`}>
-                Gérer les caisses
-              </Button>
-            </CardContent>
-          </Card>
+          <Card><CardContent className="py-12 text-center">
+            <Banknote className="h-16 w-16 mx-auto mb-4 text-slate-300" />
+            <p className="text-slate-500 mb-4">Aucune caisse active</p>
+            <Button variant="outline" onClick={() => window.location.href = `/dashboard/${slug}/pos/registers`}>Gérer les caisses</Button>
+          </CardContent></Card>
         )}
       </div>
     );
   }
 
-  // Modal d'ouverture de session
+  // ── Ouverture session ─────────────────────────────────────────────────────
   if (showOpenSession) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Ouvrir une session</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            {selectedRegister.name} - {selectedRegister.code}
-          </p>
-        </div>
-
+      <div className="space-y-6 p-4">
+        <h1 className="text-2xl font-bold text-slate-900">Ouvrir une session</h1>
         <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LogIn className="h-5 w-5 text-emerald-600" />
-              Fonds de départ
-            </CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-emerald-600" />Fonds de départ</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
-                Montant en caisse (XOF)
-              </label>
-              <Input
-                type="number"
-                placeholder="50000"
-                value={openingAmount}
-                onChange={(e) => setOpeningAmount(e.target.value)}
-                className="text-lg"
-              />
+              <label className="text-sm font-medium text-slate-700 mb-2 block">Montant en caisse (XOF)</label>
+              <Input type="number" placeholder="50000" value={openingAmount} onChange={(e) => setOpeningAmount(e.target.value)} className="text-lg" />
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  setSelectedRegister(null);
-                  setShowOpenSession(false);
-                }}
-              >
-                Annuler
-              </Button>
-              <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-                onClick={handleOpenSession}
-                disabled={!openingAmount || pos.loading}
-              >
-                Ouvrir la session
-              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setSelectedRegister(null); setShowOpenSession(false); }}>Annuler</Button>
+              <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" onClick={handleOpenSession} disabled={!openingAmount || pos.loading}>Ouvrir la session</Button>
             </div>
           </CardContent>
         </Card>
@@ -356,13 +313,23 @@ export default function CashierPage({
     );
   }
 
-  // Interface de vente principale
+  // ── Interface de vente ────────────────────────────────────────────────────
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-4">
-      {/* Colonne gauche : Recherche et produits */}
-      <div className="flex-1 flex flex-col gap-4">
-        {/* En-tête avec info session */}
-        <Card>
+    <div className="flex gap-4 h-full p-4 overflow-hidden">
+
+      {/* Modal confirmation */}
+      {lastSale && (
+        <SaleSuccessModal
+          sale={lastSale}
+          onClose={() => setLastSale(null)}
+        />
+      )}
+
+      {/* ── Colonne gauche : recherche + produits ── */}
+      <div className="flex-1 flex flex-col gap-3 min-w-0">
+
+        {/* Info session */}
+        <Card className="shrink-0">
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -370,195 +337,185 @@ export default function CashierPage({
                 <div>
                   <p className="font-semibold text-slate-900">{selectedRegister.name}</p>
                   <p className="text-xs text-slate-500">
-                    Session ouverte à {new Date(currentSession?.openedAt || '').toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    Ouverte à {new Date(currentSession?.openedAt || '').toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCloseSession}
-                className="text-red-600 hover:text-red-700"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Fermer la session
+              <Button variant="outline" size="sm" onClick={handleCloseSession} className="text-red-600 hover:text-red-700">
+                <LogOut className="h-4 w-4 mr-2" />Fermer la session
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recherche de produits */}
-        <Card className="flex-1 flex flex-col">
-          <CardHeader>
+        {/* Recherche */}
+        <Card className="flex-1 flex flex-col overflow-hidden">
+          <CardHeader className="pb-2 shrink-0">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Rechercher un produit (nom, SKU, code-barres)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-9"
+                autoFocus
               />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="text-center py-12 text-slate-500">
-              <Search className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-              <p>Recherchez un produit pour l'ajouter au panier</p>
-              <p className="text-sm mt-2">
-                Vous pouvez scanner un code-barres ou taper le nom/SKU
-              </p>
-            </div>
-            {/* TODO: Afficher les résultats de recherche ici */}
+          <CardContent className="flex-1 overflow-y-auto pt-0">
+            {/* État vide */}
+            {!searchQuery && (
+              <div className="text-center py-10 text-slate-400">
+                <Search className="h-12 w-12 mx-auto mb-3 text-slate-200" />
+                <p className="text-sm">Tapez pour rechercher un produit</p>
+              </div>
+            )}
+
+            {/* Chargement */}
+            {searching && (
+              <div className="text-center py-6 text-slate-400 text-sm">Recherche...</div>
+            )}
+
+            {/* Résultats */}
+            {!searching && searchQuery && searchResults.length === 0 && (
+              <div className="text-center py-6 text-slate-400 text-sm">
+                <Package className="h-8 w-8 mx-auto mb-2 text-slate-200" />
+                Aucun produit trouvé pour « {searchQuery} »
+              </div>
+            )}
+
+            {!searching && searchResults.length > 0 && (
+              <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
+                {searchResults.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    disabled={product.stockQuantity === 0}
+                    className="text-left p-3 border border-slate-200 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <p className="font-medium text-sm text-slate-900 truncate">{product.name}</p>
+                    {product.sku && <p className="text-xs text-slate-400 truncate">{product.sku}</p>}
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-sm font-bold text-emerald-700">
+                        {product.salePrice.toLocaleString()} XOF
+                      </p>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                        product.stockQuantity === 0
+                          ? 'bg-red-100 text-red-600'
+                          : product.stockQuantity <= (product.minStock ?? 0)
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {product.stockQuantity === 0 ? 'Rupture' : `Stock: ${product.stockQuantity}`}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Colonne droite : Panier et paiement */}
-      <div className="w-96 flex flex-col gap-4">
-        {/* Panier */}
-        <Card className="flex-1 flex flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+      {/* ── Colonne droite : panier ── */}
+      <div className="w-80 xl:w-96 flex flex-col gap-3 shrink-0">
+        <Card className="flex-1 flex flex-col overflow-hidden">
+          <CardHeader className="pb-2 shrink-0">
+            <CardTitle className="flex items-center justify-between text-base">
               <span className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-emerald-600" />
-                Panier
+                <ShoppingCart className="h-5 w-5 text-emerald-600" />Panier
               </span>
               <Badge variant="outline">{cart.length} article{cart.length > 1 ? 's' : ''}</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col">
+          <CardContent className="flex-1 flex flex-col overflow-hidden pt-0">
             {cart.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400">
+              <div className="flex-1 flex items-center justify-center text-slate-300">
                 <div className="text-center">
-                  <ShoppingCart className="h-12 w-12 mx-auto mb-2" />
+                  <ShoppingCart className="h-10 w-10 mx-auto mb-2" />
                   <p className="text-sm">Panier vide</p>
                 </div>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto space-y-2 mb-4">
-                {cart.map((item) => (
-                  <div
-                    key={item.productId}
-                    className="p-3 border border-slate-200 rounded-lg"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm text-slate-900">
-                          {item.productName}
-                        </p>
-                        {item.productSku && (
-                          <p className="text-xs text-slate-500">{item.productSku}</p>
-                        )}
+              <>
+                {/* Articles */}
+                <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+                  {cart.map((item) => (
+                    <div key={item.productId} className="p-2.5 border border-slate-200 rounded-lg">
+                      <div className="flex items-start justify-between mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-slate-900 truncate">{item.productName}</p>
+                          {item.productSku && <p className="text-xs text-slate-400">{item.productSku}</p>}
+                        </div>
+                        <button onClick={() => removeFromCart(item.productId)} className="text-red-400 hover:text-red-600 ml-2 shrink-0">
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFromCart(item.productId)}
-                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
-                      >
-                        <X className="h-4 w-4" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => updateQuantity(item.productId, -1)} className="h-6 w-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100">
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.productId, 1)} disabled={item.quantity >= item.stockAvailable} className="h-6 w-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40">
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {(item.unitPrice * item.quantity).toLocaleString()} XOF
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Totaux + paiement */}
+                <div className="border-t pt-3 space-y-3 shrink-0">
+                  {/* Remise */}
+                  <div className="flex items-center gap-2">
+                    <Percent className="h-4 w-4 text-slate-400 shrink-0" />
+                    <Input
+                      type="number" placeholder="Remise %" min="0" max="100"
+                      value={discountPercent || ''}
+                      onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+
+                  {/* Récap */}
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between text-slate-500">
+                      <span>Sous-total</span><span>{subtotal.toLocaleString()} XOF</span>
+                    </div>
+                    {discountPercent > 0 && (
+                      <div className="flex justify-between text-orange-600">
+                        <span>Remise ({discountPercent}%)</span><span>-{discountAmount.toLocaleString()} XOF</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-slate-500">
+                      <span>TVA (18%)</span><span>{taxAmount.toLocaleString()} XOF</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-base text-slate-900 pt-1 border-t">
+                      <span>Total</span><span>{total.toLocaleString()} XOF</span>
+                    </div>
+                  </div>
+
+                  {/* Boutons paiement */}
+                  <div className="space-y-2">
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => handlePayment('CASH')} disabled={pos.loading}>
+                      <DollarSign className="h-4 w-4 mr-2" />Espèces
+                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handlePayment('CARD')} disabled={pos.loading}>
+                        <CreditCard className="h-4 w-4 mr-1" />Carte
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handlePayment('MOBILE_MONEY')} disabled={pos.loading}>
+                        <Smartphone className="h-4 w-4 mr-1" />Mobile
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateQuantity(item.productId, -1)}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="text-sm font-medium w-8 text-center">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateQuantity(item.productId, 1)}
-                          className="h-7 w-7 p-0"
-                          disabled={item.quantity >= item.stockAvailable}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {(item.unitPrice * item.quantity).toLocaleString()} XOF
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Remise globale */}
-            {cart.length > 0 && (
-              <div className="border-t pt-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Percent className="h-4 w-4 text-slate-500" />
-                  <Input
-                    type="number"
-                    placeholder="Remise %"
-                    value={discountPercent || ''}
-                    onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)}
-                    className="flex-1"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-
-                {/* Totaux */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Sous-total</span>
-                    <span>{calculateSubtotal().toLocaleString()} XOF</span>
-                  </div>
-                  {discountPercent > 0 && (
-                    <div className="flex justify-between text-orange-600">
-                      <span>Remise ({discountPercent}%)</span>
-                      <span>-{calculateDiscountAmount().toLocaleString()} XOF</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-slate-600">
-                    <span>TVA (18%)</span>
-                    <span>{calculateTaxAmount().toLocaleString()} XOF</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold text-slate-900 pt-2 border-t">
-                    <span>Total</span>
-                    <span>{calculateTotal().toLocaleString()} XOF</span>
                   </div>
                 </div>
-
-                {/* Boutons de paiement */}
-                <div className="space-y-2 pt-2">
-                  <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
-                    onClick={() => handlePayment('CASH')}
-                    disabled={pos.loading}
-                  >
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Espèces
-                  </Button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => handlePayment('CARD')}
-                      disabled={pos.loading}
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Carte
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handlePayment('MOBILE_MONEY')}
-                      disabled={pos.loading}
-                    >
-                      <Smartphone className="h-4 w-4 mr-2" />
-                      Mobile
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              </>
             )}
           </CardContent>
         </Card>

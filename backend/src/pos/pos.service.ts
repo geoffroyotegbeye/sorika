@@ -257,16 +257,10 @@ export class PosService {
       throw new BadRequestException('Session de caisse non trouvée ou fermée');
     }
 
-    // Générer le numéro de vente
-    const lastSale = await this.prisma.sale.findFirst({
-      where: { companyId },
-      orderBy: { createdAt: 'desc' },
-    });
-
+    // Générer le numéro de vente (basé sur le count total, pas le dernier numéro)
+    const saleCount = await this.prisma.sale.count({ where: { companyId } });
     const year = new Date().getFullYear();
-    const lastNumber = lastSale?.saleNumber.match(/POS-\d+-(\d+)/)?.[1] || '0';
-    const nextNumber = (parseInt(lastNumber) + 1).toString().padStart(5, '0');
-    const saleNumber = `POS-${year}-${nextNumber}`;
+    const saleNumber = `POS-${year}-${String(saleCount + 1).padStart(5, '0')}`;
 
     // Calculer les totaux
     const taxPercent = 18; // TVA 18%
@@ -320,21 +314,21 @@ export class PosService {
       const newSale = await tx.sale.create({
         data: {
           saleNumber,
-          registerId: dto.registerId,
-          sessionId: dto.sessionId,
-          cashierId: dto.cashierId,
-          customerId: dto.customerId,
+          registerId:     dto.registerId,
+          sessionId:      dto.sessionId,
+          ...(dto.cashierId ? { cashierId: dto.cashierId } : {}),
+          customerId:     dto.customerId,
           subtotal,
           discountAmount,
           discountPercent: dto.discountPercent || 0,
           taxAmount,
           taxPercent,
           total,
-          paymentMethod: dto.paymentMethod,
-          amountPaid: dto.amountPaid,
+          paymentMethod:  dto.paymentMethod,
+          amountPaid:     dto.amountPaid,
           changeAmount,
-          status: 'COMPLETED',
-          notes: dto.notes,
+          status:         'COMPLETED',
+          notes:          dto.notes,
           companyId,
         },
       });

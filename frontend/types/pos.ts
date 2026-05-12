@@ -143,7 +143,7 @@ export interface CreateRegisterDto {
 
 export interface OpenSessionDto {
   registerId: string;
-  cashierId: string;
+  cashierId?: string;
   openingAmount: number;
 }
 

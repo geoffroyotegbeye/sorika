@@ -25,14 +25,16 @@ export default function CRMLayout({
   }));
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <ModuleSidebar
         title={moduleConfig.name}
         items={sidebarItems}
         companySlug={slug}
       />
-      <div className="flex-1">
-        {children}
+      <div className="flex-1 overflow-auto">
+        <div className="h-full p-4">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -48,8 +48,9 @@ export class CreateSaleDto {
   @IsString()
   sessionId: string;
 
+  @IsOptional()
   @IsString()
-  cashierId: string;
+  cashierId?: string;
 
   @IsOptional()
   @IsString()

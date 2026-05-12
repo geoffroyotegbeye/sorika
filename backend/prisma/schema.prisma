@@ -1039,8 +1039,8 @@ model Sale {
   sessionId       String
   session         CashSession  @relation(fields: [sessionId], references: [id])
   
-  cashierId       String
-  cashier         Employee     @relation(fields: [cashierId], references: [id])
+  cashierId       String?
+  cashier         Employee?    @relation(fields: [cashierId], references: [id])
   
   customerId      String?      // Optionnel (lien CRM)
   customer        Contact?     @relation(fields: [customerId], references: [id], onDelete: SetNull)

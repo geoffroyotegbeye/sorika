@@ -31,7 +31,7 @@ export default function InventoryLayout({
         items={sidebarItems}
         companySlug={slug}
       />
-      <div className="flex-1">
+      <div className="flex-1 overflow-auto">
         {children}
       </div>
     </div>

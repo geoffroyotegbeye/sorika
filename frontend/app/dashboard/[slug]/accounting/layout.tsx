@@ -24,7 +24,7 @@ export default function AccountingLayout({
   return (
     <div className="flex min-h-screen">
       <ModuleSidebar title={moduleConfig.name} items={sidebarItems} companySlug={slug} />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
 }

@@ -102,7 +102,7 @@ export default function DashboardLayout({
   const userName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.email;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="h-screen overflow-hidden bg-slate-50 flex flex-col">
 
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
@@ -151,7 +151,7 @@ export default function DashboardLayout({
       )}
 
       {/* ── Zone principale ── */}
-      <div className={`flex flex-col min-h-screen ${showMainSidebar ? 'lg:pl-64' : ''}`}>
+      <div className={`flex flex-col flex-1 min-h-0 overflow-hidden ${showMainSidebar ? 'lg:pl-64' : ''}`}>
 
         {/* ── Topbar ── */}
         <header className={`sticky top-0 z-30 h-14 bg-white border-b border-slate-200 flex items-center gap-4 px-4 lg:px-6 ${!showMainSidebar ? 'lg:pl-72' : ''}`}>
@@ -242,7 +242,7 @@ export default function DashboardLayout({
         </header>
 
         {/* ── Contenu ── */}
-        <main className="flex-1 p-3 lg:p-4">
+        <main className={`flex-1 overflow-auto ${showMainSidebar ? 'p-3 lg:p-4' : 'p-0'}`}>
           {children}
         </main>
       </div>

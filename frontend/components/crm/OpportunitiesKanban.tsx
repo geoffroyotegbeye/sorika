@@ -129,7 +129,7 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="h-full overflow-hidden flex flex-col gap-4">
       {/* Header fixe */}
       <div className="flex justify-end shrink-0">
         <Button onClick={handleCreate}>
@@ -138,8 +138,8 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
         </Button>
       </div>
 
-      {/* Zone colonnes — parent fixe dans la largeur de l'écran, scroll X interne */}
-      <div className="w-full overflow-x-auto overflow-y-hidden" style={{ height: 'calc(100vh - 220px)' }}>
+      {/* Zone colonnes — scroll X interne, hauteur fixe */}
+      <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0" style={{ maxHeight: '600px' }}>
         <div className="flex gap-3 h-full px-0.5 pb-2" style={{ minWidth: `${stages.length * 220}px` }}>
           {stages.map((stage) => {
             const stageOpportunities = getOpportunitiesByStage(stage.value);

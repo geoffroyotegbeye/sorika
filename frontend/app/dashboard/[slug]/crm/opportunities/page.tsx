@@ -61,11 +61,13 @@ export default function OpportunitiesPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="space-y-4 overflow-hidden">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full overflow-hidden gap-4">
+      <div className="flex items-center justify-between shrink-0">
         <h1 className="text-xl font-semibold text-slate-900">Opportunités</h1>
       </div>
-      <OpportunitiesKanban companyId={company.id} currency={company.currency ?? 'XOF'} />
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <OpportunitiesKanban companyId={company.id} currency={company.currency ?? 'XOF'} />
+      </div>
     </div>
   );
 }
