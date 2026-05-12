@@ -68,7 +68,7 @@ export default function TeamAnalyticsPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-slate-500">Chargement...</p>
+        <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
@@ -77,18 +77,18 @@ export default function TeamAnalyticsPage({
     <div className="space-y-6">
       {/* En-tête */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Équipe & RH</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Équipe & RH</h1>
+        <p className="text-sm text-muted-foreground">
           Analyse de vos ressources humaines et performance d'équipe
         </p>
       </div>
 
       {/* KPIs RH */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Employés
               </CardTitle>
               <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -97,19 +97,19 @@ export default function TeamAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {data?.totalEmployees || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {data?.activeEmployees || 0} actifs
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Employés actifs
               </CardTitle>
               <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -118,19 +118,19 @@ export default function TeamAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {data?.activeEmployees || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {data?.inactiveEmployees || 0} inactifs
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Masse salariale
               </CardTitle>
               <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -139,17 +139,17 @@ export default function TeamAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(data?.totalSalary || 0)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Total mensuel</p>
+            <p className="text-xs text-muted-foreground mt-1">Total mensuel</p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Salaire moyen
               </CardTitle>
               <div className="h-8 w-8 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -158,10 +158,10 @@ export default function TeamAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(averageSalary)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Par employé actif</p>
+            <p className="text-xs text-muted-foreground mt-1">Par employé actif</p>
           </CardContent>
         </Card>
       </div>
@@ -169,9 +169,9 @@ export default function TeamAnalyticsPage({
       {/* Analyses détaillées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Répartition par département */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Répartition par département
             </CardTitle>
           </CardHeader>
@@ -186,16 +186,16 @@ export default function TeamAnalyticsPage({
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-slate-400" />
-                          <span className="text-sm font-medium text-slate-700">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-foreground">
                             {name}
                           </span>
                         </div>
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-muted-foreground">
                           {count} employé{count > 1 ? 's' : ''}
                         </span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-full"
                           style={{ width: `${Math.max(percentage, 10)}%` }}
@@ -206,7 +206,7 @@ export default function TeamAnalyticsPage({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucun département disponible
               </p>
             )}
@@ -214,9 +214,9 @@ export default function TeamAnalyticsPage({
         </Card>
 
         {/* Statut des employés */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Statut des employés
             </CardTitle>
           </CardHeader>
@@ -229,10 +229,10 @@ export default function TeamAnalyticsPage({
                       <UserCheck className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-foreground">
                         Employés actifs
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         En poste actuellement
                       </p>
                     </div>
@@ -242,21 +242,21 @@ export default function TeamAnalyticsPage({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="flex items-center justify-between p-4 bg-muted/40 rounded-lg border border-border">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                      <Users className="h-5 w-5 text-slate-600" />
+                    <div className="h-10 w-10 bg-muted rounded-lg flex items-center justify-center">
+                      <Users className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-foreground">
                         Employés inactifs
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         Démissions ou licenciements
                       </p>
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-slate-700">
+                  <div className="text-2xl font-bold text-foreground">
                     {data.inactiveEmployees}
                   </div>
                 </div>
@@ -264,14 +264,14 @@ export default function TeamAnalyticsPage({
                 {data.totalEmployees > 0 && (
                   <div className="pt-2">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-slate-600">
+                      <span className="text-xs text-muted-foreground">
                         Taux d'activité
                       </span>
-                      <span className="text-xs font-semibold text-slate-900">
+                      <span className="text-xs font-semibold text-foreground">
                         {((data.activeEmployees / data.totalEmployees) * 100).toFixed(1)}%
                       </span>
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-green-500 rounded-full"
                         style={{
@@ -283,7 +283,7 @@ export default function TeamAnalyticsPage({
                 )}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucune donnée disponible
               </p>
             )}
@@ -293,27 +293,27 @@ export default function TeamAnalyticsPage({
 
       {/* Analyses avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Performance par employé
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Ventes et CA par employé - Disponible prochainement
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Présences et absences
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Taux de présence et congés - Disponible prochainement
             </p>
           </CardContent>
@@ -321,36 +321,36 @@ export default function TeamAnalyticsPage({
       </div>
 
       {/* Coûts RH */}
-      <Card className="border border-slate-200">
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
+          <CardTitle className="text-base font-semibold text-foreground">
             Analyse des coûts RH
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
-              <p className="text-xs text-slate-600 mb-1">Masse salariale totale</p>
+              <p className="text-xs text-muted-foreground mb-1">Masse salariale totale</p>
               <p className="text-xl font-bold text-purple-700">
                 {formatCurrency(data?.totalSalary || 0)}
               </p>
-              <p className="text-xs text-slate-500 mt-1">Par mois</p>
+              <p className="text-xs text-muted-foreground mt-1">Par mois</p>
             </div>
 
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <p className="text-xs text-slate-600 mb-1">Coût annuel estimé</p>
+              <p className="text-xs text-muted-foreground mb-1">Coût annuel estimé</p>
               <p className="text-xl font-bold text-blue-700">
                 {formatCurrency((data?.totalSalary || 0) * 12)}
               </p>
-              <p className="text-xs text-slate-500 mt-1">Sur 12 mois</p>
+              <p className="text-xs text-muted-foreground mt-1">Sur 12 mois</p>
             </div>
 
             <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
-              <p className="text-xs text-slate-600 mb-1">Coût moyen par employé</p>
+              <p className="text-xs text-muted-foreground mb-1">Coût moyen par employé</p>
               <p className="text-xl font-bold text-amber-700">
                 {formatCurrency(averageSalary)}
               </p>
-              <p className="text-xs text-slate-500 mt-1">Salaire mensuel moyen</p>
+              <p className="text-xs text-muted-foreground mt-1">Salaire mensuel moyen</p>
             </div>
           </div>
         </CardContent>

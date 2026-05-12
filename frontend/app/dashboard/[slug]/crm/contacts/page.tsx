@@ -10,7 +10,7 @@ export default function ContactsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Contacts</h1>
+        <h1 className="text-xl font-semibold text-foreground">Contacts</h1>
       </div>
       <ContactsList companyId={companyId} />
     </div>

@@ -75,8 +75,8 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Point de Vente</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Vue d'ensemble — {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+          <h1 className="text-2xl font-bold text-foreground">Point de Vente</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Vue d'ensemble — {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
         </div>
         <Link href={`/dashboard/${slug}/pos/cashier`}>
           <Button className="bg-emerald-600 hover:bg-emerald-700 gap-2">
@@ -95,9 +95,9 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
               <CardContent className="pt-5 pb-4 px-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-slate-500 mb-1">{s.label}</p>
-                    <p className="text-2xl font-bold text-slate-900">{s.value}</p>
-                    <p className="text-xs text-slate-400 mt-1">{s.sub}</p>
+                    <p className="text-sm text-muted-foreground mb-1">{s.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{s.value}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{s.sub}</p>
                   </div>
                   <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center`}>
                     <Icon className={`h-5 w-5 ${s.color}`} />
@@ -116,13 +116,13 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Banknote className="h-5 w-5 text-emerald-600" />
-                <h2 className="font-semibold text-slate-900">Sessions ouvertes</h2>
+                <h2 className="font-semibold text-foreground">Sessions ouvertes</h2>
                 <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
                   {dashboard.openSessions.length}
                 </Badge>
               </div>
               <Link href={`/dashboard/${slug}/pos/sessions`}>
-                <Button variant="ghost" size="sm" className="text-slate-500 gap-1 h-7">
+                <Button variant="ghost" size="sm" className="text-muted-foreground gap-1 h-7">
                   Voir tout <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
@@ -130,9 +130,9 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
 
             {dashboard.openSessions.length === 0 ? (
               <div className="text-center py-8">
-                <Banknote className="h-10 w-10 mx-auto mb-2 text-slate-200" />
-                <p className="text-sm text-slate-500">Aucune session ouverte</p>
-                <p className="text-xs text-slate-400 mt-1">Ouvrez une caisse pour commencer</p>
+                <Banknote className="h-10 w-10 mx-auto mb-2 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">Aucune session ouverte</p>
+                <p className="text-xs text-muted-foreground mt-1">Ouvrez une caisse pour commencer</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -143,16 +143,16 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
                         <Banknote className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm text-slate-900">{session.register?.name}</p>
-                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                        <p className="font-medium text-sm text-foreground">{session.register?.name}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           {session.cashier ? `${session.cashier.firstName} ${session.cashier.lastName}` : 'Caissier inconnu'}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-900">{session._count?.sales ?? 0} ventes</p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 justify-end">
+                      <p className="text-sm font-semibold text-foreground">{session._count?.sales ?? 0} ventes</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
                         <Clock className="h-3 w-3" />
                         {new Date(session.openedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </p>
@@ -170,34 +170,34 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-amber-600" />
-                <h2 className="font-semibold text-slate-900">Top produits du jour</h2>
+                <h2 className="font-semibold text-foreground">Top produits du jour</h2>
               </div>
             </div>
 
             {dashboard.topProducts.length === 0 ? (
               <div className="text-center py-8">
-                <Package className="h-10 w-10 mx-auto mb-2 text-slate-200" />
-                <p className="text-sm text-slate-500">Aucune vente aujourd'hui</p>
+                <Package className="h-10 w-10 mx-auto mb-2 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">Aucune vente aujourd'hui</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {dashboard.topProducts.map((item, i) => (
-                  <div key={item.product?.id ?? i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  <div key={item.product?.id ?? i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
                       i === 0 ? 'bg-amber-100 text-amber-700' :
-                      i === 1 ? 'bg-slate-100 text-slate-600' :
+                      i === 1 ? 'bg-muted text-muted-foreground' :
                       i === 2 ? 'bg-orange-100 text-orange-700' :
-                      'bg-slate-50 text-slate-500'
+                      'bg-muted/40 text-muted-foreground'
                     }`}>
                       #{i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-slate-900 truncate">{item.product?.name ?? '—'}</p>
-                      {item.product?.sku && <p className="text-xs text-slate-400">{item.product.sku}</p>}
+                      <p className="font-medium text-sm text-foreground truncate">{item.product?.name ?? '—'}</p>
+                      {item.product?.sku && <p className="text-xs text-muted-foreground">{item.product.sku}</p>}
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-sm font-semibold text-slate-900">{fmt(item.revenue)} XOF</p>
-                      <p className="text-xs text-slate-400">{item.quantitySold} vendus</p>
+                      <p className="text-sm font-semibold text-foreground">{fmt(item.revenue)} XOF</p>
+                      <p className="text-xs text-muted-foreground">{item.quantitySold} vendus</p>
                     </div>
                   </div>
                 ))}
@@ -223,8 +223,8 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
                   <div className={`w-9 h-9 ${item.bg} rounded-lg flex items-center justify-center shrink-0`}>
                     <Icon className={`h-4 w-4 ${item.color}`} />
                   </div>
-                  <span className="font-medium text-sm text-slate-700">{item.label}</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />
+                  <span className="font-medium text-sm text-foreground">{item.label}</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
                 </CardContent>
               </Card>
             </Link>

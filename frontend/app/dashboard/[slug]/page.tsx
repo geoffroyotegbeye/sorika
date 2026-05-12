@@ -217,9 +217,9 @@ export default function DashboardPage({ params }: { params: Promise<{ slug: stri
     <div className="space-y-2">
       {/* Applications par catégorie */}
       {categorizedModules.map((category) => (
-        <Card key={category.name} className="border border-slate-200">
+        <Card key={category.name} className="border border-border">
           <CardHeader className="pb-0.5 pt-2 px-3">
-            <CardTitle className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               {category.name}
             </CardTitle>
           </CardHeader>
@@ -238,8 +238,8 @@ export default function DashboardPage({ params }: { params: Promise<{ slug: stri
                       <Icon className={`h-4 w-4 ${c.icon}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{mod.name}</p>
-                      <p className="text-xs text-slate-500 truncate leading-tight">{mod.description}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{mod.name}</p>
+                      <p className="text-xs text-muted-foreground truncate leading-tight">{mod.description}</p>
                     </div>
                     <ArrowRight className={`h-3.5 w-3.5 ${c.icon} opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0`} />
                   </button>

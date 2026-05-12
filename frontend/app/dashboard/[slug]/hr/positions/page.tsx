@@ -37,7 +37,7 @@ export default function PositionsPage({ params }: { params: Promise<{ slug: stri
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Postes</h1>
+        <h1 className="text-xl font-semibold text-foreground">Postes</h1>
         <PositionFormDialog companyId={company.id} onSuccess={fetchPositions} />
       </div>
 

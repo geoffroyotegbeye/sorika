@@ -41,6 +41,8 @@ export class AuthService {
       user: {
         ...userWithoutPassword,
         mustChangePassword: user.mustChangePassword,
+        dashboardTheme:
+          userWithoutPassword.dashboardTheme === 'DARK' ? 'DARK' : 'LIGHT',
       },
       companies: user.memberships.map((m) => ({
         id: m.company.id,
@@ -227,5 +229,25 @@ export class AuthService {
     });
 
     return result;
+  }
+
+  async updateDashboardTheme(userId: string, dashboardTheme: 'LIGHT' | 'DARK') {
+    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!existing) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { dashboardTheme },
+    });
+
+    const { password: _p, ...userWithoutPassword } = updated;
+    return {
+      user: {
+        ...userWithoutPassword,
+        dashboardTheme: userWithoutPassword.dashboardTheme === 'DARK' ? 'DARK' : 'LIGHT',
+      },
+    };
   }
 }

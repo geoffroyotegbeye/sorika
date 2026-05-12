@@ -44,7 +44,7 @@ export default function CategoriesPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Catégories</h1>
+        <h1 className="text-xl font-semibold text-foreground">Catégories</h1>
         <Button onClick={() => { setEditCategory(null); setCategoryDialog(true); }}>
           <Plus className="h-4 w-4 mr-2" />
           Nouvelle catégorie

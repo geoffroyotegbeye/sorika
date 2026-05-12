@@ -50,8 +50,8 @@ export default function SiteVitrinePage({ params }: { params: Promise<{ slug: st
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Site Vitrine</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Site Vitrine</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Créez et gérez votre site web professionnel
           </p>
         </div>
@@ -88,19 +88,19 @@ export default function SiteVitrinePage({ params }: { params: Promise<{ slug: st
       </div>
 
       {/* Preview Container */}
-      <Card className="border border-slate-200 bg-slate-50">
+      <Card className="border border-border bg-muted/40">
         <CardContent className="p-8">
           <div className="flex items-center justify-center min-h-[600px]">
             {previewMode === 'desktop' ? (
-              <div className="w-full max-w-6xl bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden">
-                <div className="h-8 bg-slate-100 border-b border-slate-200 flex items-center gap-2 px-4">
+              <div className="w-full max-w-6xl bg-white rounded-lg shadow-2xl border border-border overflow-hidden">
+                <div className="h-8 bg-muted border-b border-border flex items-center gap-2 px-4">
                   <div className="flex gap-1.5">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
                     <div className="h-3 w-3 rounded-full bg-yellow-400" />
                     <div className="h-3 w-3 rounded-full bg-green-400" />
                   </div>
                   <div className="flex-1 flex items-center justify-center">
-                    <div className="bg-white rounded px-3 py-1 text-xs text-slate-500 border border-slate-200">
+                    <div className="bg-white rounded px-3 py-1 text-xs text-muted-foreground border border-border">
                       sorika.bj/{slug}
                     </div>
                   </div>
@@ -132,15 +132,15 @@ export default function SiteVitrinePage({ params }: { params: Promise<{ slug: st
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center">
                 <Globe className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Statut</p>
-                <p className="text-lg font-semibold text-slate-900">
+                <p className="text-sm text-muted-foreground">Statut</p>
+                <p className="text-lg font-semibold text-foreground">
                   {hasStarted ? 'En cours' : 'Non démarré'}
                 </p>
               </div>
@@ -148,15 +148,15 @@ export default function SiteVitrinePage({ params }: { params: Promise<{ slug: st
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 bg-green-50 rounded-xl flex items-center justify-center">
                 <ExternalLink className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">URL du site</p>
-                <p className="text-sm font-medium text-slate-900 truncate">
+                <p className="text-sm text-muted-foreground">URL du site</p>
+                <p className="text-sm font-medium text-foreground truncate">
                   sorika.bj/{slug}
                 </p>
               </div>
@@ -164,15 +164,15 @@ export default function SiteVitrinePage({ params }: { params: Promise<{ slug: st
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 bg-purple-50 rounded-xl flex items-center justify-center">
                 <Edit3 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Dernière modification</p>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm text-muted-foreground">Dernière modification</p>
+                <p className="text-sm font-medium text-foreground">
                   {hasStarted ? 'Aujourd\'hui' : 'Jamais'}
                 </p>
               </div>

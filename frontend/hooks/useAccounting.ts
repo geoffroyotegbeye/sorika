@@ -53,7 +53,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap, fetchTaxRates]);
 
   const deleteTaxRate = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/tax-rates/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/tax-rates/${id}`));
     await fetchTaxRates();
   }, [companyId, wrap, fetchTaxRates]);
 
@@ -75,7 +75,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap, fetchSuppliers]);
 
   const deleteSupplier = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/suppliers/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/suppliers/${id}`));
     await fetchSuppliers();
   }, [companyId, wrap, fetchSuppliers]);
 
@@ -109,7 +109,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap]);
 
   const deleteQuote = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/quotes/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/quotes/${id}`));
     await fetchQuotes();
   }, [companyId, wrap, fetchQuotes]);
 
@@ -136,7 +136,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap, fetchInvoices]);
 
   const deleteInvoice = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/invoices/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/invoices/${id}`));
     await fetchInvoices();
   }, [companyId, wrap, fetchInvoices]);
 
@@ -148,7 +148,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap, fetchInvoices]);
 
   const deletePayment = useCallback(async (invoiceId: string, paymentId: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/invoices/${invoiceId}/payments/${paymentId}`));
+    await wrap(() => api.del(`${BASE(companyId)}/invoices/${invoiceId}/payments/${paymentId}`));
     await fetchInvoices();
   }, [companyId, wrap, fetchInvoices]);
 
@@ -174,7 +174,7 @@ export function useAccounting(companyId: string) {
   }, [companyId, wrap, fetchBills]);
 
   const deleteBill = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/bills/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/bills/${id}`));
     await fetchBills();
   }, [companyId, wrap, fetchBills]);
 

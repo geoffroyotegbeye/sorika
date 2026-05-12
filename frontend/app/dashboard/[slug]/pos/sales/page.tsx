@@ -65,40 +65,40 @@ function SaleDetailModal({ sale, onClose }: { sale: Sale; onClose: () => void })
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div>
-            <p className="font-bold text-slate-900 text-lg">{sale.saleNumber}</p>
-            <p className="text-sm text-slate-500">{fmtDate(sale.createdAt)} à {fmtTime(sale.createdAt)}</p>
+            <p className="font-bold text-foreground text-lg">{sale.saleNumber}</p>
+            <p className="text-sm text-muted-foreground">{fmtDate(sale.createdAt)} à {fmtTime(sale.createdAt)}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-muted-foreground"><X className="h-5 w-5" /></button>
         </div>
 
-        <div className="px-6 py-4 grid grid-cols-2 gap-3 border-b border-slate-100">
+        <div className="px-6 py-4 grid grid-cols-2 gap-3 border-b border-border">
           {[
             { label: 'Caisse',    value: sale.register?.name ?? '—' },
             { label: 'Caissier',  value: sale.cashier ? `${sale.cashier.firstName} ${sale.cashier.lastName}` : '—' },
             { label: 'Paiement',  value: METHOD_LABEL[sale.paymentMethod] ?? sale.paymentMethod },
             { label: 'Client',    value: sale.customer ? `${sale.customer.firstName} ${sale.customer.lastName}` : 'Anonyme' },
           ].map((r) => (
-            <div key={r.label} className="bg-slate-50 rounded-lg p-3">
-              <p className="text-xs text-slate-400 mb-1">{r.label}</p>
-              <p className="text-sm font-medium text-slate-800">{r.value}</p>
+            <div key={r.label} className="bg-muted/40 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">{r.label}</p>
+              <p className="text-sm font-medium text-foreground">{r.value}</p>
             </div>
           ))}
         </div>
 
         {sale.items && sale.items.length > 0 && (
-          <div className="px-6 py-4 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Articles</p>
+          <div className="px-6 py-4 border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Articles</p>
             <div className="space-y-2">
               {(sale.items as any[]).map((item, i) => (
                 <div key={i} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 bg-slate-100 rounded text-xs flex items-center justify-center font-medium text-slate-600">{item.quantity}</span>
-                    <span className="text-slate-800">{item.productName}</span>
-                    {item.productSku && <span className="text-slate-400 text-xs">({item.productSku})</span>}
+                    <span className="w-6 h-6 bg-muted rounded text-xs flex items-center justify-center font-medium text-muted-foreground">{item.quantity}</span>
+                    <span className="text-foreground">{item.productName}</span>
+                    {item.productSku && <span className="text-muted-foreground text-xs">({item.productSku})</span>}
                   </div>
-                  <span className="font-medium text-slate-900">{fmt(item.total)} XOF</span>
+                  <span className="font-medium text-foreground">{fmt(item.total)} XOF</span>
                 </div>
               ))}
             </div>
@@ -106,18 +106,18 @@ function SaleDetailModal({ sale, onClose }: { sale: Sale; onClose: () => void })
         )}
 
         <div className="px-6 py-4 space-y-2">
-          <div className="flex justify-between text-sm text-slate-500"><span>Sous-total</span><span>{fmt(sale.subtotal)} XOF</span></div>
+          <div className="flex justify-between text-sm text-muted-foreground"><span>Sous-total</span><span>{fmt(sale.subtotal)} XOF</span></div>
           {sale.discountAmount > 0 && (
             <div className="flex justify-between text-sm text-orange-600">
               <span>Remise {sale.discountPercent > 0 ? `(${sale.discountPercent}%)` : ''}</span>
               <span>-{fmt(sale.discountAmount)} XOF</span>
             </div>
           )}
-          <div className="flex justify-between text-sm text-slate-500"><span>TVA ({sale.taxPercent}%)</span><span>{fmt(sale.taxAmount)} XOF</span></div>
-          <div className="flex justify-between font-bold text-base text-slate-900 pt-2 border-t border-slate-100">
+          <div className="flex justify-between text-sm text-muted-foreground"><span>TVA ({sale.taxPercent}%)</span><span>{fmt(sale.taxAmount)} XOF</span></div>
+          <div className="flex justify-between font-bold text-base text-foreground pt-2 border-t border-border">
             <span>Total</span><span className="text-emerald-600">{fmt(sale.total)} XOF</span>
           </div>
-          <div className="flex justify-between text-sm text-slate-500"><span>Reçu</span><span>{fmt(sale.amountPaid)} XOF</span></div>
+          <div className="flex justify-between text-sm text-muted-foreground"><span>Reçu</span><span>{fmt(sale.amountPaid)} XOF</span></div>
           {sale.changeAmount > 0 && (
             <div className="flex justify-between text-sm font-medium text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
               <span>Monnaie rendue</span><span>{fmt(sale.changeAmount)} XOF</span>
@@ -206,8 +206,8 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
             <Receipt className="h-4 w-4 text-emerald-600" />
           </div>
           <div>
-            <p className="font-semibold text-sm text-slate-900">{row.saleNumber}</p>
-            <p className="text-xs text-slate-400">{row._count?.items ?? 0} article{(row._count?.items ?? 0) > 1 ? 's' : ''}</p>
+            <p className="font-semibold text-sm text-foreground">{row.saleNumber}</p>
+            <p className="text-xs text-muted-foreground">{row._count?.items ?? 0} article{(row._count?.items ?? 0) > 1 ? 's' : ''}</p>
           </div>
         </div>
       ),
@@ -217,8 +217,8 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       header: 'Date',
       render: (_: any, row: Sale) => (
         <div>
-          <p className="text-sm text-slate-700">{fmtDate(row.createdAt)}</p>
-          <p className="text-xs text-slate-400">{fmtTime(row.createdAt)}</p>
+          <p className="text-sm text-foreground">{fmtDate(row.createdAt)}</p>
+          <p className="text-xs text-muted-foreground">{fmtTime(row.createdAt)}</p>
         </div>
       ),
     },
@@ -227,7 +227,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       header: 'Caissier',
       searchable: false,
       render: (_: any, row: Sale) => (
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-foreground">
           {row.cashier ? `${row.cashier.firstName} ${row.cashier.lastName}` : '—'}
         </p>
       ),
@@ -237,8 +237,8 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       header: 'Client',
       searchable: false,
       render: (_: any, row: Sale) => (
-        <p className="text-sm text-slate-700">
-          {row.customer ? `${row.customer.firstName} ${row.customer.lastName}` : <span className="text-slate-400">Anonyme</span>}
+        <p className="text-sm text-foreground">
+          {row.customer ? `${row.customer.firstName} ${row.customer.lastName}` : <span className="text-muted-foreground">Anonyme</span>}
         </p>
       ),
     },
@@ -246,7 +246,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       key: 'paymentMethod' as keyof Sale & string,
       header: 'Paiement',
       render: (_: any, row: Sale) => (
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-full">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
           {METHOD_ICON[row.paymentMethod]}
           {METHOD_LABEL[row.paymentMethod] ?? row.paymentMethod}
         </span>
@@ -284,7 +284,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       render: (_: any, row: Sale) => (
         <Button
           variant="ghost" size="sm"
-          className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600"
+          className="h-7 w-7 p-0 text-muted-foreground hover:text-blue-600"
           onClick={(e) => { e.stopPropagation(); setDetail(row); }}
         >
           <Eye className="h-4 w-4" />
@@ -305,8 +305,8 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Ventes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Historique et analyse des ventes</p>
+          <h1 className="text-2xl font-bold text-foreground">Ventes</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Historique et analyse des ventes</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
@@ -328,7 +328,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               period === p.value
                 ? 'bg-blue-600 text-white'
-                : 'bg-white border border-slate-200 text-slate-600 hover:border-blue-300'
+                : 'bg-white border border-border text-muted-foreground hover:border-blue-300'
             }`}
           >
             {p.label}
@@ -337,7 +337,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
         {period === 'custom' && (
           <div className="flex items-center gap-2">
             <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="h-8 text-sm w-36" />
-            <span className="text-slate-400 text-sm">→</span>
+            <span className="text-muted-foreground text-sm">→</span>
             <Input type="date" value={toDate}   onChange={(e) => setToDate(e.target.value)}   className="h-8 text-sm w-36" />
           </div>
         )}
@@ -351,7 +351,7 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 h-9 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-border rounded-lg px-3 h-9 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Tous les paiements</option>
                 <option value="CASH">Espèces</option>
@@ -385,8 +385,8 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
                     <Icon className={`h-4 w-4 ${s.color}`} />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">{s.label}</p>
-                    <p className="font-bold text-slate-900">{s.display(s.value)}</p>
+                    <p className="text-xs text-muted-foreground">{s.label}</p>
+                    <p className="font-bold text-foreground">{s.display(s.value)}</p>
                   </div>
                 </div>
               </CardContent>

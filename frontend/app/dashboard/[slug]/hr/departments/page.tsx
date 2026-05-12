@@ -69,7 +69,7 @@ export default function DepartmentsPage({ params }: { params: Promise<{ slug: st
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Départements</h1>
+        <h1 className="text-xl font-semibold text-foreground">Départements</h1>
         <Button onClick={handleOpenCreate}>
           <Building2 className="h-4 w-4 mr-2" />
           Ajouter un département

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -144,11 +143,13 @@ export default function SettingsPage() {
     try {
       setSaving(true);
       const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
       const res = await fetch(`http://localhost:3001/companies/${settings.id}/settings`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          ...(userId ? { 'x-user-id': userId } : {}),
         },
         body: JSON.stringify({
           name,
@@ -286,7 +287,7 @@ export default function SettingsPage() {
   if (!settings) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-600">Impossible de charger les paramètres</p>
+        <p className="text-muted-foreground">Impossible de charger les paramètres</p>
       </div>
     );
   }
@@ -294,7 +295,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Paramètres</h1>
+        <h1 className="text-xl font-semibold text-foreground">Paramètres</h1>
       </div>
 
       <Accordion type="multiple" defaultValue={[]} className="space-y-4">
@@ -306,8 +307,8 @@ export default function SettingsPage() {
                 <Save className="h-5 w-5 text-blue-600" />
               </div>
               <div className="text-left">
-                <h3 className="text-base font-semibold text-slate-900">Informations générales</h3>
-                <p className="text-sm text-slate-500">Nom, adresse, devise et logo de l'entreprise</p>
+                <h3 className="text-base font-semibold text-foreground">Informations générales</h3>
+                <p className="text-sm text-muted-foreground">Nom, adresse, devise et logo de l'entreprise</p>
               </div>
             </div>
           </AccordionTrigger>
@@ -365,7 +366,7 @@ export default function SettingsPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     Cette devise sera utilisée par défaut pour les notes de frais et autres transactions
                   </p>
                 </div>
@@ -380,7 +381,7 @@ export default function SettingsPage() {
                     placeholder="https://..."
                     disabled={saving}
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     Uploadez d'abord le logo dans Médias, puis collez l'URL ici
                   </p>
                 </div>
@@ -391,9 +392,9 @@ export default function SettingsPage() {
                     id="slug"
                     value={settings.slug}
                     disabled
-                    className="bg-slate-50 text-slate-500"
+                    className="bg-muted/40 text-muted-foreground"
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     L'identifiant unique ne peut pas être modifié
                   </p>
                 </div>
@@ -426,8 +427,8 @@ export default function SettingsPage() {
                 <CalendarIcon className="h-5 w-5 text-purple-600" />
               </div>
               <div className="text-left">
-                <h3 className="text-base font-semibold text-slate-900">Jours fériés</h3>
-                <p className="text-sm text-slate-500">
+                <h3 className="text-base font-semibold text-foreground">Jours fériés</h3>
+                <p className="text-sm text-muted-foreground">
                   Configuration des jours fériés pour le calcul des congés
                 </p>
               </div>
@@ -482,7 +483,7 @@ export default function SettingsPage() {
                 </div>
               ) : holidays.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Aucun jour férié configuré. Cliquez sur "Jours fériés du Bénin" pour ajouter les jours fériés par défaut.
                   </p>
                 </div>
@@ -491,11 +492,11 @@ export default function SettingsPage() {
                   {holidays.map((holiday) => (
                     <div
                       key={holiday.id}
-                      className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50"
+                      className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/40"
                     >
                       <div>
-                        <p className="font-medium text-slate-900">{holiday.name}</p>
-                        <p className="text-sm text-slate-500">
+                        <p className="font-medium text-foreground">{holiday.name}</p>
+                        <p className="text-sm text-muted-foreground">
                           {new Date(holiday.date).toLocaleDateString('fr-FR', {
                             weekday: 'long',
                             year: 'numeric',

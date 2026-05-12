@@ -64,7 +64,7 @@ export function useInventory(companyId: string) {
   }, [companyId, wrap, fetchCategories]);
 
   const deleteCategory = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/categories/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/categories/${id}`));
     await fetchCategories();
   }, [companyId, wrap, fetchCategories]);
 
@@ -102,7 +102,7 @@ export function useInventory(companyId: string) {
   }, [companyId, wrap, fetchProducts]);
 
   const deleteProduct = useCallback(async (id: string) => {
-    await wrap(() => api.delete(`${BASE(companyId)}/products/${id}`));
+    await wrap(() => api.del(`${BASE(companyId)}/products/${id}`));
     await fetchProducts();
   }, [companyId, wrap, fetchProducts]);
 

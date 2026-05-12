@@ -82,7 +82,7 @@ export default function ProductsAnalyticsPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-slate-500">Chargement...</p>
+        <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
@@ -91,20 +91,20 @@ export default function ProductsAnalyticsPage({
     <div className="space-y-6">
       {/* En-tête */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-foreground">
           Produits & Inventaire
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           Analyse de vos stocks et performance produits
         </p>
       </div>
 
       {/* KPIs Inventaire */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Produits
               </CardTitle>
               <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -113,17 +113,17 @@ export default function ProductsAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {inventoryData?.totalProducts || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Produits actifs</p>
+            <p className="text-xs text-muted-foreground mt-1">Produits actifs</p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Valeur du stock
               </CardTitle>
               <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -132,17 +132,17 @@ export default function ProductsAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(inventoryData?.totalValue || 0)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Valeur totale</p>
+            <p className="text-xs text-muted-foreground mt-1">Valeur totale</p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Alertes stock
               </CardTitle>
               <div className="h-8 w-8 bg-red-100 rounded-lg flex items-center justify-center">
@@ -151,17 +151,17 @@ export default function ProductsAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {inventoryData?.lowStockProducts || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Produits en rupture</p>
+            <p className="text-xs text-muted-foreground mt-1">Produits en rupture</p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Catégories
               </CardTitle>
               <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -170,18 +170,18 @@ export default function ProductsAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {categories.length}
             </div>
-            <p className="text-xs text-slate-500 mt-1">Catégories actives</p>
+            <p className="text-xs text-muted-foreground mt-1">Catégories actives</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Top produits vendus */}
-      <Card className="border border-slate-200">
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
+          <CardTitle className="text-base font-semibold text-foreground">
             Top 10 des produits les plus vendus
           </CardTitle>
         </CardHeader>
@@ -197,23 +197,23 @@ export default function ProductsAnalyticsPage({
                   <div key={product.productId}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400 w-6">
+                        <span className="text-xs font-bold text-muted-foreground w-6">
                           #{index + 1}
                         </span>
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-foreground">
                           {product.productName}
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-muted-foreground">
                           {product.quantitySold} vendus
                         </span>
-                        <span className="text-sm font-semibold text-slate-900 w-32 text-right">
+                        <span className="text-sm font-semibold text-foreground w-32 text-right">
                           {formatCurrency(product.revenue)}
                         </span>
                       </div>
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-blue-500 rounded-full"
                         style={{ width: `${Math.max(percentage, 5)}%` }}
@@ -224,7 +224,7 @@ export default function ProductsAnalyticsPage({
               })}
             </div>
           ) : (
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Aucune vente enregistrée
             </p>
           )}
@@ -234,9 +234,9 @@ export default function ProductsAnalyticsPage({
       {/* Analyses détaillées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Répartition par catégorie */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Répartition par catégorie
             </CardTitle>
           </CardHeader>
@@ -252,14 +252,14 @@ export default function ProductsAnalyticsPage({
                   return (
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-foreground">
                           {name}
                         </span>
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-muted-foreground">
                           {data.count} produits • {formatCurrency(data.value)}
                         </span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-purple-500 rounded-full"
                           style={{ width: `${Math.max(percentage, 5)}%` }}
@@ -270,7 +270,7 @@ export default function ProductsAnalyticsPage({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucune catégorie disponible
               </p>
             )}
@@ -278,9 +278,9 @@ export default function ProductsAnalyticsPage({
         </Card>
 
         {/* Produits en alerte */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Produits en rupture de stock
             </CardTitle>
           </CardHeader>
@@ -293,10 +293,10 @@ export default function ProductsAnalyticsPage({
                     className="flex items-center justify-between p-2 bg-red-50 rounded-lg border border-red-100"
                   >
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-foreground">
                         {product.name}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         Stock actuel: {product.stockQuantity} • Min:{' '}
                         {product.minStock || 0}
                       </p>
@@ -306,7 +306,7 @@ export default function ProductsAnalyticsPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucun produit en alerte
               </p>
             )}
@@ -316,27 +316,27 @@ export default function ProductsAnalyticsPage({
 
       {/* Analyses avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Rentabilité par produit
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Analyse marge vs coût - Disponible prochainement
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Rotation des stocks
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Vitesse de rotation par produit - Disponible prochainement
             </p>
           </CardContent>

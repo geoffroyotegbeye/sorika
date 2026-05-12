@@ -40,16 +40,16 @@ function SaleSuccessModal({
         {/* Détails */}
         <div className="px-6 py-5 space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Mode de paiement</span>
-            <span className="font-medium text-slate-800">{methodLabel[sale.paymentMethod] ?? sale.paymentMethod}</span>
+            <span className="text-muted-foreground">Mode de paiement</span>
+            <span className="font-medium text-foreground">{methodLabel[sale.paymentMethod] ?? sale.paymentMethod}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Total</span>
-            <span className="font-bold text-slate-900 text-base">{sale.total.toLocaleString()} XOF</span>
+            <span className="text-muted-foreground">Total</span>
+            <span className="font-bold text-foreground text-base">{sale.total.toLocaleString()} XOF</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Reçu</span>
-            <span className="font-medium text-slate-800">{sale.amountPaid.toLocaleString()} XOF</span>
+            <span className="text-muted-foreground">Reçu</span>
+            <span className="font-medium text-foreground">{sale.amountPaid.toLocaleString()} XOF</span>
           </div>
           {sale.changeAmount > 0 && (
             <div className="flex justify-between text-sm bg-amber-50 rounded-lg px-3 py-2">
@@ -261,8 +261,8 @@ export default function CashierPage({
     return (
       <div className="space-y-6 p-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Interface de Caisse</h1>
-          <p className="text-sm text-slate-500 mt-1">Sélectionnez une caisse pour commencer</p>
+          <h1 className="text-2xl font-bold text-foreground">Interface de Caisse</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sélectionnez une caisse pour commencer</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {registers.map((r) => (
@@ -274,7 +274,7 @@ export default function CashierPage({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {r.location && <p className="text-sm text-slate-600">{r.location}</p>}
+                {r.location && <p className="text-sm text-muted-foreground">{r.location}</p>}
                 <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700">Ouvrir cette caisse</Button>
               </CardContent>
             </Card>
@@ -282,8 +282,8 @@ export default function CashierPage({
         </div>
         {registers.length === 0 && (
           <Card><CardContent className="py-12 text-center">
-            <Banknote className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-            <p className="text-slate-500 mb-4">Aucune caisse active</p>
+            <Banknote className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground mb-4">Aucune caisse active</p>
             <Button variant="outline" onClick={() => window.location.href = `/dashboard/${slug}/pos/registers`}>Gérer les caisses</Button>
           </CardContent></Card>
         )}
@@ -295,12 +295,12 @@ export default function CashierPage({
   if (showOpenSession) {
     return (
       <div className="space-y-6 p-4">
-        <h1 className="text-2xl font-bold text-slate-900">Ouvrir une session</h1>
+        <h1 className="text-2xl font-bold text-foreground">Ouvrir une session</h1>
         <Card className="max-w-md mx-auto">
           <CardHeader><CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-emerald-600" />Fonds de départ</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">Montant en caisse (XOF)</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">Montant en caisse (XOF)</label>
               <Input type="number" placeholder="50000" value={openingAmount} onChange={(e) => setOpeningAmount(e.target.value)} className="text-lg" />
             </div>
             <div className="flex gap-2">
@@ -335,8 +335,8 @@ export default function CashierPage({
               <div className="flex items-center gap-3">
                 <Banknote className="h-5 w-5 text-emerald-600" />
                 <div>
-                  <p className="font-semibold text-slate-900">{selectedRegister.name}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-semibold text-foreground">{selectedRegister.name}</p>
+                  <p className="text-xs text-muted-foreground">
                     Ouverte à {new Date(currentSession?.openedAt || '').toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -352,7 +352,7 @@ export default function CashierPage({
         <Card className="flex-1 flex flex-col overflow-hidden">
           <CardHeader className="pb-2 shrink-0">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher un produit (nom, SKU, code-barres)..."
                 value={searchQuery}
@@ -365,21 +365,21 @@ export default function CashierPage({
           <CardContent className="flex-1 overflow-y-auto pt-0">
             {/* État vide */}
             {!searchQuery && (
-              <div className="text-center py-10 text-slate-400">
-                <Search className="h-12 w-12 mx-auto mb-3 text-slate-200" />
+              <div className="text-center py-10 text-muted-foreground">
+                <Search className="h-12 w-12 mx-auto mb-3 text-muted-foreground/40" />
                 <p className="text-sm">Tapez pour rechercher un produit</p>
               </div>
             )}
 
             {/* Chargement */}
             {searching && (
-              <div className="text-center py-6 text-slate-400 text-sm">Recherche...</div>
+              <div className="text-center py-6 text-muted-foreground text-sm">Recherche...</div>
             )}
 
             {/* Résultats */}
             {!searching && searchQuery && searchResults.length === 0 && (
-              <div className="text-center py-6 text-slate-400 text-sm">
-                <Package className="h-8 w-8 mx-auto mb-2 text-slate-200" />
+              <div className="text-center py-6 text-muted-foreground text-sm">
+                <Package className="h-8 w-8 mx-auto mb-2 text-muted-foreground/40" />
                 Aucun produit trouvé pour « {searchQuery} »
               </div>
             )}
@@ -391,10 +391,10 @@ export default function CashierPage({
                     key={product.id}
                     onClick={() => addToCart(product)}
                     disabled={product.stockQuantity === 0}
-                    className="text-left p-3 border border-slate-200 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="text-left p-3 border border-border rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <p className="font-medium text-sm text-slate-900 truncate">{product.name}</p>
-                    {product.sku && <p className="text-xs text-slate-400 truncate">{product.sku}</p>}
+                    <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
+                    {product.sku && <p className="text-xs text-muted-foreground truncate">{product.sku}</p>}
                     <div className="flex items-center justify-between mt-2">
                       <p className="text-sm font-bold text-emerald-700">
                         {product.salePrice.toLocaleString()} XOF
@@ -404,7 +404,7 @@ export default function CashierPage({
                           ? 'bg-red-100 text-red-600'
                           : product.stockQuantity <= (product.minStock ?? 0)
                           ? 'bg-amber-100 text-amber-700'
-                          : 'bg-slate-100 text-slate-500'
+                          : 'bg-muted text-muted-foreground'
                       }`}>
                         {product.stockQuantity === 0 ? 'Rupture' : `Stock: ${product.stockQuantity}`}
                       </span>
@@ -430,7 +430,7 @@ export default function CashierPage({
           </CardHeader>
           <CardContent className="flex-1 flex flex-col overflow-hidden pt-0">
             {cart.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-slate-300">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
                   <ShoppingCart className="h-10 w-10 mx-auto mb-2" />
                   <p className="text-sm">Panier vide</p>
@@ -441,11 +441,11 @@ export default function CashierPage({
                 {/* Articles */}
                 <div className="flex-1 overflow-y-auto space-y-2 mb-3">
                   {cart.map((item) => (
-                    <div key={item.productId} className="p-2.5 border border-slate-200 rounded-lg">
+                    <div key={item.productId} className="p-2.5 border border-border rounded-lg">
                       <div className="flex items-start justify-between mb-1.5">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-slate-900 truncate">{item.productName}</p>
-                          {item.productSku && <p className="text-xs text-slate-400">{item.productSku}</p>}
+                          <p className="font-medium text-sm text-foreground truncate">{item.productName}</p>
+                          {item.productSku && <p className="text-xs text-muted-foreground">{item.productSku}</p>}
                         </div>
                         <button onClick={() => removeFromCart(item.productId)} className="text-red-400 hover:text-red-600 ml-2 shrink-0">
                           <X className="h-4 w-4" />
@@ -453,15 +453,15 @@ export default function CashierPage({
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => updateQuantity(item.productId, -1)} className="h-6 w-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100">
+                          <button onClick={() => updateQuantity(item.productId, -1)} className="h-6 w-6 rounded border border-border flex items-center justify-center hover:bg-muted">
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.productId, 1)} disabled={item.quantity >= item.stockAvailable} className="h-6 w-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40">
+                          <button onClick={() => updateQuantity(item.productId, 1)} disabled={item.quantity >= item.stockAvailable} className="h-6 w-6 rounded border border-border flex items-center justify-center hover:bg-muted disabled:opacity-40">
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-foreground">
                           {(item.unitPrice * item.quantity).toLocaleString()} XOF
                         </p>
                       </div>
@@ -473,7 +473,7 @@ export default function CashierPage({
                 <div className="border-t pt-3 space-y-3 shrink-0">
                   {/* Remise */}
                   <div className="flex items-center gap-2">
-                    <Percent className="h-4 w-4 text-slate-400 shrink-0" />
+                    <Percent className="h-4 w-4 text-muted-foreground shrink-0" />
                     <Input
                       type="number" placeholder="Remise %" min="0" max="100"
                       value={discountPercent || ''}
@@ -484,7 +484,7 @@ export default function CashierPage({
 
                   {/* Récap */}
                   <div className="space-y-1 text-sm">
-                    <div className="flex justify-between text-slate-500">
+                    <div className="flex justify-between text-muted-foreground">
                       <span>Sous-total</span><span>{subtotal.toLocaleString()} XOF</span>
                     </div>
                     {discountPercent > 0 && (
@@ -492,10 +492,10 @@ export default function CashierPage({
                         <span>Remise ({discountPercent}%)</span><span>-{discountAmount.toLocaleString()} XOF</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-slate-500">
+                    <div className="flex justify-between text-muted-foreground">
                       <span>TVA (18%)</span><span>{taxAmount.toLocaleString()} XOF</span>
                     </div>
-                    <div className="flex justify-between font-bold text-base text-slate-900 pt-1 border-t">
+                    <div className="flex justify-between font-bold text-base text-foreground pt-1 border-t">
                       <span>Total</span><span>{total.toLocaleString()} XOF</span>
                     </div>
                   </div>

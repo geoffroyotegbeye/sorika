@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, useState, useEffect, useRef } from 'react';
+import React, { CSSProperties, useState, useEffect, useRef, type ReactElement } from 'react';
 import { interactionEngine } from '@/lib/interactions/engine';
 
 interface Element {
@@ -92,7 +92,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
     return () => document.removeEventListener('click', handleClick);
   }, [openMenuId]);
 
-  const renderElement = (element: Element, parentId?: string): JSX.Element => {
+  const renderElement = (element: Element, parentId?: string): ReactElement => {
     // Vérifier que l'élément existe
     if (!element) {
       console.warn('Element null ou undefined');
@@ -118,7 +118,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       element.styles.desktop = {};
     }
     
-    const Tag = element.tag as keyof JSX.IntrinsicElements;
+    const Tag = element.tag as React.ElementType;
     const isTextElement = ['heading', 'paragraph', 'text', 'button', 'text-link', 'blockquote'].includes(element.type);
     const isVoidElement = ['input', 'textarea'].includes(element.type);
     
@@ -145,11 +145,12 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
     // Préparer les attributs HTML pour les éléments form
     const htmlAttributes: any = {};
     if (element.attributes) {
-      Object.keys(element.attributes).forEach(key => {
-        if (key === 'required' && element.attributes[key]) {
+      const attrs = element.attributes;
+      Object.keys(attrs).forEach((key) => {
+        if (key === 'required' && attrs[key]) {
           htmlAttributes[key] = true;
-        } else if (key !== 'src' && key !== 'alt' && key !== 'href' && key !== 'linkType' && element.attributes[key]) {
-          htmlAttributes[key] = element.attributes[key];
+        } else if (key !== 'src' && key !== 'alt' && key !== 'href' && key !== 'linkType' && attrs[key]) {
+          htmlAttributes[key] = attrs[key];
         }
       });
     }
@@ -159,7 +160,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag
           key={element.id}
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           src={element.attributes?.src || 'https://via.placeholder.com/400x300'}
@@ -173,7 +174,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag
           key={element.id}
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           src={element.attributes?.src}
@@ -191,7 +192,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag
           key={element.id}
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           {...htmlAttributes}
@@ -204,7 +205,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <ActualTag
           key={element.id}
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           dangerouslySetInnerHTML={{ __html: element.content }}
@@ -233,13 +234,13 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag
           key={element.id}
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           href={finalHref}
           target={isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener noreferrer' : undefined}
-          onClick={isAnchor ? (e) => {
+          onClick={isAnchor ? (e: React.MouseEvent<HTMLAnchorElement>) => {
             e.preventDefault();
             const targetId = href.substring(1);
             const targetElement = document.getElementById(targetId);
@@ -266,7 +267,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag 
           key={element.id} 
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           {...htmlAttributes}
@@ -289,7 +290,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
       return (
         <Tag 
           key={element.id} 
-          ref={(el) => el && elementRefs.current.set(element.id, el)}
+          ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
           data-element-id={element.id}
           style={styles}
           {...htmlAttributes}
@@ -306,7 +307,7 @@ export function PageRenderer({ elements, globalStyles, companySlug, isPreview = 
     return (
       <Tag 
         key={element.id} 
-        ref={(el) => el && elementRefs.current.set(element.id, el)}
+        ref={(el: HTMLElement | null) => el && elementRefs.current.set(element.id, el)}
         data-element-id={element.id}
         style={styles}
         {...htmlAttributes}

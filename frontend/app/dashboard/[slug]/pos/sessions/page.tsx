@@ -31,20 +31,20 @@ function SessionDetailModal({ session, onClose }: { session: CashSession; onClos
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${session.status === 'OPEN' ? 'bg-emerald-100' : 'bg-slate-100'}`}>
-              <Banknote className={`h-4 w-4 ${session.status === 'OPEN' ? 'text-emerald-600' : 'text-slate-500'}`} />
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${session.status === 'OPEN' ? 'bg-emerald-100' : 'bg-muted'}`}>
+              <Banknote className={`h-4 w-4 ${session.status === 'OPEN' ? 'text-emerald-600' : 'text-muted-foreground'}`} />
             </div>
             <div>
-              <p className="font-bold text-slate-900">{session.register?.name}</p>
-              <p className="text-xs text-slate-500">{fmtDate(session.openedAt)}</p>
+              <p className="font-bold text-foreground">{session.register?.name}</p>
+              <p className="text-xs text-muted-foreground">{fmtDate(session.openedAt)}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-muted-foreground"><X className="h-5 w-5" /></button>
         </div>
 
-        <div className="px-6 py-4 grid grid-cols-2 gap-3 border-b border-slate-100">
+        <div className="px-6 py-4 grid grid-cols-2 gap-3 border-b border-border">
           {[
             { label: 'Caissier',    value: session.cashier ? `${session.cashier.firstName} ${session.cashier.lastName}` : '—' },
             { label: 'Statut',      value: session.status === 'OPEN' ? '🟢 Ouverte' : '⚫ Fermée' },
@@ -53,20 +53,20 @@ function SessionDetailModal({ session, onClose }: { session: CashSession; onClos
             { label: 'Durée',       value: duration(session.openedAt, session.closedAt) },
             { label: 'Ventes',      value: `${session._count?.sales ?? 0}` },
           ].map((r) => (
-            <div key={r.label} className="bg-slate-50 rounded-lg p-3">
-              <p className="text-xs text-slate-400 mb-1">{r.label}</p>
-              <p className="text-sm font-medium text-slate-800">{r.value}</p>
+            <div key={r.label} className="bg-muted/40 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">{r.label}</p>
+              <p className="text-sm font-medium text-foreground">{r.value}</p>
             </div>
           ))}
         </div>
 
         <div className="px-6 py-4 space-y-2">
-          <div className="flex justify-between text-sm"><span className="text-slate-500">Fonds de départ</span><span className="font-medium">{fmt(session.openingAmount)} XOF</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Fonds de départ</span><span className="font-medium">{fmt(session.openingAmount)} XOF</span></div>
           {session.closingAmount != null && (
             <>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">Montant attendu</span><span className="font-medium">{fmt(session.expectedAmount ?? 0)} XOF</span></div>
-              <div className="flex justify-between text-sm"><span className="text-slate-500">Montant compté</span><span className="font-medium">{fmt(session.closingAmount)} XOF</span></div>
-              <div className={`flex justify-between text-sm font-semibold rounded-lg px-3 py-2 ${diff === 0 ? 'bg-slate-50 text-slate-700' : diff > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant attendu</span><span className="font-medium">{fmt(session.expectedAmount ?? 0)} XOF</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant compté</span><span className="font-medium">{fmt(session.closingAmount)} XOF</span></div>
+              <div className={`flex justify-between text-sm font-semibold rounded-lg px-3 py-2 ${diff === 0 ? 'bg-muted/40 text-foreground' : diff > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                 <span>Écart</span>
                 <span>{diff > 0 ? '+' : ''}{fmt(diff)} XOF</span>
               </div>
@@ -110,10 +110,10 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Caisse',
       render: (_: any, row: CashSession) => (
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-            <Banknote className="h-4 w-4 text-slate-500" />
+          <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center shrink-0">
+            <Banknote className="h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="font-medium text-sm text-slate-900">{row.register?.name ?? '—'}</p>
+          <p className="font-medium text-sm text-foreground">{row.register?.name ?? '—'}</p>
         </div>
       ),
     },
@@ -122,7 +122,7 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Caissier',
       searchable: false,
       render: (_: any, row: CashSession) => (
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-foreground">
           {row.cashier ? `${row.cashier.firstName} ${row.cashier.lastName}` : '—'}
         </p>
       ),
@@ -132,8 +132,8 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Ouverture',
       render: (_: any, row: CashSession) => (
         <div>
-          <p className="text-sm text-slate-700">{fmtDate(row.openedAt)}</p>
-          <p className="text-xs text-slate-400">{fmtTime(row.openedAt)}</p>
+          <p className="text-sm text-foreground">{fmtDate(row.openedAt)}</p>
+          <p className="text-xs text-muted-foreground">{fmtTime(row.openedAt)}</p>
         </div>
       ),
     },
@@ -142,8 +142,8 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Durée',
       sortable: false,
       render: (_: any, row: CashSession) => (
-        <div className="flex items-center gap-1.5 text-sm text-slate-600">
-          <Clock className="h-3.5 w-3.5 text-slate-400" />
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
           {duration(row.openedAt, row.closedAt)}
         </div>
       ),
@@ -152,7 +152,7 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       key: 'openingAmount' as keyof CashSession & string,
       header: 'Fonds départ',
       render: (_: any, row: CashSession) => (
-        <p className="text-sm font-medium text-slate-700">{fmt(row.openingAmount)} XOF</p>
+        <p className="text-sm font-medium text-foreground">{fmt(row.openingAmount)} XOF</p>
       ),
     },
     {
@@ -160,8 +160,8 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Clôture',
       render: (_: any, row: CashSession) => (
         row.closingAmount != null
-          ? <p className="text-sm font-medium text-slate-700">{fmt(row.closingAmount)} XOF</p>
-          : <span className="text-xs text-slate-400">—</span>
+          ? <p className="text-sm font-medium text-foreground">{fmt(row.closingAmount)} XOF</p>
+          : <span className="text-xs text-muted-foreground">—</span>
       ),
     },
     {
@@ -169,9 +169,9 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       header: 'Écart',
       render: (_: any, row: CashSession) => {
         const d = row.difference ?? 0;
-        if (row.status === 'OPEN') return <span className="text-xs text-slate-400">—</span>;
+        if (row.status === 'OPEN') return <span className="text-xs text-muted-foreground">—</span>;
         return (
-          <span className={`text-sm font-semibold ${d === 0 ? 'text-slate-500' : d > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <span className={`text-sm font-semibold ${d === 0 ? 'text-muted-foreground' : d > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {d > 0 ? '+' : ''}{fmt(d)} XOF
           </span>
         );
@@ -183,7 +183,7 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
       render: (_: any, row: CashSession) => (
         row.status === 'OPEN'
           ? <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Ouverte</Badge>
-          : <Badge variant="outline" className="text-slate-500">Fermée</Badge>
+          : <Badge variant="outline" className="text-muted-foreground">Fermée</Badge>
       ),
     },
   ], []);
@@ -192,8 +192,8 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
     <div className="space-y-6 p-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Sessions de caisse</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Historique des ouvertures et fermetures</p>
+        <h1 className="text-2xl font-bold text-foreground">Sessions de caisse</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Historique des ouvertures et fermetures</p>
       </div>
 
       {/* Sessions ouvertes */}
@@ -201,7 +201,7 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <h2 className="font-semibold text-slate-900">Sessions en cours ({open.length})</h2>
+            <h2 className="font-semibold text-foreground">Sessions en cours ({open.length})</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {open.map((s) => (
@@ -217,8 +217,8 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
                         <Banknote className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-slate-900">{s.register?.name}</p>
-                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                        <p className="font-semibold text-sm text-foreground">{s.register?.name}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           {s.cashier ? `${s.cashier.firstName} ${s.cashier.lastName}` : '—'}
                         </p>
@@ -228,16 +228,16 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="bg-white rounded-lg py-2">
-                      <p className="text-xs text-slate-400">Départ</p>
-                      <p className="text-sm font-semibold text-slate-800">{fmt(s.openingAmount)}</p>
+                      <p className="text-xs text-muted-foreground">Départ</p>
+                      <p className="text-sm font-semibold text-foreground">{fmt(s.openingAmount)}</p>
                     </div>
                     <div className="bg-white rounded-lg py-2">
-                      <p className="text-xs text-slate-400">Ventes</p>
-                      <p className="text-sm font-semibold text-slate-800">{s._count?.sales ?? 0}</p>
+                      <p className="text-xs text-muted-foreground">Ventes</p>
+                      <p className="text-sm font-semibold text-foreground">{s._count?.sales ?? 0}</p>
                     </div>
                     <div className="bg-white rounded-lg py-2">
-                      <p className="text-xs text-slate-400">Durée</p>
-                      <p className="text-sm font-semibold text-slate-800">{duration(s.openedAt)}</p>
+                      <p className="text-xs text-muted-foreground">Durée</p>
+                      <p className="text-sm font-semibold text-foreground">{duration(s.openedAt)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -249,7 +249,7 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
 
       {/* Historique via DataGrid */}
       <div>
-        <h2 className="font-semibold text-slate-900 mb-3">Historique ({closed.length} sessions)</h2>
+        <h2 className="font-semibold text-foreground mb-3">Historique ({closed.length} sessions)</h2>
         <Card>
           <CardContent className="pt-4">
             <DataGrid<CashSession>

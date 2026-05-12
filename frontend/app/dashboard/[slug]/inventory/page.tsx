@@ -47,18 +47,18 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-slate-900">Tableau de bord</h1>
+      <h1 className="text-xl font-semibold text-foreground">Tableau de bord</h1>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Total Produits</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Produits</CardTitle>
             <Package className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{stats.totalProducts}</div>
-            <p className="text-xs text-slate-500 mt-1">
+            <div className="text-2xl font-bold text-foreground">{stats.totalProducts}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.activeProducts} actifs
             </p>
           </CardContent>
@@ -66,14 +66,14 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Valeur du Stock</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Valeur du Stock</CardTitle>
             <DollarSign className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {fmt(stats.totalStockValue.saleValue)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Coût: {fmt(stats.totalStockValue.costValue)}
             </p>
           </CardContent>
@@ -81,12 +81,12 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Stock Bas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Stock Bas</CardTitle>
             <AlertTriangle className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.lowStockProducts}</div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.outOfStockProducts} en rupture
             </p>
           </CardContent>
@@ -94,12 +94,12 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Catégories</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Catégories</CardTitle>
             <FolderTree className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{stats.categories}</div>
-            <p className="text-xs text-slate-500 mt-1">Catégories actives</p>
+            <div className="text-2xl font-bold text-foreground">{stats.categories}</div>
+            <p className="text-xs text-muted-foreground mt-1">Catégories actives</p>
           </CardContent>
         </Card>
       </div>
@@ -111,13 +111,13 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
         </CardHeader>
         <CardContent>
           {stats.recentMovements.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-8">Aucun mouvement récent</p>
+            <p className="text-sm text-muted-foreground text-center py-8">Aucun mouvement récent</p>
           ) : (
             <div className="space-y-3">
               {stats.recentMovements.map((movement) => (
                 <div
                   key={movement.id}
-                  className="flex items-center justify-between p-3 border border-slate-200 rounded-lg"
+                  className="flex items-center justify-between p-3 border border-border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -132,8 +132,8 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
                       <TrendingUp className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900">{movement.product?.name}</p>
-                      <p className="text-sm text-slate-500">
+                      <p className="font-medium text-foreground">{movement.product?.name}</p>
+                      <p className="text-sm text-muted-foreground">
                         {movement.type === 'IN' ? 'Entrée' : movement.type === 'OUT' ? 'Sortie' : 'Ajustement'} •{' '}
                         {new Date(movement.createdAt).toLocaleDateString('fr-FR')}
                       </p>
@@ -148,7 +148,7 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
                       {movement.type === 'IN' ? '+' : movement.type === 'OUT' ? '-' : ''}
                       {movement.quantity} {movement.product?.unit}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                       Stock: {movement.stockAfter} {movement.product?.unit}
                     </p>
                   </div>

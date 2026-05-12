@@ -19,6 +19,8 @@ model User {
   lastName            String?
   isSuperAdmin        Boolean      @default(false) // Super Admin avec tous les droits
   mustChangePassword  Boolean      @default(false) // Forcer le changement de mot de passe à la première connexion
+  /// Préférence d'affichage du tableau de bord (par utilisateur)
+  dashboardTheme      String       @default("LIGHT") // LIGHT | DARK
   memberships         Membership[] // Un utilisateur peut appartenir à plusieurs entreprises
   employee            Employee?    // Lien optionnel vers une fiche employé
   

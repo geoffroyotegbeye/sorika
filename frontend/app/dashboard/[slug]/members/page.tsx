@@ -83,7 +83,7 @@ export default function MembersPage({ params }: { params: Promise<{ slug: string
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Membres</h1>
+        <h1 className="text-xl font-semibold text-foreground">Membres</h1>
         <Button onClick={() => setAddOpen(true)}>
           Ajouter un membre
         </Button>

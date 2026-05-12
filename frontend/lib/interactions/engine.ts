@@ -198,7 +198,13 @@ export class InteractionEngine {
         gsap.to(target, { opacity: 1, duration: 0.3 });
         break;
       case 'hide':
-        gsap.to(target, { opacity: 0, duration: 0.3, onComplete: () => target.style.display = 'none' });
+        gsap.to(target, {
+          opacity: 0,
+          duration: 0.3,
+          onComplete: () => {
+            target.style.display = 'none';
+          },
+        });
         break;
       case 'toggle':
         const isHidden = window.getComputedStyle(target).display === 'none';
@@ -211,7 +217,13 @@ export class InteractionEngine {
           // Sauvegarder le display actuel avant de cacher
           const currentDisplay = window.getComputedStyle(target).display;
           target.setAttribute('data-original-display', currentDisplay);
-          gsap.to(target, { opacity: 0, duration: 0.3, onComplete: () => target.style.display = 'none' });
+          gsap.to(target, {
+            opacity: 0,
+            duration: 0.3,
+            onComplete: () => {
+              target.style.display = 'none';
+            },
+          });
         }
         break;
     }

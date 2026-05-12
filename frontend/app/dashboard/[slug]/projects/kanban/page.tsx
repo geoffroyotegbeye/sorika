@@ -47,7 +47,7 @@ export default function KanbanPage({
   }, [companyId, selectedProjectId, fetchTasks]);
 
   const columns = [
-    { id: 'TODO', title: 'À faire', color: 'bg-slate-100' },
+    { id: 'TODO', title: 'À faire', color: 'bg-muted' },
     { id: 'IN_PROGRESS', title: 'En cours', color: 'bg-blue-100' },
     { id: 'IN_REVIEW', title: 'En révision', color: 'bg-purple-100' },
     { id: 'DONE', title: 'Terminé', color: 'bg-green-100' },
@@ -59,12 +59,12 @@ export default function KanbanPage({
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      LOW: 'bg-slate-100 text-slate-700',
+      LOW: 'bg-muted text-foreground',
       MEDIUM: 'bg-blue-100 text-blue-700',
       HIGH: 'bg-orange-100 text-orange-700',
       URGENT: 'bg-red-100 text-red-700',
     };
-    return colors[priority] || 'bg-slate-100 text-slate-700';
+    return colors[priority] || 'bg-muted text-foreground';
   };
 
   if (loading) {
@@ -79,8 +79,8 @@ export default function KanbanPage({
     <div className="space-y-6">
       {/* En-tête */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Kanban</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Kanban</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Vue Kanban de vos tâches
         </p>
       </div>
@@ -90,11 +90,11 @@ export default function KanbanPage({
         {columns.map((column) => {
           const columnTasks = getTasksByStatus(column.id);
           return (
-            <Card key={column.id} className="border border-slate-200">
+            <Card key={column.id} className="border border-border">
               <CardHeader className={`${column.color} pb-3`}>
-                <CardTitle className="text-sm font-semibold text-slate-900 flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold text-foreground flex items-center justify-between">
                   <span>{column.title}</span>
-                  <span className="text-xs font-normal text-slate-600">
+                  <span className="text-xs font-normal text-muted-foreground">
                     {columnTasks.length}
                   </span>
                 </CardTitle>
@@ -102,18 +102,18 @@ export default function KanbanPage({
               <CardContent className="pt-4">
                 {columnTasks.length === 0 ? (
                   <div className="text-center py-8">
-                    <LayoutDashboard className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-xs text-slate-500">Aucune tâche</p>
+                    <LayoutDashboard className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground">Aucune tâche</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {columnTasks.map((task) => (
                       <div
                         key={task.id}
-                        className="p-3 bg-white border border-slate-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                        className="p-3 bg-white border border-border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h4 className="text-sm font-semibold text-slate-900 line-clamp-2">
+                          <h4 className="text-sm font-semibold text-foreground line-clamp-2">
                             {task.title}
                           </h4>
                           <Badge
@@ -123,11 +123,11 @@ export default function KanbanPage({
                           </Badge>
                         </div>
                         {task.description && (
-                          <p className="text-xs text-slate-600 line-clamp-2 mb-2">
+                          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                             {task.description}
                           </p>
                         )}
-                        <div className="flex flex-col gap-1 text-xs text-slate-500">
+                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                           {task.dueDate && (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />

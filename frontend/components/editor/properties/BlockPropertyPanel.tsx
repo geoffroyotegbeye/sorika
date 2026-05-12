@@ -251,7 +251,8 @@ const PropertyComponent: React.FC<PropertyComponentProps> = (props) => {
       return (
         <div className="property-item">
           <span className="property-error">
-            Type de propriété non supporté: {props.property.type}
+            Type de propriété non supporté:{' '}
+            {(props.property as { type?: string }).type ?? 'inconnu'}
           </span>
         </div>
       );

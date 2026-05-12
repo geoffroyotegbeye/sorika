@@ -59,8 +59,8 @@ export default function AnalyticsPage({
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          <p className="text-sm text-muted-foreground">
             Vue d'ensemble de votre activité
           </p>
         </div>
@@ -83,10 +83,10 @@ export default function AnalyticsPage({
       {/* KPIs principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Chiffre d'affaires */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Chiffre d'affaires
               </CardTitle>
               <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -95,20 +95,20 @@ export default function AnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(dashboard?.sales.total || 0)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {dashboard?.sales.count || 0} ventes
             </p>
           </CardContent>
         </Card>
 
         {/* Factures */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Factures
               </CardTitle>
               <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -117,20 +117,20 @@ export default function AnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(dashboard?.invoices.total || 0)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {formatCurrency(dashboard?.invoices.paid || 0)} encaissé
             </p>
           </CardContent>
         </Card>
 
         {/* Clients */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Clients
               </CardTitle>
               <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -139,20 +139,20 @@ export default function AnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {dashboard?.crm.contacts || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {dashboard?.crm.opportunitiesWon || 0} opportunités gagnées
             </p>
           </CardContent>
         </Card>
 
         {/* Produits */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Inventaire
               </CardTitle>
               <div className="h-8 w-8 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -161,7 +161,7 @@ export default function AnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {dashboard?.inventory.products || 0}
             </div>
             <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
@@ -179,9 +179,9 @@ export default function AnalyticsPage({
       {/* Graphiques et détails */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Évolution du CA */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-blue-600" />
               Évolution du chiffre d'affaires
             </CardTitle>
@@ -191,14 +191,14 @@ export default function AnalyticsPage({
               <div className="space-y-3">
                 {revenueTrend.slice(-7).map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="text-xs text-slate-500 w-24">
+                    <div className="text-xs text-muted-foreground w-24">
                       {new Date(item.date).toLocaleDateString('fr-FR', {
                         day: '2-digit',
                         month: 'short',
                       })}
                     </div>
                     <div className="flex-1">
-                      <div className="h-8 bg-slate-100 rounded-lg overflow-hidden">
+                      <div className="h-8 bg-muted rounded-lg overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-lg transition-all"
                           style={{
@@ -207,14 +207,14 @@ export default function AnalyticsPage({
                         />
                       </div>
                     </div>
-                    <div className="text-sm font-medium text-slate-900 w-32 text-right">
+                    <div className="text-sm font-medium text-foreground w-32 text-right">
                       {formatCurrency(item.revenue)}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucune donnée disponible
               </p>
             )}
@@ -222,9 +222,9 @@ export default function AnalyticsPage({
         </Card>
 
         {/* Top produits */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-green-600" />
               Top 5 produits
             </CardTitle>
@@ -235,16 +235,16 @@ export default function AnalyticsPage({
                 {topProducts.map((product, index) => (
                   <div
                     key={product.productId}
-                    className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg"
                   >
-                    <div className="flex items-center justify-center h-8 w-8 bg-white rounded-lg border border-slate-200 text-sm font-semibold text-slate-600">
+                    <div className="flex items-center justify-center h-8 w-8 bg-white rounded-lg border border-border text-sm font-semibold text-muted-foreground">
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {product.productName}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         {product.quantitySold} vendus
                       </p>
                     </div>
@@ -255,7 +255,7 @@ export default function AnalyticsPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucune vente enregistrée
               </p>
             )}
@@ -266,27 +266,27 @@ export default function AnalyticsPage({
       {/* Statistiques supplémentaires */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* CRM */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">
+            <CardTitle className="text-sm font-semibold text-foreground">
               CRM
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Opportunités</span>
-              <span className="font-medium text-slate-900">
+              <span className="text-muted-foreground">Opportunités</span>
+              <span className="font-medium text-foreground">
                 {dashboard?.crm.opportunities || 0}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Valeur pipeline</span>
-              <span className="font-medium text-slate-900">
+              <span className="text-muted-foreground">Valeur pipeline</span>
+              <span className="font-medium text-foreground">
                 {formatCurrency(dashboard?.crm.opportunitiesValue || 0)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Taux de conversion</span>
+              <span className="text-muted-foreground">Taux de conversion</span>
               <span className="font-medium text-green-600">
                 {dashboard?.crm.opportunities
                   ? Math.round(
@@ -302,21 +302,21 @@ export default function AnalyticsPage({
         </Card>
 
         {/* Inventaire */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">
+            <CardTitle className="text-sm font-semibold text-foreground">
               Inventaire
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Produits actifs</span>
-              <span className="font-medium text-slate-900">
+              <span className="text-muted-foreground">Produits actifs</span>
+              <span className="font-medium text-foreground">
                 {dashboard?.inventory.products || 0}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Stock bas</span>
+              <span className="text-muted-foreground">Stock bas</span>
               <span className="font-medium text-red-600">
                 {dashboard?.inventory.lowStockProducts || 0}
               </span>
@@ -325,16 +325,16 @@ export default function AnalyticsPage({
         </Card>
 
         {/* RH */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">
+            <CardTitle className="text-sm font-semibold text-foreground">
               Ressources Humaines
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Employés actifs</span>
-              <span className="font-medium text-slate-900">
+              <span className="text-muted-foreground">Employés actifs</span>
+              <span className="font-medium text-foreground">
                 {dashboard?.hr.employees || 0}
               </span>
             </div>

@@ -52,11 +52,14 @@ export default function MovementsPage({ params }: { params: Promise<{ slug: stri
       header: 'Type',
       render: (val) => {
         const type = val as string;
-        const config = {
+        const map = {
           IN: { label: 'Entrée', icon: TrendingUp, className: 'bg-green-100 text-green-700' },
           OUT: { label: 'Sortie', icon: TrendingDown, className: 'bg-red-100 text-red-700' },
           ADJUSTMENT: { label: 'Ajustement', icon: RefreshCw, className: 'bg-blue-100 text-blue-700' },
-        }[type];
+        } as const;
+        const config =
+          map[type as keyof typeof map] ??
+          { label: type, icon: RefreshCw, className: 'bg-muted text-muted-foreground' };
 
         const Icon = config.icon;
         return (
@@ -73,8 +76,8 @@ export default function MovementsPage({ params }: { params: Promise<{ slug: stri
       sortable: false,
       render: (_, row) => (
         <div>
-          <p className="font-medium text-slate-900">{row.product?.name}</p>
-          {row.product?.sku && <p className="text-xs text-slate-500">SKU: {row.product.sku}</p>}
+          <p className="font-medium text-foreground">{row.product?.name}</p>
+          {row.product?.sku && <p className="text-xs text-muted-foreground">SKU: {row.product.sku}</p>}
         </div>
       ),
     },
@@ -113,7 +116,7 @@ export default function MovementsPage({ params }: { params: Promise<{ slug: stri
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Mouvements de stock</h1>
+        <h1 className="text-xl font-semibold text-foreground">Mouvements de stock</h1>
         <Button onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Nouveau mouvement

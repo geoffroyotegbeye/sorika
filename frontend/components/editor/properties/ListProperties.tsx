@@ -34,23 +34,23 @@ export function ListProperties({ elementId }: ListPropertiesProps) {
 
   const handleAddItem = () => {
     const newItems = [...listItems, `Item ${listItems.length + 1}`];
-    updateElement(elementId, { listItems: newItems });
+    updateElement(elementId, { listItems: newItems } as Parameters<typeof updateElement>[1]);
   };
 
   const handleRemoveItem = (index: number) => {
     const newItems = listItems.filter((_: any, i: number) => i !== index);
-    updateElement(elementId, { listItems: newItems });
+    updateElement(elementId, { listItems: newItems } as Parameters<typeof updateElement>[1]);
   };
 
   const handleUpdateItem = (index: number, value: string) => {
     const newItems = [...listItems];
     newItems[index] = value;
-    updateElement(elementId, { listItems: newItems });
+    updateElement(elementId, { listItems: newItems } as Parameters<typeof updateElement>[1]);
   };
 
   const handleTypeChange = (type: 'ul' | 'ol', style: string) => {
-    updateElement(elementId, { tag: type });
-    updateElementStyles(elementId, { listStyleType: style });
+    updateElement(elementId, { tag: type } as Parameters<typeof updateElement>[1]);
+    updateElementStyles(elementId, { listStyleType: style } as Parameters<typeof updateElementStyles>[1]);
   };
 
   return (
@@ -83,7 +83,9 @@ export function ListProperties({ elementId }: ListPropertiesProps) {
           <select
             className="w-full h-9 px-3 rounded-md border text-sm mt-1"
             value={currentListStyle}
-            onChange={(e) => updateElementStyles(elementId, { listStyleType: e.target.value })}
+            onChange={(e) =>
+              updateElementStyles(elementId, { listStyleType: e.target.value } as Parameters<typeof updateElementStyles>[1])
+            }
           >
             <option value="none">Sans</option>
             <option value="disc">● Disque</option>
@@ -99,7 +101,9 @@ export function ListProperties({ elementId }: ListPropertiesProps) {
           <select
             className="w-full h-9 px-3 rounded-md border text-sm mt-1"
             value={currentListStyle}
-            onChange={(e) => updateElementStyles(elementId, { listStyleType: e.target.value })}
+            onChange={(e) =>
+              updateElementStyles(elementId, { listStyleType: e.target.value } as Parameters<typeof updateElementStyles>[1])
+            }
           >
             <option value="decimal">1, 2, 3</option>
             <option value="decimal-leading-zero">01, 02, 03</option>

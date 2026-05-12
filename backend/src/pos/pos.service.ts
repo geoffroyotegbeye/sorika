@@ -125,7 +125,7 @@ export class PosService {
     return this.prisma.cashSession.create({
       data: {
         registerId:    dto.registerId,
-        ...(dto.cashierId ? { cashierId: dto.cashierId } : {}),
+        cashierId:     dto.cashierId ?? null,
         openingAmount: dto.openingAmount,
         companyId,
         status: 'OPEN',
@@ -316,8 +316,8 @@ export class PosService {
           saleNumber,
           registerId:     dto.registerId,
           sessionId:      dto.sessionId,
-          ...(dto.cashierId ? { cashierId: dto.cashierId } : {}),
-          customerId:     dto.customerId,
+          cashierId:      dto.cashierId ?? null,
+          customerId:     dto.customerId ?? null,
           subtotal,
           discountAmount,
           discountPercent: dto.discountPercent || 0,

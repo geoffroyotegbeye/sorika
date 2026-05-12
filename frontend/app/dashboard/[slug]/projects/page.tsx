@@ -72,8 +72,8 @@ export default function ProjectsDashboardPage({
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Projets</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Projets</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Vue d'ensemble de vos projets et tâches
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function ProjectsDashboardPage({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Projets actifs
             </CardTitle>
             <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -95,10 +95,10 @@ export default function ProjectsDashboardPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {stats.activeProjects}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Sur {stats.totalProjects} total
             </p>
           </CardContent>
@@ -106,7 +106,7 @@ export default function ProjectsDashboardPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Tâches
             </CardTitle>
             <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -114,10 +114,10 @@ export default function ProjectsDashboardPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {stats.completedTasks}/{stats.totalTasks}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.totalTasks > 0
                 ? Math.round((stats.completedTasks / stats.totalTasks) * 100)
                 : 0}
@@ -128,7 +128,7 @@ export default function ProjectsDashboardPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Temps total
             </CardTitle>
             <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -136,10 +136,10 @@ export default function ProjectsDashboardPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {Math.round(stats.totalTimeLogged)}h
             </div>
-            <p className="text-xs text-slate-500 mt-1">Temps enregistré</p>
+            <p className="text-xs text-muted-foreground mt-1">Temps enregistré</p>
           </CardContent>
         </Card>
       </div>
@@ -148,7 +148,7 @@ export default function ProjectsDashboardPage({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Projets en cours
             </CardTitle>
             <Button
@@ -163,13 +163,13 @@ export default function ProjectsDashboardPage({
         <CardContent>
           {activeProjects.length === 0 ? (
             <div className="text-center py-12">
-              <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="h-8 w-8 text-slate-400" />
+              <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="h-8 w-8 text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium text-slate-900 mb-1">
+              <p className="text-sm font-medium text-foreground mb-1">
                 Aucun projet actif
               </p>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Créez un nouveau projet pour commencer
               </p>
               <Button onClick={() => setDialogOpen(true)}>
@@ -181,7 +181,7 @@ export default function ProjectsDashboardPage({
             <div className="space-y-3">
               {activeProjects.slice(0, 5).map((project) => {
                 const priorityColors = {
-                  LOW: 'bg-slate-100 text-slate-700',
+                  LOW: 'bg-muted text-foreground',
                   MEDIUM: 'bg-blue-100 text-blue-700',
                   HIGH: 'bg-orange-100 text-orange-700',
                   URGENT: 'bg-red-100 text-red-700',
@@ -193,7 +193,7 @@ export default function ProjectsDashboardPage({
                     onClick={() =>
                       router.push(`/dashboard/${slug}/projects/list`)
                     }
-                    className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-4 flex-1">
                       <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -201,7 +201,7 @@ export default function ProjectsDashboardPage({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-slate-900">
+                          <h3 className="font-semibold text-foreground">
                             {project.name}
                           </h3>
                           <span
@@ -210,10 +210,10 @@ export default function ProjectsDashboardPage({
                             {project.priority}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500 truncate">
+                        <p className="text-sm text-muted-foreground truncate">
                           {project.description || 'Aucune description'}
                         </p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-slate-600">
+                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <ListChecks className="h-3 w-3" />
                             {project._count?.tasks || 0} tâches
@@ -229,14 +229,14 @@ export default function ProjectsDashboardPage({
                     {/* Barre de progression */}
                     <div className="w-32 ml-4">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-muted-foreground">
                           Progression
                         </span>
-                        <span className="text-xs font-semibold text-slate-900">
+                        <span className="text-xs font-semibold text-foreground">
                           {project.progress}%
                         </span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-full transition-all"
                           style={{ width: `${project.progress}%` }}
@@ -256,14 +256,14 @@ export default function ProjectsDashboardPage({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 En attente
               </CardTitle>
-              <AlertCircle className="h-4 w-4 text-slate-400" />
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {projects.filter((p) => p.status === 'PENDING').length}
             </div>
           </CardContent>
@@ -272,7 +272,7 @@ export default function ProjectsDashboardPage({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 En pause
               </CardTitle>
               <AlertCircle className="h-4 w-4 text-orange-500" />
@@ -288,7 +288,7 @@ export default function ProjectsDashboardPage({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Terminés
               </CardTitle>
               <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -304,7 +304,7 @@ export default function ProjectsDashboardPage({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Annulés
               </CardTitle>
               <AlertCircle className="h-4 w-4 text-red-500" />

@@ -41,7 +41,7 @@ export default function SuppliersPage({ params }: { params: Promise<{ slug: stri
     {
       key: 'name',
       header: 'Nom',
-      render: (val) => <span className="font-medium text-slate-900">{val as string}</span>,
+      render: (val) => <span className="font-medium text-foreground">{val as string}</span>,
     },
     {
       key: 'email',
@@ -56,7 +56,7 @@ export default function SuppliersPage({ params }: { params: Promise<{ slug: stri
     {
       key: 'taxNumber',
       header: 'N° fiscal',
-      render: (val) => <span className="text-slate-600">{(val as string) ?? '—'}</span>,
+      render: (val) => <span className="text-muted-foreground">{(val as string) ?? '—'}</span>,
     },
     {
       key: 'id',
@@ -89,7 +89,7 @@ export default function SuppliersPage({ params }: { params: Promise<{ slug: stri
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Fournisseurs</h1>
+        <h1 className="text-xl font-semibold text-foreground">Fournisseurs</h1>
         <Button onClick={() => { setEditSupplier(null); setSupplierDialog(true); }}>
           <Plus className="h-4 w-4 mr-2" />
           Nouveau fournisseur

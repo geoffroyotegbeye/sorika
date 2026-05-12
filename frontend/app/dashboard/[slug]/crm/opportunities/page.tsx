@@ -46,7 +46,7 @@ export default function OpportunitiesPage({ params }: { params: Promise<{ slug: 
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">{error}</p>
-          <p className="text-sm text-slate-500">Veuillez vérifier vos données de connexion</p>
+          <p className="text-sm text-muted-foreground">Veuillez vérifier vos données de connexion</p>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function OpportunitiesPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-4">
       <div className="flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-semibold text-slate-900">Opportunités</h1>
+        <h1 className="text-xl font-semibold text-foreground">Opportunités</h1>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
         <OpportunitiesKanban companyId={company.id} currency={company.currency ?? 'XOF'} />

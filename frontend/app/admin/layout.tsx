@@ -18,7 +18,7 @@ import {
   User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/lib/theme';
+import { useTheme } from 'next-themes';
 
 const NAV_ITEMS = [
   { label: 'Dashboard',      href: '/admin',           icon: LayoutDashboard },
@@ -29,7 +29,8 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter();
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   const [user,          setUser]          = useState<any>(null);
   const [sidebarOpen,   setSidebarOpen]   = useState(false);
@@ -234,11 +235,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+              title={resolvedTheme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
               style={{ color: 'var(--admin-text-muted)' }}
               className="hover:bg-[var(--admin-hover)] rounded-lg"
             >
-              {theme === 'dark'
+              {resolvedTheme === 'dark'
                 ? <Sun  className="w-4 h-4" />
                 : <Moon className="w-4 h-4" />
               }

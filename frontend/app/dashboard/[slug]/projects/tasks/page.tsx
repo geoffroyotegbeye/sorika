@@ -106,22 +106,22 @@ export default function TasksPage({
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      TODO: 'bg-slate-100 text-slate-700',
+      TODO: 'bg-muted text-foreground',
       IN_PROGRESS: 'bg-blue-100 text-blue-700',
       IN_REVIEW: 'bg-purple-100 text-purple-700',
       DONE: 'bg-green-100 text-green-700',
     };
-    return colors[status] || 'bg-slate-100 text-slate-700';
+    return colors[status] || 'bg-muted text-foreground';
   };
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      LOW: 'bg-slate-100 text-slate-700',
+      LOW: 'bg-muted text-foreground',
       MEDIUM: 'bg-blue-100 text-blue-700',
       HIGH: 'bg-orange-100 text-orange-700',
       URGENT: 'bg-red-100 text-red-700',
     };
-    return colors[priority] || 'bg-slate-100 text-slate-700';
+    return colors[priority] || 'bg-muted text-foreground';
   };
 
   if (loading) {
@@ -137,8 +137,8 @@ export default function TasksPage({
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Toutes les tâches</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Toutes les tâches</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {tasks.length} tâche{tasks.length > 1 ? 's' : ''}
           </p>
         </div>
@@ -156,13 +156,13 @@ export default function TasksPage({
         <CardContent>
           {tasks.length === 0 ? (
             <div className="text-center py-12">
-              <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ListChecks className="h-8 w-8 text-slate-400" />
+              <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <ListChecks className="h-8 w-8 text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium text-slate-900 mb-1">
+              <p className="text-sm font-medium text-foreground mb-1">
                 Aucune tâche
               </p>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Créez votre première tâche pour commencer
               </p>
               <Button onClick={handleCreate} className="cursor-pointer">
@@ -175,12 +175,12 @@ export default function TasksPage({
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/40 transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-slate-900">
+                        <h3 className="font-semibold text-foreground">
                           {task.title}
                         </h3>
                         <Badge className={getStatusColor(task.status)}>
@@ -191,11 +191,11 @@ export default function TasksPage({
                         </Badge>
                       </div>
                       {task.description && (
-                        <p className="text-sm text-slate-600 line-clamp-1">
+                        <p className="text-sm text-muted-foreground line-clamp-1">
                           {task.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         {task.dueDate && (
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />

@@ -94,7 +94,7 @@ export default function CustomersAnalyticsPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-slate-500">Chargement...</p>
+        <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
@@ -103,18 +103,18 @@ export default function CustomersAnalyticsPage({
     <div className="space-y-6">
       {/* En-tête */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Clients & CRM</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Clients & CRM</h1>
+        <p className="text-sm text-muted-foreground">
           Analyse de votre pipeline commercial et de vos contacts
         </p>
       </div>
 
       {/* KPIs CRM */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Contacts
               </CardTitle>
               <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -123,19 +123,19 @@ export default function CustomersAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {totalContacts}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Contacts dans la base
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Opportunités
               </CardTitle>
               <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -144,19 +144,19 @@ export default function CustomersAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {data?.totalOpportunities || 0}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               En cours et clôturées
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Taux de conversion
               </CardTitle>
               <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -165,19 +165,19 @@ export default function CustomersAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {data?.conversionRate.toFixed(1)}%
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {data?.wonOpportunities} opportunités gagnées
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Valeur du pipeline
               </CardTitle>
               <div className="h-8 w-8 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -186,10 +186,10 @@ export default function CustomersAnalyticsPage({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(totalOpportunitiesValue)}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Montant total des opportunités
             </p>
           </CardContent>
@@ -199,9 +199,9 @@ export default function CustomersAnalyticsPage({
       {/* Analyses détaillées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Contacts par statut */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Contacts par statut
             </CardTitle>
           </CardHeader>
@@ -215,14 +215,14 @@ export default function CustomersAnalyticsPage({
                   return (
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-foreground">
                           {getStatusLabel(item.status)}
                         </span>
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-muted-foreground">
                           {item._count} ({percentage.toFixed(0)}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-full"
                           style={{ width: `${percentage}%` }}
@@ -233,7 +233,7 @@ export default function CustomersAnalyticsPage({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucun contact disponible
               </p>
             )}
@@ -241,9 +241,9 @@ export default function CustomersAnalyticsPage({
         </Card>
 
         {/* Opportunités par étape */}
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Pipeline des opportunités
             </CardTitle>
           </CardHeader>
@@ -260,14 +260,14 @@ export default function CustomersAnalyticsPage({
                   return (
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-foreground">
                           {getStageLabel(item.stage)}
                         </span>
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-muted-foreground">
                           {item._count} • {formatCurrency(item._sum.amount || 0)}
                         </span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-purple-500 rounded-full"
                           style={{ width: `${Math.max(percentage, 5)}%` }}
@@ -278,7 +278,7 @@ export default function CustomersAnalyticsPage({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8">
                 Aucune opportunité disponible
               </p>
             )}
@@ -288,27 +288,27 @@ export default function CustomersAnalyticsPage({
 
       {/* Analyses avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Segmentation clients
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Analyse par secteur, taille et valeur - Disponible prochainement
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Performance commerciale
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Taux de closing par commercial - Disponible prochainement
             </p>
           </CardContent>

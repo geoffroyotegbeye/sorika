@@ -75,23 +75,23 @@ export default function ProjectsListPage({
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      PENDING: 'bg-slate-100 text-slate-700',
+      PENDING: 'bg-muted text-foreground',
       IN_PROGRESS: 'bg-blue-100 text-blue-700',
       ON_HOLD: 'bg-orange-100 text-orange-700',
       COMPLETED: 'bg-green-100 text-green-700',
       CANCELLED: 'bg-red-100 text-red-700',
     };
-    return colors[status] || 'bg-slate-100 text-slate-700';
+    return colors[status] || 'bg-muted text-foreground';
   };
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      LOW: 'bg-slate-100 text-slate-700',
+      LOW: 'bg-muted text-foreground',
       MEDIUM: 'bg-blue-100 text-blue-700',
       HIGH: 'bg-orange-100 text-orange-700',
       URGENT: 'bg-red-100 text-red-700',
     };
-    return colors[priority] || 'bg-slate-100 text-slate-700';
+    return colors[priority] || 'bg-muted text-foreground';
   };
 
   if (loading) {
@@ -107,8 +107,8 @@ export default function ProjectsListPage({
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Tous les projets</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Tous les projets</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {projects.length} projet{projects.length > 1 ? 's' : ''}
           </p>
         </div>
@@ -120,14 +120,14 @@ export default function ProjectsListPage({
 
       {/* Liste des projets */}
       {projects.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-lg">
-          <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Briefcase className="h-8 w-8 text-slate-400" />
+        <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
+          <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium text-slate-900 mb-1">
+          <p className="text-sm font-medium text-foreground mb-1">
             Aucun projet
           </p>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             Créez votre premier projet pour commencer
           </p>
           <Button onClick={handleCreate}>
@@ -141,7 +141,7 @@ export default function ProjectsListPage({
             <div
               key={project.id}
               onClick={() => handleEdit(project)}
-              className="border border-slate-200 rounded-lg p-5 hover:shadow-md transition-shadow bg-white cursor-pointer"
+              className="border border-border rounded-lg p-5 hover:shadow-md transition-shadow bg-white cursor-pointer"
             >
               {/* En-tête */}
               <div className="flex items-start justify-between mb-3">
@@ -159,25 +159,25 @@ export default function ProjectsListPage({
               </div>
 
               {/* Titre et description */}
-              <h3 className="font-semibold text-slate-900 mb-1">
+              <h3 className="font-semibold text-foreground mb-1">
                 {project.name}
               </h3>
               {project.code && (
-                <p className="text-xs text-slate-500 mb-2">{project.code}</p>
+                <p className="text-xs text-muted-foreground mb-2">{project.code}</p>
               )}
-              <p className="text-sm text-slate-600 line-clamp-2 mb-4">
+              <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                 {project.description || 'Aucune description'}
               </p>
 
               {/* Progression */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-600">Progression</span>
-                  <span className="text-xs font-semibold text-slate-900">
+                  <span className="text-xs text-muted-foreground">Progression</span>
+                  <span className="text-xs font-semibold text-foreground">
                     {project.progress}%
                   </span>
                 </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-blue-500 rounded-full transition-all"
                     style={{ width: `${project.progress}%` }}
@@ -186,7 +186,7 @@ export default function ProjectsListPage({
               </div>
 
               {/* Métadonnées */}
-              <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
                 <div className="flex items-center gap-1">
                   <Users className="h-3 w-3" />
                   {project._count?.members || 0} membres
@@ -199,9 +199,9 @@ export default function ProjectsListPage({
 
               {/* Client */}
               {project.client && (
-                <div className="mt-3 pt-3 border-t border-slate-100">
-                  <p className="text-xs text-slate-500">Client</p>
-                  <p className="text-sm font-medium text-slate-900">
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs text-muted-foreground">Client</p>
+                  <p className="text-sm font-medium text-foreground">
                     {project.client.name}
                   </p>
                 </div>

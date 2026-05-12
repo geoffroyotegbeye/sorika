@@ -52,7 +52,7 @@ export default function AlertsPage({ params }: { params: Promise<{ slug: string 
       case 'OVERSTOCK':
         return <AlertTriangle className="h-5 w-5 text-blue-600" />;
       default:
-        return <AlertTriangle className="h-5 w-5 text-slate-600" />;
+        return <AlertTriangle className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -65,14 +65,14 @@ export default function AlertsPage({ params }: { params: Promise<{ slug: string 
       case 'OVERSTOCK':
         return 'border-blue-200 bg-blue-50';
       default:
-        return 'border-slate-200 bg-slate-50';
+        return 'border-border bg-muted/40';
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Alertes de stock</h1>
+        <h1 className="text-xl font-semibold text-foreground">Alertes de stock</h1>
         <Button
           variant="outline"
           onClick={() => setShowResolved(!showResolved)}
@@ -89,7 +89,7 @@ export default function AlertsPage({ params }: { params: Promise<{ slug: string 
         <Card>
           <CardContent className="py-12 text-center">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <p className="text-slate-500">
+            <p className="text-muted-foreground">
               {showResolved ? 'Aucune alerte résolue' : 'Aucune alerte active'}
             </p>
           </CardContent>
@@ -103,13 +103,13 @@ export default function AlertsPage({ params }: { params: Promise<{ slug: string 
                   <div className="flex items-start gap-3 flex-1">
                     {getAlertIcon(alert.type)}
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900">{alert.message}</p>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
+                      <p className="font-medium text-foreground">{alert.message}</p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span>Produit: {alert.product?.name}</span>
                         {alert.product?.sku && <span>SKU: {alert.product.sku}</span>}
                         <span>Stock: {alert.product?.stockQuantity}</span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         {new Date(alert.createdAt).toLocaleString('fr-FR')}
                       </p>
                     </div>

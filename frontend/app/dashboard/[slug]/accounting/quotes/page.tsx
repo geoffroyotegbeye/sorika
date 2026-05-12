@@ -12,7 +12,7 @@ import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filt
 import { Plus } from 'lucide-react';
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; className: string }> = {
-  DRAFT:     { label: 'Brouillon',  className: 'bg-slate-100 text-slate-700' },
+  DRAFT:     { label: 'Brouillon',  className: 'bg-muted text-foreground' },
   SENT:      { label: 'Envoyé',     className: 'bg-blue-100 text-blue-700' },
   ACCEPTED:  { label: 'Accepté',    className: 'bg-green-100 text-green-700' },
   REFUSED:   { label: 'Refusé',     className: 'bg-red-100 text-red-700' },
@@ -65,7 +65,7 @@ export default function QuotesPage({ params }: { params: Promise<{ slug: string 
     {
       key: 'quoteNumber',
       header: 'Numéro',
-      render: (val) => <span className="font-mono font-medium text-slate-900">{val as string}</span>,
+      render: (val) => <span className="font-mono font-medium text-foreground">{val as string}</span>,
     },
     {
       key: 'client',
@@ -81,7 +81,7 @@ export default function QuotesPage({ params }: { params: Promise<{ slug: string 
     {
       key: 'expiryDate',
       header: 'Expiration',
-      render: (val) => val ? <span>{new Date(val as string).toLocaleDateString('fr-FR')}</span> : <span className="text-slate-400">—</span>,
+      render: (val) => val ? <span>{new Date(val as string).toLocaleDateString('fr-FR')}</span> : <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'total',
@@ -112,7 +112,7 @@ export default function QuotesPage({ params }: { params: Promise<{ slug: string 
             variant="ghost"
             size="sm"
             onClick={() => { setEditQuote(row); setQuoteDialog(true); }}
-            className="h-8 text-slate-600"
+            className="h-8 text-muted-foreground"
           >
             Modifier
           </Button>
@@ -132,7 +132,7 @@ export default function QuotesPage({ params }: { params: Promise<{ slug: string 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Devis</h1>
+        <h1 className="text-xl font-semibold text-foreground">Devis</h1>
         <div className="flex flex-wrap items-center gap-2">
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
           <Button onClick={() => { setEditQuote(null); setQuoteDialog(true); }}>

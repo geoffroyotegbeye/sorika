@@ -98,15 +98,15 @@ export default function ReportsPage({
     <div className="space-y-6">
       {/* En-tête */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Rapports</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Rapports</h1>
+        <p className="text-sm text-muted-foreground">
           Générez et exportez vos rapports d'analyse
         </p>
       </div>
 
       {/* Types de rapports disponibles */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-700 mb-3">
+        <h2 className="text-sm font-semibold text-foreground mb-3">
           Types de rapports disponibles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -128,7 +128,7 @@ export default function ReportsPage({
                 className={`cursor-pointer transition-all border-2 ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-border hover:border-muted-foreground/30'
                 }`}
                 onClick={() => setReportType(report.id)}
               >
@@ -142,10 +142,10 @@ export default function ReportsPage({
                       <Icon className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                      <h3 className="text-sm font-semibold text-foreground mb-1">
                         {report.name}
                       </h3>
-                      <p className="text-xs text-slate-500 line-clamp-2">
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {report.description}
                       </p>
                     </div>
@@ -158,9 +158,9 @@ export default function ReportsPage({
       </div>
 
       {/* Configuration du rapport */}
-      <Card className="border border-slate-200">
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
+          <CardTitle className="text-base font-semibold text-foreground">
             Configuration du rapport
           </CardTitle>
         </CardHeader>
@@ -214,15 +214,15 @@ export default function ReportsPage({
                 className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                   format === 'pdf'
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-border hover:border-muted-foreground/30'
                 }`}
               >
                 <div className="h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center">
                   <File className="h-5 w-5 text-red-600" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-slate-900">PDF</p>
-                  <p className="text-xs text-slate-500">Document imprimable</p>
+                  <p className="text-sm font-semibold text-foreground">PDF</p>
+                  <p className="text-xs text-muted-foreground">Document imprimable</p>
                 </div>
               </button>
 
@@ -231,22 +231,22 @@ export default function ReportsPage({
                 className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                   format === 'excel'
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-border hover:border-muted-foreground/30'
                 }`}
               >
                 <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <FileSpreadsheet className="h-5 w-5 text-green-600" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-slate-900">Excel</p>
-                  <p className="text-xs text-slate-500">Feuille de calcul</p>
+                  <p className="text-sm font-semibold text-foreground">Excel</p>
+                  <p className="text-xs text-muted-foreground">Feuille de calcul</p>
                 </div>
               </button>
             </div>
           </div>
 
           {/* Bouton de génération */}
-          <div className="pt-4 border-t border-slate-200">
+          <div className="pt-4 border-t border-border">
             <Button
               onClick={handleGenerateReport}
               disabled={!reportType}
@@ -257,7 +257,7 @@ export default function ReportsPage({
               Générer et télécharger le rapport
             </Button>
             {!reportType && (
-              <p className="text-xs text-slate-500 text-center mt-2">
+              <p className="text-xs text-muted-foreground text-center mt-2">
                 Veuillez sélectionner un type de rapport
               </p>
             )}
@@ -266,21 +266,21 @@ export default function ReportsPage({
       </Card>
 
       {/* Rapports récents */}
-      <Card className="border border-slate-200">
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
+          <CardTitle className="text-base font-semibold text-foreground">
             Rapports récents
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
-            <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="h-8 w-8 text-slate-400" />
+            <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium text-slate-900 mb-1">
+            <p className="text-sm font-medium text-foreground mb-1">
               Aucun rapport généré
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Vos rapports générés apparaîtront ici
             </p>
           </div>
@@ -288,10 +288,10 @@ export default function ReportsPage({
       </Card>
 
       {/* Rapports programmés */}
-      <Card className="border border-slate-200">
+      <Card className="border border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold text-slate-900">
+            <CardTitle className="text-base font-semibold text-foreground">
               Rapports programmés
             </CardTitle>
             <Button variant="outline" size="sm">
@@ -302,13 +302,13 @@ export default function ReportsPage({
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
-            <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="h-8 w-8 text-slate-400" />
+            <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium text-slate-900 mb-1">
+            <p className="text-sm font-medium text-foreground mb-1">
               Aucun rapport programmé
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Programmez des rapports automatiques hebdomadaires ou mensuels
             </p>
           </div>

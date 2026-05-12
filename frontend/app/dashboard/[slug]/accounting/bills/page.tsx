@@ -15,7 +15,7 @@ const STATUS_CONFIG: Record<BillStatus, { label: string; className: string }> = 
   PENDING:   { label: 'En attente', className: 'bg-yellow-100 text-yellow-700' },
   APPROVED:  { label: 'Approuvée',  className: 'bg-blue-100 text-blue-700' },
   PAID:      { label: 'Payée',      className: 'bg-green-100 text-green-700' },
-  CANCELLED: { label: 'Annulée',    className: 'bg-slate-100 text-slate-500' },
+  CANCELLED: { label: 'Annulée',    className: 'bg-muted text-muted-foreground' },
 };
 
 export default function BillsPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -63,7 +63,7 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
     {
       key: 'billNumber',
       header: 'Référence',
-      render: (val) => <span className="font-mono text-slate-900">{(val as string) ?? '—'}</span>,
+      render: (val) => <span className="font-mono text-foreground">{(val as string) ?? '—'}</span>,
     },
     {
       key: 'supplier',
@@ -79,7 +79,7 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
     {
       key: 'dueDate',
       header: 'Échéance',
-      render: (val) => val ? <span>{new Date(val as string).toLocaleDateString('fr-FR')}</span> : <span className="text-slate-400">—</span>,
+      render: (val) => val ? <span>{new Date(val as string).toLocaleDateString('fr-FR')}</span> : <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'total',
@@ -115,7 +115,7 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
             variant="ghost"
             size="sm"
             onClick={() => { setEditBill(row); setBillDialog(true); }}
-            className="h-8 text-slate-600"
+            className="h-8 text-muted-foreground"
           >
             Modifier
           </Button>
@@ -135,7 +135,7 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Charges</h1>
+        <h1 className="text-xl font-semibold text-foreground">Charges</h1>
         <div className="flex flex-wrap items-center gap-2">
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
           <Button onClick={() => { setEditBill(null); setBillDialog(true); }}>

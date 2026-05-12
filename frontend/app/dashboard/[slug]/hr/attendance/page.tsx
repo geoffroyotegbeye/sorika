@@ -75,11 +75,11 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
       header: 'Employé',
       render: (_, row) => (
         <div>
-          <p className="font-medium text-slate-900">
+          <p className="font-medium text-foreground">
             {row.employee ? `${row.employee.firstName} ${row.employee.lastName}` : 'Inconnu'}
           </p>
-          {row.employee?.position?.title && (
-            <p className="text-xs text-slate-500">{row.employee.position.title}</p>
+          {row.employee?.position && (
+            <p className="text-xs text-muted-foreground">{row.employee.position}</p>
           )}
         </div>
       ),
@@ -88,7 +88,7 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
       key: 'date',
       header: 'Date',
       render: (val) => (
-        <span className="text-slate-900">
+        <span className="text-foreground">
           {new Date(val as string).toLocaleDateString('fr-FR', {
             weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
           })}
@@ -99,7 +99,7 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
       key: 'hoursWorked',
       header: 'Heures',
       render: (val) => (
-        <span className="font-medium text-slate-900">
+        <span className="font-medium text-foreground">
           {val ? `${(val as number).toFixed(1)}h` : '—'}
         </span>
       ),
@@ -117,7 +117,7 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
       header: 'Notes',
       sortable: false,
       render: (val) => (
-        <span className="text-slate-600 max-w-xs truncate block">{(val as string) || '—'}</span>
+        <span className="text-muted-foreground max-w-xs truncate block">{(val as string) || '—'}</span>
       ),
     },
     {
@@ -143,7 +143,7 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Présences</h1>
+        <h1 className="text-xl font-semibold text-foreground">Présences</h1>
         <div className="flex flex-wrap items-center gap-2">
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
           <AttendanceFormDialog

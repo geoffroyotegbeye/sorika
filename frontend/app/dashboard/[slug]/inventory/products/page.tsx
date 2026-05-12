@@ -88,13 +88,13 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
           {row.imageUrl ? (
             <img src={row.imageUrl} alt={val as string} className="h-10 w-10 rounded object-cover" />
           ) : (
-            <div className="h-10 w-10 rounded bg-slate-100 flex items-center justify-center">
-              <Package className="h-5 w-5 text-slate-400" />
+            <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+              <Package className="h-5 w-5 text-muted-foreground" />
             </div>
           )}
           <div>
-            <p className="font-medium text-slate-900">{val as string}</p>
-            {row.sku && <p className="text-xs text-slate-500">SKU: {row.sku}</p>}
+            <p className="font-medium text-foreground">{val as string}</p>
+            {row.sku && <p className="text-xs text-muted-foreground">SKU: {row.sku}</p>}
           </div>
         </div>
       ),
@@ -117,7 +117,7 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
 
         return (
           <div className="flex items-center gap-2">
-            <span className={`font-medium ${isOut ? 'text-red-600' : isLow ? 'text-orange-600' : 'text-slate-900'}`}>
+            <span className={`font-medium ${isOut ? 'text-red-600' : isLow ? 'text-orange-600' : 'text-foreground'}`}>
               {stock} {row.unit}
             </span>
             {isOut && <AlertTriangle className="h-4 w-4 text-red-600" />}
@@ -134,13 +134,13 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
     {
       key: 'costPrice',
       header: 'Prix d\'achat',
-      render: (val) => <span className="text-slate-600">{val ? fmt(val as number) : '—'}</span>,
+      render: (val) => <span className="text-muted-foreground">{val ? fmt(val as number) : '—'}</span>,
     },
     {
       key: 'isActive',
       header: 'Statut',
       render: (val) => (
-        <Badge className={val ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}>
+        <Badge className={val ? 'bg-green-100 text-green-700' : 'bg-muted text-foreground'}>
           {val ? 'Actif' : 'Inactif'}
         </Badge>
       ),
@@ -174,7 +174,7 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
             className="h-8 w-8 p-0"
             title="Modifier"
           >
-            <Pencil className="h-4 w-4 text-slate-600" />
+            <Pencil className="h-4 w-4 text-muted-foreground" />
           </Button>
           <Button
             variant="ghost"
@@ -193,7 +193,7 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Produits</h1>
+        <h1 className="text-xl font-semibold text-foreground">Produits</h1>
         <Button
           onClick={() => {
             setEditProduct(null);

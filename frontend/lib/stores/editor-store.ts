@@ -121,7 +121,7 @@ export interface EditorState {
   
   // Actions
   setElements: (elements: Element[]) => void;
-  addElement: (element, parentId, cellIndex?) => void;
+  addElement: (element: Element, parentId: string | undefined, cellIndex?: number) => void;
   addElementAt: (element: Element, parentId: string | undefined, targetId: string, position: 'before' | 'after') => void;
   updateElement: (id: string, updates: Partial<Element>) => void;
   updateElementContent: (id: string, content: string) => void;
@@ -204,14 +204,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       return items.map(item => {
         if (item.id === parentId) {
           if (item.type === 'grid' && typeof cellIndex === 'number') {
-            const newChildren = [...item.children];
+            const newChildren = [...item.children] as unknown as (Element | Element[])[];
             // Initialiser la cellule comme tableau si elle n'existe pas
             if (!Array.isArray(newChildren[cellIndex])) {
               newChildren[cellIndex] = [];
             }
             // Ajouter l'élément au tableau de la cellule
-            newChildren[cellIndex] = [...newChildren[cellIndex], uniqueElement];
-            return { ...item, children: newChildren };
+            const cell = newChildren[cellIndex] as Element[];
+            newChildren[cellIndex] = [...cell, uniqueElement];
+            return { ...item, children: newChildren as unknown as Element[] };
           }
           return { ...item, children: [...item.children, uniqueElement] };
         }
@@ -272,13 +273,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         
         // Pour les grids, chercher dans les cellules
         if (item.type === 'grid' && item.children?.length > 0) {
-          const newChildren = item.children.map(cell => {
+          const newChildren = item.children.map((cell) => {
             if (Array.isArray(cell)) {
               return updateInTree(cell);
             }
             return cell;
           });
-          return { ...item, children: newChildren };
+          return { ...item, children: newChildren as unknown as Element[] };
         }
         
         if (item.children?.length > 0) {
@@ -326,14 +327,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
               }
               return cell;
             });
-            return { ...item, children: newChildren };
+            return { ...item, children: newChildren as unknown as Element[] };
           }
           
           return {
             ...item,
             children: item.children ? deleteFromTree(item.children) : [],
           };
-        });
+        }) as Element[];
     };
     
     set({ elements: deleteFromTree(elements), selectedElementId: null, hasUnsavedChanges: true });

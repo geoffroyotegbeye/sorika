@@ -36,39 +36,39 @@ export default function AccountingDashboardPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-slate-900">Tableau de bord</h1>
+      <h1 className="text-xl font-semibold text-foreground">Tableau de bord</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">CA du mois</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">CA du mois</CardTitle>
             <TrendingUp className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{fmt(stats.monthRevenue)}</div>
-            <p className="text-xs text-slate-500 mt-1">Factures payées ce mois</p>
+            <div className="text-2xl font-bold text-foreground">{fmt(stats.monthRevenue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Factures payées ce mois</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">CA annuel</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">CA annuel</CardTitle>
             <TrendingUp className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{fmt(stats.yearRevenue)}</div>
-            <p className="text-xs text-slate-500 mt-1">Factures payées cette année</p>
+            <div className="text-2xl font-bold text-foreground">{fmt(stats.yearRevenue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Factures payées cette année</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">À encaisser</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">À encaisser</CardTitle>
             <FileText className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{fmt(stats.totalReceivable)}</div>
-            <p className="text-xs text-slate-500 mt-1">
+            <div className="text-2xl font-bold text-foreground">{fmt(stats.totalReceivable)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.overdueInvoices > 0 && (
                 <span className="text-red-600 font-medium">{stats.overdueInvoices} en retard · </span>
               )}
@@ -79,23 +79,23 @@ export default function AccountingDashboardPage({ params }: { params: Promise<{ 
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">À payer</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">À payer</CardTitle>
             <ShoppingCart className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{fmt(stats.totalPayable)}</div>
-            <p className="text-xs text-slate-500 mt-1">{stats.pendingBills} charge(s) en attente</p>
+            <div className="text-2xl font-bold text-foreground">{fmt(stats.totalPayable)}</div>
+            <p className="text-xs text-muted-foreground mt-1">{stats.pendingBills} charge(s) en attente</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Factures en retard</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Factures en retard</CardTitle>
             <AlertCircle className="h-5 w-5 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.overdueInvoices}</div>
-            <p className="text-xs text-slate-500 mt-1">Nécessitent une relance</p>
+            <p className="text-xs text-muted-foreground mt-1">Nécessitent une relance</p>
           </CardContent>
         </Card>
       </div>

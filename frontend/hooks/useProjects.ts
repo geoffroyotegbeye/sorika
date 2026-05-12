@@ -82,7 +82,7 @@ export function useProjects(companyId: string) {
     async (projectId: string) => {
       if (!companyId) return;
       try {
-        await api.delete(`/companies/${companyId}/projects/${projectId}`);
+        await api.del(`/companies/${companyId}/projects/${projectId}`);
         setProjects((prev) => prev.filter((p) => p.id !== projectId));
       } catch (error) {
         console.error('Error deleting project:', error);
@@ -154,7 +154,7 @@ export function useProjects(companyId: string) {
     async (projectId: string, taskId: string) => {
       if (!companyId) return;
       try {
-        await api.delete(
+        await api.del(
           `/companies/${companyId}/projects/${projectId}/tasks/${taskId}`,
         );
         setTasks((prev) => prev.filter((t) => t.id !== taskId));

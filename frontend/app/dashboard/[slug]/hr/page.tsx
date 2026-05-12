@@ -40,12 +40,12 @@ export default function HRDashboardPage({ params }: { params: Promise<{ slug: st
         {/* Effectif total */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Effectif Total</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Effectif Total</CardTitle>
             <Users className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.totalEmployees}</div>
-            <p className="text-xs text-slate-500 mt-1">
+            <div className="text-3xl font-bold text-foreground">{stats.totalEmployees}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.activeEmployees} actifs
             </p>
           </CardContent>
@@ -54,24 +54,24 @@ export default function HRDashboardPage({ params }: { params: Promise<{ slug: st
         {/* Taux de présence */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Taux de Présence</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Taux de Présence</CardTitle>
             <TrendingUp className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.attendanceRate}%</div>
-            <p className="text-xs text-slate-500 mt-1">Ce mois-ci</p>
+            <div className="text-3xl font-bold text-foreground">{stats.attendanceRate}%</div>
+            <p className="text-xs text-muted-foreground mt-1">Ce mois-ci</p>
           </CardContent>
         </Card>
 
         {/* Congés en cours */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Congés en Cours</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Congés en Cours</CardTitle>
             <Calendar className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.ongoingLeaves}</div>
-            <p className="text-xs text-slate-500 mt-1">
+            <div className="text-3xl font-bold text-foreground">{stats.ongoingLeaves}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.pendingLeaves} en attente
             </p>
           </CardContent>
@@ -80,30 +80,30 @@ export default function HRDashboardPage({ params }: { params: Promise<{ slug: st
         {/* Notes de frais */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Notes de Frais</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Notes de Frais</CardTitle>
             <DollarSign className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.pendingExpenses}</div>
-            <p className="text-xs text-slate-500 mt-1">En attente de validation</p>
+            <div className="text-3xl font-bold text-foreground">{stats.pendingExpenses}</div>
+            <p className="text-xs text-muted-foreground mt-1">En attente de validation</p>
           </CardContent>
         </Card>
 
         {/* Départements */}
         <Card className="md:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Départements</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Départements</CardTitle>
             <Building2 className="h-5 w-5 text-indigo-600" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {stats.departments.length === 0 ? (
-                <p className="text-sm text-slate-500">Aucun département configuré</p>
+                <p className="text-sm text-muted-foreground">Aucun département configuré</p>
               ) : (
                 stats.departments.map((dept) => (
                   <div key={dept.id} className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-700">{dept.name}</span>
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm font-medium text-foreground">{dept.name}</span>
+                    <span className="text-sm text-muted-foreground">
                       {dept.employeeCount} {dept.employeeCount > 1 ? 'employés' : 'employé'}
                     </span>
                   </div>

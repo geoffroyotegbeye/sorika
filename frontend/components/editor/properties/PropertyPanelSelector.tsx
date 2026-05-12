@@ -9,8 +9,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SelectionContext, getAvailablePanels, getContextDescription } from '../elements/selection-context';
-import { BlockPropertyPanel } from './BlockPropertyPanel';
+import { SelectionContext, getAvailablePanels, getContextDescription, type BlockContext } from '../elements/selection-context';
+import { SimpleBlockProperties } from './SimpleBlockProperties';
 
 // ─────────────────────────────────────────────
 // INTERFACES
@@ -25,6 +25,20 @@ interface PropertyPanelSelectorProps {
 }
 
 type PanelType = 'element' | 'block';
+
+function blockContextToEditorElement(block: BlockContext) {
+  const el = block.blockElement;
+  return {
+    type: 'section',
+    tag: el.tagName.toLowerCase(),
+    id: el.getAttribute('data-element-id') || `block-${block.templateId}`,
+    templateId: block.templateId,
+    attributes: {
+      ...(el.getAttribute('class') ? { class: el.getAttribute('class')! } : {}),
+      'data-template-id': block.templateId,
+    },
+  };
+}
 
 // ─────────────────────────────────────────────
 // PANEL TAB COMPONENT
@@ -152,8 +166,8 @@ export const PropertyPanelSelector: React.FC<PropertyPanelSelectorProps> = ({
             )
           ) : (
             selectionContext.block ? (
-              <BlockPropertyPanel 
-                blockContext={selectionContext.block}
+              <SimpleBlockProperties
+                element={blockContextToEditorElement(selectionContext.block)}
                 onPropertyChange={(key, value) => {
                   console.log(`Block property changed: ${key} = ${value}`);
                 }}
@@ -205,8 +219,8 @@ export const PropertyPanelSelector: React.FC<PropertyPanelSelectorProps> = ({
           )
         ) : (
           selectionContext.block ? (
-            <BlockPropertyPanel 
-              blockContext={selectionContext.block}
+            <SimpleBlockProperties
+              element={blockContextToEditorElement(selectionContext.block)}
               onPropertyChange={(key, value) => {
                 console.log(`Block property changed: ${key} = ${value}`);
               }}

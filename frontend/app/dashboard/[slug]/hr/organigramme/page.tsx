@@ -84,7 +84,7 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Organigramme</h1>
+        <h1 className="text-xl font-semibold text-foreground">Organigramme</h1>
       </div>
 
       {/* Stats */}
@@ -93,8 +93,8 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Total employés</p>
-                <p className="text-2xl font-bold text-slate-800">{employees.length}</p>
+                <p className="text-sm text-muted-foreground">Total employés</p>
+                <p className="text-2xl font-bold text-foreground">{employees.length}</p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
             </div>
@@ -105,8 +105,8 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Managers</p>
-                <p className="text-2xl font-bold text-slate-800">{teams.length}</p>
+                <p className="text-sm text-muted-foreground">Managers</p>
+                <p className="text-2xl font-bold text-foreground">{teams.length}</p>
               </div>
               <User className="h-8 w-8 text-purple-500" />
             </div>
@@ -117,10 +117,10 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Sans manager</p>
-                <p className="text-2xl font-bold text-slate-800">{topLevel.length}</p>
+                <p className="text-sm text-muted-foreground">Sans manager</p>
+                <p className="text-2xl font-bold text-foreground">{topLevel.length}</p>
               </div>
-              <Users className="h-8 w-8 text-slate-400" />
+              <Users className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -128,9 +128,9 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
 
       {/* Employés sans manager (Top Level) */}
       {topLevel.length > 0 && (
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold text-slate-800">
+            <CardTitle className="text-base font-semibold text-foreground">
               Direction / Sans manager assigné
             </CardTitle>
           </CardHeader>
@@ -140,13 +140,13 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
               {topLevel.map((emp) => (
                 <div
                   key={emp.id}
-                  className="p-4 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                  className="p-4 border border-border rounded-lg bg-muted/40 hover:bg-muted transition-colors"
                 >
-                  <p className="font-semibold text-slate-800">
+                  <p className="font-semibold text-foreground">
                     {emp.firstName} {emp.lastName}
                   </p>
                   {emp.position?.title && (
-                    <p className="text-sm text-slate-600 mt-1">{emp.position.title}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{emp.position.title}</p>
                   )}
                   {emp.department?.name && (
                     <Badge variant="outline" className="mt-2 text-xs">
@@ -167,15 +167,15 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
 
       {/* Équipes (Managers et leurs subordonnés) */}
       {teams.length > 0 && (
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold text-slate-800">
+            <CardTitle className="text-base font-semibold text-foreground">
               Équipes et hiérarchie
             </CardTitle>
           </CardHeader>
           <Separator />
           <CardContent className="p-0">
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-border">
               {teams.map((team) => {
                 const isExpanded = expandedManagers.has(team.manager.id);
 
@@ -192,12 +192,12 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
                           {team.manager.lastName[0]}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">
+                          <p className="font-semibold text-foreground">
                             {team.manager.firstName} {team.manager.lastName}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             {team.manager.position?.title && (
-                              <span className="text-sm text-slate-600">
+                              <span className="text-sm text-muted-foreground">
                                 {team.manager.position.title}
                               </span>
                             )}
@@ -214,9 +214,9 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
                           {team.subordinates.length} {team.subordinates.length === 1 ? 'membre' : 'membres'}
                         </Badge>
                         {isExpanded ? (
-                          <ChevronDown className="h-5 w-5 text-slate-400" />
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
                         ) : (
-                          <ChevronRight className="h-5 w-5 text-slate-400" />
+                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         )}
                       </div>
                     </div>
@@ -227,19 +227,19 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
                         {team.subordinates.map((member) => (
                           <div
                             key={member.id}
-                            className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition-colors"
+                            className="flex items-center gap-3 p-3 border border-border rounded-lg bg-white hover:bg-muted/40 transition-colors"
                           >
-                            <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 text-sm font-medium">
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-sm font-medium">
                               {member.firstName[0]}
                               {member.lastName[0]}
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-slate-800">
+                              <p className="text-sm font-medium text-foreground">
                                 {member.firstName} {member.lastName}
                               </p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 {member.position?.title && (
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs text-muted-foreground">
                                     {member.position.title}
                                   </span>
                                 )}
@@ -269,11 +269,11 @@ export default function OrganigrammePage({ params }: { params: Promise<{ slug: s
 
       {/* Message si aucune équipe */}
       {teams.length === 0 && topLevel.length === 0 && (
-        <Card className="border border-slate-200">
+        <Card className="border border-border">
           <CardContent className="py-12 text-center">
-            <Users className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500">Aucun employé enregistré</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Aucun employé enregistré</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Commencez par ajouter des employés et définir leurs managers
             </p>
           </CardContent>

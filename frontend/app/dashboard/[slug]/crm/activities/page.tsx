@@ -10,7 +10,7 @@ export default function ActivitiesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Activités</h1>
+        <h1 className="text-xl font-semibold text-foreground">Activités</h1>
       </div>
       <ActivitiesList companyId={companyId} />
     </div>

@@ -7,10 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trash2, Layers } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
-import { PropertyPanelSelector } from './properties/PropertyPanelSelector';
 import { SimpleBlockProperties } from './properties/SimpleBlockProperties';
-import { SelectionContextAnalyzer } from './elements/selection-context';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface PropertiesPanelProps {
   companyId?: string | null;
@@ -31,27 +29,8 @@ export function PropertiesPanel({ companyId }: PropertiesPanelProps) {
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editingNameValue, setEditingNameValue] = useState('');
   const [copied, setCopied] = useState(false);
-  const [selectionContext, setSelectionContext] = useState(null);
 
   const selectedElement = findElementById(elements, selectedElementId);
-
-  // Analyser le contexte de sélection pour le nouveau système de propriétés
-  useEffect(() => {
-    if (selectedElement) {
-      // Créer un contexte de sélection basé sur l'élément sélectionné
-      const mockSelectionContext = {
-        type: 'block',
-        block: {
-          templateId: selectedElement.templateId || selectedElement.type,
-          element: selectedElement,
-          properties: {}
-        }
-      };
-      setSelectionContext(mockSelectionContext);
-    } else {
-      setSelectionContext(null);
-    }
-  }, [selectedElement]);
 
   if (!selectedElement || selectedElement.isLocked) {
     return null;
@@ -79,7 +58,7 @@ export function PropertiesPanel({ companyId }: PropertiesPanelProps) {
   const handleNameBlur = (elementId: string) => {
     const originalName = findElementById(elements, elementId)?.name || findElementById(elements, elementId)?.type;
     if (editingNameValue && editingNameValue !== originalName) {
-      updateElement(elementId, { name: editingNameValue });
+      updateElement(elementId, { name: editingNameValue } as Parameters<typeof updateElement>[1]);
     }
     setEditingNameId(null);
   };

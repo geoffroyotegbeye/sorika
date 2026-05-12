@@ -26,6 +26,7 @@ export interface CreateAttendanceDto {
   checkOut?: string;
   status?: AttendanceStatus;
   notes?: string;
+  hoursWorked?: number;
 }
 
 export interface UpdateAttendanceDto {

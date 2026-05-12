@@ -265,11 +265,15 @@ export function ProductFormDialog({
                   />
                 </div>
               </div>
-              {formData.salePrice > 0 && formData.costPrice > 0 && (
+              {formData.salePrice > 0 && (formData.costPrice ?? 0) > 0 && (
                 <p className="text-sm text-slate-600">
                   Marge:{' '}
                   <span className="font-medium text-green-600">
-                    {((formData.salePrice - formData.costPrice) / formData.costPrice * 100).toFixed(1)}%
+                    {(
+                      ((formData.salePrice - (formData.costPrice ?? 0)) / (formData.costPrice ?? 1)) *
+                      100
+                    ).toFixed(1)}
+                    %
                   </span>
                 </p>
               )}

@@ -126,7 +126,7 @@ export default function LeavesPage({ params }: { params: Promise<{ slug: string 
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Congés</h1>
+        <h1 className="text-xl font-semibold text-foreground">Congés</h1>
         <div className="flex flex-wrap items-center gap-2">
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
           <Button onClick={() => setFormOpen(true)}>
