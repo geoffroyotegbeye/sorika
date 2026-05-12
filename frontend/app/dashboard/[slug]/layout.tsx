@@ -44,6 +44,25 @@ export default function DashboardLayout({
     const currentCompany = parsedUser.companies?.find((c: any) => c.slug === slug);
     if (!currentCompany) { router.push('/login'); return; }
     setCompany(currentCompany);
+
+    // Fetch les modules frais depuis l'API (au cas où l'admin les aurait modifiés)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/companies/slug/${slug}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((fresh) => {
+        if (!fresh) return;
+        setCompany((prev: any) => prev ? { ...prev, modules: fresh.modules } : prev);
+        // Sync localStorage
+        try {
+          const raw = localStorage.getItem('user');
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          data.companies = data.companies.map((c: any) =>
+            c.slug === slug ? { ...c, modules: fresh.modules } : c
+          );
+          localStorage.setItem('user', JSON.stringify(data));
+        } catch {}
+      })
+      .catch(() => {});
   }, [slug, router]);
 
   useEffect(() => {
@@ -71,7 +90,7 @@ export default function DashboardLayout({
 
   // Détecter si on est dans un module avec sa propre sidebar
   const isInModuleWithSidebar = () => {
-    const modulesWithSidebar = ['crm', 'hr', 'accounting', 'inventory', 'pos'];
+    const modulesWithSidebar: string[] = [];
     const pathParts = pathname.replace(`/dashboard/${slug}`, '').split('/').filter(Boolean);
     return pathParts.length > 0 && modulesWithSidebar.includes(pathParts[0]);
   };

@@ -1,11 +1,12 @@
-import { IsString, IsNumber, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class OpenSessionDto {
   @IsString()
   registerId: string;
 
+  @IsOptional()
   @IsString()
-  cashierId: string;
+  cashierId?: string;
 
   @IsNumber()
   @Min(0)

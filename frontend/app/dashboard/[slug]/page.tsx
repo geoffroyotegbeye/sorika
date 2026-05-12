@@ -167,8 +167,31 @@ export default function DashboardPage({ params }: { params: Promise<{ slug: stri
     const userData = localStorage.getItem('user');
     if (!userData) return;
     const parsed = JSON.parse(userData);
-    const currentCompany = parsed.companies?.find((c: any) => c.slug === slug);
-    setCompany(currentCompany);
+    const localCompany = parsed.companies?.find((c: any) => c.slug === slug);
+    if (!localCompany) return;
+
+    // Affichage immédiat depuis localStorage (pas de flash)
+    setCompany(localCompany);
+
+    // Fetch les modules frais depuis l'API pour être toujours à jour
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/companies/slug/${slug}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((fresh) => {
+        if (!fresh) return;
+        // Mettre à jour le state avec les modules frais
+        setCompany((prev: any) => ({ ...prev, modules: fresh.modules }));
+        // Mettre à jour le localStorage pour que le layout soit aussi cohérent
+        try {
+          const raw = localStorage.getItem('user');
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          data.companies = data.companies.map((c: any) =>
+            c.slug === slug ? { ...c, modules: fresh.modules } : c
+          );
+          localStorage.setItem('user', JSON.stringify(data));
+        } catch {}
+      })
+      .catch(() => {}); // silencieux — on garde les données localStorage en fallback
   }, [slug]);
 
   if (!company) {

@@ -58,7 +58,20 @@ export default function CashierPage({
     const company = parsed.companies?.find((c: any) => c.slug === slug);
     if (company) {
       setCompanyId(company.id);
-      setUserId(parsed.id);
+      // Récupérer l'employé lié à l'utilisateur connecté
+      const currentUserId = parsed.user?.id;
+      if (currentUserId && company.id) {
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/companies/${company.id}/hr/employees`,
+          { headers: { 'x-user-id': currentUserId, 'x-company-id': company.id } }
+        )
+          .then((r) => r.ok ? r.json() : [])
+          .then((employees: any[]) => {
+            const linked = employees.find((e: any) => e.userId === currentUserId);
+            if (linked) setUserId(linked.id); // ID employé
+          })
+          .catch(() => {});
+      }
     }
   }, [slug]);
 

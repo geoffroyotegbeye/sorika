@@ -104,9 +104,29 @@ export class PosService {
       throw new BadRequestException('Une session est déjà ouverte pour cette caisse');
     }
 
+    // Vérifier que la caisse existe et appartient à cette entreprise
+    const register = await this.prisma.cashRegister.findFirst({
+      where: { id: dto.registerId, companyId },
+    });
+    if (!register) {
+      throw new NotFoundException('Caisse introuvable');
+    }
+
+    // Vérifier le caissier si fourni
+    if (dto.cashierId) {
+      const cashier = await this.prisma.employee.findFirst({
+        where: { id: dto.cashierId, companyId },
+      });
+      if (!cashier) {
+        throw new NotFoundException('Caissier introuvable');
+      }
+    }
+
     return this.prisma.cashSession.create({
       data: {
-        ...dto,
+        registerId:    dto.registerId,
+        ...(dto.cashierId ? { cashierId: dto.cashierId } : {}),
+        openingAmount: dto.openingAmount,
         companyId,
         status: 'OPEN',
       },

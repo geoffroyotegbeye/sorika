@@ -999,8 +999,8 @@ model CashSession {
   registerId      String
   register        CashRegister @relation(fields: [registerId], references: [id], onDelete: Cascade)
   
-  cashierId       String
-  cashier         Employee     @relation(fields: [cashierId], references: [id])
+  cashierId       String?
+  cashier         Employee?    @relation(fields: [cashierId], references: [id])
   
   openingAmount   Float        // Fonds de départ
   closingAmount   Float?       // Fonds de fin (null si session ouverte)
