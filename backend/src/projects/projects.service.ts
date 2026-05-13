@@ -127,9 +127,18 @@ export class ProjectsService {
       data.code = `PROJ-${new Date().getFullYear()}-${String(count + 1).padStart(3, '0')}`;
     }
 
+    // Convertir les dates en ISO-8601 si présentes
+    const projectData: any = { ...data };
+    if (projectData.startDate && typeof projectData.startDate === 'string' && !projectData.startDate.includes('T')) {
+      projectData.startDate = new Date(projectData.startDate + 'T00:00:00.000Z').toISOString();
+    }
+    if (projectData.endDate && typeof projectData.endDate === 'string' && !projectData.endDate.includes('T')) {
+      projectData.endDate = new Date(projectData.endDate + 'T00:00:00.000Z').toISOString();
+    }
+
     return this.prisma.project.create({
       data: {
-        ...data,
+        ...projectData,
         companyId: organizationId,
       },
       include: {
@@ -163,9 +172,18 @@ export class ProjectsService {
       throw new NotFoundException('Projet non trouvé');
     }
 
+    // Convertir les dates en ISO-8601 si présentes
+    const projectData: any = { ...data };
+    if (projectData.startDate && typeof projectData.startDate === 'string' && !projectData.startDate.includes('T')) {
+      projectData.startDate = new Date(projectData.startDate + 'T00:00:00.000Z').toISOString();
+    }
+    if (projectData.endDate && typeof projectData.endDate === 'string' && !projectData.endDate.includes('T')) {
+      projectData.endDate = new Date(projectData.endDate + 'T00:00:00.000Z').toISOString();
+    }
+
     return this.prisma.project.update({
       where: { id: projectId },
-      data,
+      data: projectData,
       include: {
         client: true,
         members: {
@@ -270,6 +288,37 @@ export class ProjectsService {
   // TÂCHES
   // ============================================
 
+  async getAllCompanyTasks(companyId: string) {
+    const organizationId = await this.getOrganizationId(companyId);
+
+    return this.prisma.task.findMany({
+      where: { companyId: organizationId },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        _count: {
+          select: {
+            subtasks: true,
+            comments: true,
+            attachments: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async getAllTasks(companyId: string, projectId: string) {
     const organizationId = await this.getOrganizationId(companyId);
 
@@ -309,23 +358,71 @@ export class ProjectsService {
   async createTask(companyId: string, projectId: string, data: any) {
     const organizationId = await this.getOrganizationId(companyId);
 
-    const project = await this.prisma.project.findFirst({
-      where: {
-        id: projectId,
-        companyId: organizationId,
-      },
+    console.log('Creating task:', { companyId, organizationId, projectId, data });
+
+    // Vérifier d'abord si le projet existe (sans filtre company)
+    const projectExists = await this.prisma.project.findUnique({
+      where: { id: projectId },
     });
 
-    if (!project) {
-      throw new NotFoundException('Projet non trouvé');
+    if (!projectExists) {
+      console.error('Project does not exist at all:', { projectId });
+      throw new NotFoundException(`Le projet avec l'ID ${projectId} n'existe pas`);
     }
 
-    return this.prisma.task.create({
-      data: {
-        ...data,
+    // Vérifier si le projet appartient à cette company
+    if (projectExists.companyId !== organizationId) {
+      console.error('Project belongs to different company:', {
         projectId,
-        companyId: organizationId,
-      },
+        projectCompanyId: projectExists.companyId,
+        expectedCompanyId: organizationId,
+      });
+      throw new NotFoundException(
+        `Le projet ${projectExists.name} appartient à une autre entreprise`,
+      );
+    }
+
+    const project = projectExists;
+
+    // Préparer les données de la tâche
+    const taskData: any = {
+      title: data.title,
+      description: data.description || null,
+      status: data.status || 'TODO',
+      priority: data.priority || 'MEDIUM',
+      projectId,
+      companyId: organizationId,
+    };
+
+    // Ajouter les champs optionnels uniquement s'ils sont fournis
+    if (data.dueDate) {
+      if (typeof data.dueDate === 'string' && !data.dueDate.includes('T')) {
+        taskData.dueDate = new Date(data.dueDate + 'T00:00:00.000Z').toISOString();
+      } else {
+        taskData.dueDate = data.dueDate;
+      }
+    }
+
+    if (data.estimatedHours) {
+      taskData.estimatedHours = parseFloat(data.estimatedHours);
+    }
+
+    if (data.assigneeId && data.assigneeId !== '') {
+      taskData.assigneeId = data.assigneeId;
+    }
+
+    if (data.position !== undefined) {
+      taskData.position = data.position;
+    }
+
+    if (data.tags && Array.isArray(data.tags)) {
+      taskData.tags = data.tags;
+    }
+
+    console.log('Final task data to create:', taskData);
+
+    return this.prisma.task.create({
+      data: taskData,
       include: {
         assignee: {
           select: {
@@ -358,9 +455,42 @@ export class ProjectsService {
       throw new NotFoundException('Tâche non trouvée');
     }
 
+    // Préparer les données de mise à jour (seulement les champs fournis)
+    const taskData: any = {};
+
+    if (data.title !== undefined) taskData.title = data.title;
+    if (data.description !== undefined) taskData.description = data.description || null;
+    if (data.status !== undefined) taskData.status = data.status;
+    if (data.priority !== undefined) taskData.priority = data.priority;
+
+    // Gérer dueDate
+    if (data.dueDate !== undefined) {
+      if (data.dueDate === null || data.dueDate === '') {
+        taskData.dueDate = null;
+      } else if (typeof data.dueDate === 'string' && !data.dueDate.includes('T')) {
+        taskData.dueDate = new Date(data.dueDate + 'T00:00:00.000Z').toISOString();
+      } else {
+        taskData.dueDate = data.dueDate;
+      }
+    }
+
+    // Gérer estimatedHours
+    if (data.estimatedHours !== undefined) {
+      taskData.estimatedHours = data.estimatedHours ? parseFloat(data.estimatedHours) : null;
+    }
+
+    // Gérer assigneeId
+    if (data.assigneeId !== undefined) {
+      taskData.assigneeId = data.assigneeId && data.assigneeId !== '' ? data.assigneeId : null;
+    }
+
+    // Autres champs optionnels
+    if (data.position !== undefined) taskData.position = data.position;
+    if (data.tags !== undefined) taskData.tags = data.tags;
+
     return this.prisma.task.update({
       where: { id: taskId },
-      data,
+      data: taskData,
       include: {
         assignee: {
           select: {

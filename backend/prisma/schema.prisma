@@ -30,6 +30,9 @@ model User {
   ownedOpportunities  Opportunity[]   @relation("OpportunityOwner")
   ownedActivities     Activity[]      @relation("ActivityOwner")
   
+  // Relations E-commerce
+  orders             Order[]
+  
   createdAt           DateTime     @default(now())
 }
 
@@ -95,6 +98,21 @@ model Company {
   
   // Relations Projets
   projects      Project[]
+  
+  // Relations E-commerce
+  carts         Cart[]
+  orders        Order[]
+  coupons       Coupon[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  
+  // Relations RH - Acomptes et Paie
+  advanceRules  AdvanceRule[]
+  advances      Advance[]
+  payrollVariables PayrollVariable[]
+  payrollPeriods PayrollPeriod[]
+  payrollEntries PayrollEntry[]
   
   createdAt    DateTime     @default(now())
 }
@@ -268,6 +286,8 @@ model Employee {
   leaveBalances LeaveBalance[]
   attendances  Attendance[]
   assignments  Assignment[] @relation("EmployeeAssignments")
+  advances     Advance[]
+  payrollEntries PayrollEntry[]
   
   // Relations POS
   cashSessions CashSession[]
@@ -892,6 +912,12 @@ model InventoryProduct {
   isSellable  Boolean        @default(true)  // Peut être vendu
   isPurchasable Boolean      @default(true)  // Peut être acheté
   
+  // E-commerce
+  isAvailableOnline Boolean  @default(false) // Disponible à la vente en ligne
+  ecommerceDescription String? @db.Text     // Description marketing pour e-commerce
+  ecommerceImages    Json?                  // Tableau d'images pour e-commerce
+  packagingInfo      String? @db.Text      // Informations packaging
+  
   // Relations
   companyId   String
   company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -901,6 +927,11 @@ model InventoryProduct {
   
   // Relations POS
   saleItems   SaleItem[]
+  
+  // Relations E-commerce
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  reviews     Review[]
   
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -1344,4 +1375,373 @@ model ProjectDocument {
   createdAt   DateTime  @default(now())
   
   @@index([projectId])
+}
+
+// ============================================
+// MODULE E-COMMERCE
+// ============================================
+
+model Cart {
+  id           String    @id @default(uuid())
+  
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  userId       String?
+  sessionId    String?
+  
+  isActive     Boolean   @default(true)
+  isCheckout   Boolean   @default(false)
+  
+  currency     String    @default("XOF")
+  subtotal     Float     @default(0)
+  taxAmount    Float     @default(0)
+  discountAmount Float   @default(0)
+  total        Float     @default(0)
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  items        CartItem[]
+  
+  @@index([companyId])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([isActive])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   InventoryProduct @relation(fields: [productId], references: [id])
+  
+  quantity  Int      @default(1)
+  unitPrice Float
+  discount  Float    @default(0)
+  
+  variant   Json?
+  
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([cartId, productId])
+  @@index([cartId])
+  @@index([productId])
+  @@index([companyId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id               String    @id @default(uuid())
+  
+  orderNumber      String    @unique
+  
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id])
+  
+  userId           String?
+  customer         Json?
+  
+  status           OrderStatus @default(PENDING)
+  
+  paymentMethod    String?
+  paymentStatus    PaymentStatus @default(PENDING)
+  paymentReference String?
+  paidAt           DateTime?
+  
+  shippingMethod   String?
+  shippingCost     Float     @default(0)
+  trackingNumber   String?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  
+  billingAddress   Json?
+  shippingAddress  Json?
+  
+  subtotal         Float
+  taxAmount        Float
+  discountAmount   Float     @default(0)
+  shippingAmount   Float     @default(0)
+  total            Float
+  
+  customerNotes    String?   @db.Text
+  internalNotes    String?   @db.Text
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  items            OrderItem[]
+  user             User?     @relation(fields: [userId], references: [id])
+  shipping         Shipping?
+  
+  @@index([companyId])
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId  String
+  product    InventoryProduct @relation(fields: [productId], references: [id])
+  
+  productName String
+  productSku  String?
+  unitPrice   Float
+  quantity    Int
+  
+  discount    Float   @default(0)
+  total       Float
+  
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([productId])
+  @@index([companyId])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+model Coupon {
+  id               String        @id @default(uuid())
+  
+  code             String        @unique
+  description      String?
+  
+  discountType     DiscountType  @default(PERCENTAGE)
+  discountValue    Float
+  
+  minPurchase      Float?
+  maxDiscount      Float?
+  usageLimit       Int?
+  usedCount        Int           @default(0)
+  
+  validFrom        DateTime?
+  validUntil       DateTime?
+  isActive         Boolean       @default(true)
+  
+  applicableProducts String[]   @default([])
+  excludedProducts   String[]   @default([])
+  
+  perCustomerLimit  Int?
+  
+  companyId        String
+  company          Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  @@index([companyId])
+  @@index([code])
+  @@index([isActive])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  
+  productId  String
+  product    InventoryProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  userId     String?
+  authorName String?
+  authorEmail String?
+  
+  rating     Int
+  title      String?
+  comment    String?  @db.Text
+  
+  isApproved Boolean   @default(false)
+  isVerified Boolean   @default(false)
+  
+  helpful    Int      @default(0)
+  
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([companyId])
+}
+
+enum ShippingStatus {
+  PENDING
+  PICKED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+}
+
+model Shipping {
+  id               String            @id @default(uuid())
+  
+  orderId          String            @unique
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  carrier          String?
+  trackingNumber   String?           @unique
+  
+  status           ShippingStatus    @default(PENDING)
+  
+  pickupAddress    Json?
+  deliveryAddress  Json?
+  
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+  pickedUpAt        DateTime?
+  
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  @@index([orderId])
+  @@index([trackingNumber])
+  @@index([status])
+}
+
+// 26. Module RH - Acomptes
+model AdvanceRule {
+  id                    String   @id @default(uuid())
+  name                  String
+  description           String?  @db.Text
+  maxPercentage         Float    @default(50) // Pourcentage maximum du salaire mensuel
+  minDaysWorked        Int      @default(15) // Nombre minimum de jours travaillés requis
+  allowedDaysOfMonth    Int[]    @default([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) // Jours du mois où les acomptes sont autorisés
+  requireManagerApproval Boolean @default(true)
+  companyId             String
+  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  advances              Advance[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model Advance {
+  id          String       @id @default(uuid())
+  employeeId  String
+  employee    Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  amount      Float
+  reason      String?      @db.Text
+  status      String       @default("PENDING") // PENDING, APPROVED, REJECTED, PAID
+  requestDate DateTime     @default(now())
+  approvedBy  String?      // userId du validateur
+  approvedAt  DateTime?
+  rejectedBy  String?
+  rejectedAt  DateTime?
+  rejectionReason String?  @db.Text
+  paidAt      DateTime?
+  advanceRuleId String?
+  advanceRule  AdvanceRule? @relation(fields: [advanceRuleId], references: [id])
+  companyId   String
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([status])
+  @@index([requestDate])
+}
+
+// 27. Module RH - Paie
+model PayrollVariable {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   // Code unique pour les formules
+  type        String   // FIXED, PERCENTAGE
+  value       Float?   // Valeur fixe ou pourcentage
+  description String?  @db.Text
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payrollEntries PayrollEntry[] @relation("PayrollVariableEntries")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([companyId, code])
+  @@index([companyId])
+}
+
+model PayrollPeriod {
+  id          String         @id @default(uuid())
+  name        String         // Ex: "Janvier 2025"
+  startDate   DateTime
+  endDate     DateTime
+  paymentDate DateTime
+  status      String         @default("DRAFT") // DRAFT, CALCULATED, VALIDATED, PAID
+  companyId   String
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payrollEntries PayrollEntry[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([startDate])
+}
+
+model PayrollEntry {
+  id              String        @id @default(uuid())
+  employeeId      String
+  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  payrollPeriodId String
+  payrollPeriod   PayrollPeriod @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
+  baseSalary      Float
+  grossSalary     Float         // Salaire brut calculé
+  deductions      Float         @default(0)
+  netSalary       Float         // Salaire net
+  hoursWorked     Float?
+  overtimeHours   Float         @default(0)
+  variables       Json          @default("{}") // { "PRIME_PERFORMANCE": 50000, "TRANSPORT": 25000 }
+  formula         String?       @db.Text // Formule utilisée pour le calcul
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payrollVariables PayrollVariable[] @relation("PayrollVariableEntries")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([employeeId, payrollPeriodId])
+  @@index([employeeId])
+  @@index([payrollPeriodId])
+  @@index([companyId])
 }

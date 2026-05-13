@@ -15,10 +15,10 @@ interface LeavesListProps {
 }
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'En attente' },
-  APPROVED: { bg: 'bg-green-100', text: 'text-green-700', label: 'Approuvé' },
-  REJECTED: { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejeté' },
-  CANCELLED: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Annulé' },
+  PENDING: { bg: 'bg-yellow-100 dark:bg-yellow-950/50', text: 'text-yellow-700 dark:text-yellow-300', label: 'En attente' },
+  APPROVED: { bg: 'bg-green-100 dark:bg-green-950/50', text: 'text-green-700 dark:text-green-300', label: 'Approuvé' },
+  REJECTED: { bg: 'bg-red-100 dark:bg-red-950/50', text: 'text-red-700 dark:text-red-300', label: 'Rejeté' },
+  CANCELLED: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', label: 'Annulé' },
 };
 
 export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesListProps) {
@@ -27,7 +27,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
       key: 'employee',
       header: 'Employé',
       render: (_, row) => (
-        <p className="font-medium text-slate-800">
+        <p className="font-medium text-foreground">
           {row.employee ? `${row.employee.firstName} ${row.employee.lastName}` : 'Inconnu'}
         </p>
       ),
@@ -39,7 +39,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
       render: (_, row) => (
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full" style={{ backgroundColor: row.leaveType?.color }} />
-          <span className="text-sm text-slate-600">{row.leaveType?.name}</span>
+          <span className="text-sm text-muted-foreground">{row.leaveType?.name}</span>
         </div>
       ),
     },
@@ -47,7 +47,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
       key: 'startDate',
       header: 'Période',
       render: (_, row) => (
-        <span className="text-slate-600">
+        <span className="text-muted-foreground">
           {new Date(row.startDate).toLocaleDateString('fr-FR')} –{' '}
           {new Date(row.endDate).toLocaleDateString('fr-FR')}
         </span>
@@ -56,7 +56,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
     {
       key: 'days',
       header: 'Jours',
-      render: (val) => <span className="font-medium text-slate-800">{val as number}</span>,
+      render: (val) => <span className="font-medium text-foreground">{val as number}</span>,
     },
     {
       key: 'status',
@@ -79,7 +79,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
                 variant="ghost"
                 size="sm"
                 onClick={() => onApprove(row.id)}
-                className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-950/50"
                 title="Approuver"
               >
                 <Check className="h-4 w-4" />
@@ -88,7 +88,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
                 variant="ghost"
                 size="sm"
                 onClick={() => onReject(row.id)}
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
                 title="Rejeter"
               >
                 <X className="h-4 w-4" />
@@ -100,7 +100,7 @@ export function LeavesList({ leaves, onApprove, onReject, onDelete }: LeavesList
               variant="ghost"
               size="sm"
               onClick={() => onDelete(row.id)}
-              className="h-8 w-8 p-0 text-slate-600 hover:text-slate-700 hover:bg-slate-50"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
               title="Supprimer"
             >
               <Trash2 className="h-4 w-4" />

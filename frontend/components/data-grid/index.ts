@@ -4,4 +4,4 @@ export { DataGridToolbar } from './DataGridToolbar';
 export { DataGridEmpty } from './DataGridEmpty';
 export { DataGridLoading } from './DataGridLoading';
 export { DataGridPagination } from './DataGridPagination';
-export type { DataGridProps, DataGridColumn, SortState } from './types';
+export type { DataGridProps, DataGridColumn, SortState, ColumnFilterState } from './types';

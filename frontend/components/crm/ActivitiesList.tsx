@@ -29,6 +29,10 @@ import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filt
 
 interface ActivitiesListProps {
   companyId: string;
+  typeFilter?: ActivityType | 'ALL';
+  statusFilter?: ActivityStatus | 'ALL';
+  dateRange?: DateRange | null;
+  onCreate?: () => void;
 }
 
 const typeIcons: Record<ActivityType, React.ElementType> = {
@@ -64,12 +68,9 @@ const formatDate = (dateString?: string) => {
   return new Date(dateString).toLocaleDateString('fr-FR');
 };
 
-export function ActivitiesList({ companyId }: ActivitiesListProps) {
+export function ActivitiesList({ companyId, typeFilter = 'ALL', statusFilter = 'ALL', dateRange, onCreate }: ActivitiesListProps) {
   const { activities, loading, fetchActivities, deleteActivity, completeActivity } =
     useCRMActivities(companyId);
-  const [typeFilter, setTypeFilter] = useState<ActivityType | 'ALL'>('ALL');
-  const [statusFilter, setStatusFilter] = useState<ActivityStatus | 'ALL'>('ALL');
-  const [dateRange, setDateRange] = useState<DateRange>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -99,6 +100,7 @@ export function ActivitiesList({ companyId }: ActivitiesListProps) {
   const handleCreate = () => {
     setSelectedActivity(null);
     setIsDialogOpen(true);
+    onCreate?.();
   };
 
   const handleDialogClose = () => {
@@ -212,42 +214,6 @@ export function ActivitiesList({ companyId }: ActivitiesListProps) {
         loading={loading}
         searchPlaceholder="Rechercher une activité..."
         emptyMessage="Aucune activité trouvée"
-        toolbar={
-          <div className="flex flex-wrap items-center gap-2">
-            <DateRangeFilter value={dateRange} onChange={setDateRange} />
-            <Select
-              value={typeFilter}
-              onValueChange={(v) => setTypeFilter(v as ActivityType | 'ALL')}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Tous les types</SelectItem>
-                <SelectItem value="CALL">Appel</SelectItem>
-                <SelectItem value="EMAIL">Email</SelectItem>
-                <SelectItem value="MEETING">Réunion</SelectItem>
-                <SelectItem value="TASK">Tâche</SelectItem>
-                <SelectItem value="NOTE">Note</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={statusFilter}
-              onValueChange={(v) => setStatusFilter(v as ActivityStatus | 'ALL')}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Tous les statuts</SelectItem>
-                <SelectItem value="PLANNED">Planifiée</SelectItem>
-                <SelectItem value="COMPLETED">Complétée</SelectItem>
-                <SelectItem value="CANCELLED">Annulée</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleCreate}>Nouvelle activité</Button>
-          </div>
-        }
       />
 
       <ActivityFormDialog

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectFormDialog } from '@/components/projects/ProjectFormDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { toast } from 'sonner';
 import type { Project } from '@/types/projects';
 import { useRouter } from 'next/navigation';
@@ -69,19 +70,16 @@ export default function ProjectsDashboardPage({
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Projets</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Vue d'ensemble de vos projets et tâches
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau projet
-        </Button>
-      </div>
+      <PageHeader
+        title="Projets"
+        description="Vue d'ensemble de vos projets et tâches"
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau projet
+          </Button>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

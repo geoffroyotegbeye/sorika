@@ -13,6 +13,7 @@ import {
 import { usePOS } from '@/hooks/usePOS';
 import { api } from '@/lib/api';
 import type { CashRegister, CashSession, CartItem } from '@/types/pos';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -260,10 +261,14 @@ export default function CashierPage({
   if (!selectedRegister) {
     return (
       <div className="space-y-6 p-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Interface de Caisse</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sélectionnez une caisse pour commencer</p>
-        </div>
+        <PageHeader
+          title="Interface de Caisse"
+          description="Sélectionnez une caisse pour commencer"
+          breadcrumbs={[
+            { label: 'POS', href: `/dashboard/${slug}/pos` },
+            { label: 'Caisse' },
+          ]}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {registers.map((r) => (
             <Card key={r.id} className="cursor-pointer hover:border-emerald-500 transition-colors" onClick={() => handleSelectRegister(r)}>
@@ -291,12 +296,19 @@ export default function CashierPage({
     );
   }
 
-  // ── Ouverture session ─────────────────────────────────────────────────────
-  if (showOpenSession) {
-    return (
-      <div className="space-y-6 p-4">
-        <h1 className="text-2xl font-bold text-foreground">Ouvrir une session</h1>
-        <Card className="max-w-md mx-auto">
+   // ── Ouverture session ─────────────────────────────────────────────────────
+   if (showOpenSession) {
+     return (
+       <div className="space-y-6 p-4">
+         <PageHeader
+           title="Ouvrir une session"
+           breadcrumbs={[
+             { label: 'POS', href: `/dashboard/${slug}/pos` },
+             { label: 'Caisse', href: `/dashboard/${slug}/pos/cashier` },
+             { label: 'Ouverture' },
+           ]}
+         />
+         <Card className="max-w-md mx-auto">
           <CardHeader><CardTitle className="flex items-center gap-2"><LogIn className="h-5 w-5 text-emerald-600" />Fonds de départ</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>

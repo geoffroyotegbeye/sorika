@@ -2,52 +2,52 @@ import { useState, useCallback } from 'react';
 import type { Attendance, CreateAttendanceDto, UpdateAttendanceDto, HRStats } from '@/types/attendance';
 
 export function useAttendance(companyId: string) {
-  const [attendances, setAttendances] = useState<Attendance[]>([]);
+  const [attendances, setAttendances] = useState<any[]>([]);
   const [stats, setStats] = useState<HRStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchAttendances = useCallback(
-    async (startDate?: string, endDate?: string, employeeId?: string) => {
-      if (!companyId) return;
+  const fetchAttendances = useCallback(async (startDate?: string, endDate?: string, employeeId?: string) => {
+    if (!companyId) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const parsed = JSON.parse(userData);
 
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
-        if (!userData) return;
-        const parsed = JSON.parse(userData);
-
-        const params = new URLSearchParams();
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-        if (employeeId) params.append('employeeId', employeeId);
-
-        const res = await fetch(
-          `http://localhost:3001/companies/${companyId}/hr/attendances?${params.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'x-user-id': parsed.user.id,
-            },
-          }
-        );
-
-        if (!res.ok) throw new Error('Erreur lors du chargement');
-
-        const data = await res.json();
-        setAttendances(data);
-      } catch (err) {
-        console.error(err);
-        throw err;
-      } finally {
-        setLoading(false);
+      let url = `http://localhost:3001/companies/${companyId}/hr/attendances`;
+      const params = new URLSearchParams();
+      
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (employeeId) params.append('employeeId', employeeId);
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
       }
-    },
-    [companyId]
-  );
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-user-id': parsed.user.id,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors du chargement des présences');
+      const data = await response.json();
+      setAttendances(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, [companyId]);
 
   const createAttendance = useCallback(
-    async (dto: CreateAttendanceDto & { employeeId: string }) => {
+    async (attendanceData: CreateAttendanceDto) => {
       if (!companyId) return;
 
       const token = localStorage.getItem('token');
@@ -55,10 +55,8 @@ export function useAttendance(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const { employeeId, ...attendanceData } = dto;
-
       const res = await fetch(
-        `http://localhost:3001/companies/${companyId}/hr/employees/${employeeId}/attendances`,
+        `http://localhost:3001/companies/${companyId}/hr/attendances`,
         {
           method: 'POST',
           headers: {
@@ -222,3 +220,4 @@ export function useAttendance(companyId: string) {
     fetchStats,
   };
 }
+

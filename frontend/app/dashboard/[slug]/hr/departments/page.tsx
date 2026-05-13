@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useHR } from '@/hooks/useHR';
 import { DepartmentsList } from '@/components/hr/DepartmentsList';
 import { DepartmentFormDialog } from '@/components/hr/DepartmentFormDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Department } from '@/types/hr';
 
 export default function DepartmentsPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -67,14 +68,20 @@ export default function DepartmentsPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Départements</h1>
-        <Button onClick={handleOpenCreate}>
-          <Building2 className="h-4 w-4 mr-2" />
-          Ajouter un département
-        </Button>
-      </div>
+      <PageHeader
+        title="Départements"
+        description={`${departments.length} département${departments.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'RH', href: `/dashboard/${slug}/hr` },
+          { label: 'Départements' },
+        ]}
+        actions={
+          <Button onClick={handleOpenCreate}>
+            <Building2 className="h-4 w-4 mr-2" />
+            Ajouter un département
+          </Button>
+        }
+      />
 
       {/* Loading */}
       {loading && (

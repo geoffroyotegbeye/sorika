@@ -12,6 +12,7 @@ import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
 import { formatJobPositionLabel } from '@/lib/hr-display';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { AttendanceStatus } from '@/types/attendance';
 
 const STATUS_CONFIG: Record<AttendanceStatus, { bg: string; text: string; label: string }> = {
@@ -145,19 +146,26 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Présences</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <AttendanceFormDialog
-            companyId={company.id}
-            onSuccess={() => {
-              if (dateRange) fetchAttendances(dateRange.from, dateRange.to);
-            }}
-          />
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Présences"
+        description="Gestion des pointages et présences"
+        breadcrumbs={[
+          { label: 'RH', href: `/dashboard/${slug}/hr` },
+          { label: 'Présences' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <AttendanceFormDialog
+              companyId={company.id}
+              onSuccess={() => {
+                if (dateRange) fetchAttendances(dateRange.from, dateRange.to);
+              }}
+            />
+          </>
+        }
+      />
       <DataGrid
         data={attendances}
         columns={columns}

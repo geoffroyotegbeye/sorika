@@ -121,10 +121,10 @@ export function EditPermissionsDialog({ open, onOpenChange, member, onUpdate }: 
 
           {/* Grille permissions */}
           <div className="space-y-4">
-            <p className="text-sm font-medium text-slate-700">Permissions par module</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Permissions par module</p>
             {MODULES.map((mod) => (
               <div key={mod} className="space-y-2">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {MODULE_LABELS[mod]}
                 </p>
                 <div className="grid grid-cols-2 gap-2">

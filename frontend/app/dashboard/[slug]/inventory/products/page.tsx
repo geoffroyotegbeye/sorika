@@ -8,8 +8,9 @@ import { useInventory } from '@/hooks/useInventory';
 import type { InventoryProduct } from '@/types/inventory';
 import { ProductFormDialog } from '@/components/inventory/ProductFormDialog';
 import { MovementFormDialog } from '@/components/inventory/MovementFormDialog';
-import { Plus, Package, AlertTriangle, ArrowUpDown, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Package, AlertTriangle, ArrowUpDown, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Company {
   id: string;
@@ -79,25 +80,49 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
     fetchProducts();
   };
 
+  const getDisplayImage = (row: InventoryProduct) => {
+    if (row.ecommerceImages && Array.isArray(row.ecommerceImages) && row.ecommerceImages.length > 0) {
+      const url = row.ecommerceImages[0];
+      // Si l'URL est relative (commence par /uploads), ajouter l'URL du backend
+      if (url.startsWith('/uploads')) {
+        return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${url}`;
+      }
+      // Si l'URL est déjà complète, la retourner telle quelle
+      return url;
+    }
+    if (row.imageUrl) {
+      // Si l'URL est relative, ajouter l'URL du backend
+      if (row.imageUrl.startsWith('/uploads')) {
+        return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${row.imageUrl}`;
+      }
+      // Si l'URL est déjà complète, la retourner telle quelle
+      return row.imageUrl;
+    }
+    return null;
+  };
+
   const columns: DataGridColumn<InventoryProduct>[] = [
     {
       key: 'name',
       header: 'Produit',
-      render: (val, row) => (
-        <div className="flex items-center gap-2">
-          {row.imageUrl ? (
-            <img src={row.imageUrl} alt={val as string} className="h-10 w-10 rounded object-cover" />
-          ) : (
-            <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
-              <Package className="h-5 w-5 text-muted-foreground" />
+      render: (val, row) => {
+        const imageUrl = getDisplayImage(row);
+        return (
+          <div className="flex items-center gap-2">
+            {imageUrl ? (
+              <img src={imageUrl} alt={val as string} className="h-10 w-10 rounded object-cover" />
+            ) : (
+              <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                <Package className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+            <div>
+              <p className="font-medium text-foreground">{val as string}</p>
+              {row.sku && <p className="text-xs text-muted-foreground">SKU: {row.sku}</p>}
             </div>
-          )}
-          <div>
-            <p className="font-medium text-foreground">{val as string}</p>
-            {row.sku && <p className="text-xs text-muted-foreground">SKU: {row.sku}</p>}
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'category',
@@ -143,6 +168,42 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
         <Badge className={val ? 'bg-green-100 text-green-700' : 'bg-muted text-foreground'}>
           {val ? 'Actif' : 'Inactif'}
         </Badge>
+      ),
+    },
+    {
+      key: 'isAvailableOnline',
+      header: 'En ligne',
+      render: (val, row) => (
+        <button
+          onClick={async () => {
+            try {
+              const userData = localStorage.getItem('user');
+              const parsed = userData ? JSON.parse(userData) : null;
+              const userId = parsed?.user?.id;
+              
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/companies/${company.id}/inventory/products/${row.id}`, {
+                method: 'PATCH',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'x-user-id': userId || '',
+                  'x-company-id': company.id,
+                },
+                body: JSON.stringify({ isAvailableOnline: !val }),
+              });
+              fetchProducts();
+            } catch (err) {
+              console.error('Erreur lors de la mise à jour:', err);
+            }
+          }}
+          className="p-2 hover:bg-accent rounded-lg transition-colors"
+          title={val ? 'Retirer de la boutique' : 'Ajouter à la boutique'}
+        >
+          {val ? (
+            <Eye className="h-5 w-5 text-green-600" />
+          ) : (
+            <EyeOff className="h-5 w-5 text-gray-600" />
+          )}
+        </button>
       ),
     },
     {
@@ -192,18 +253,25 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Produits</h1>
-        <Button
-          onClick={() => {
-            setEditProduct(null);
-            setProductDialog(true);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau produit
-        </Button>
-      </div>
+      <PageHeader
+        title="Produits"
+        description={`${products.length} produit${products.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Inventaire', href: `/dashboard/${slug}/inventory` },
+          { label: 'Produits' },
+        ]}
+        actions={
+          <Button
+            onClick={() => {
+              setEditProduct(null);
+              setProductDialog(true);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau produit
+          </Button>
+        }
+      />
 
       <DataGrid
         data={products}

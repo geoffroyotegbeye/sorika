@@ -27,7 +27,7 @@ const columns: DataGridColumn<Employee>[] = [
     key: 'firstName',
     header: 'Nom',
     render: (_, row) => (
-      <p className="font-medium text-slate-800">
+      <p className="font-medium text-foreground">
         {row.firstName} {row.lastName}
       </p>
     ),
@@ -37,7 +37,7 @@ const columns: DataGridColumn<Employee>[] = [
     header: 'Poste',
     sortable: false,
     render: (_, row) => (
-      <span className="text-slate-600">{row.position?.title || '—'}</span>
+      <span className="text-muted-foreground">{row.position?.title || '—'}</span>
     ),
   },
   {
@@ -45,7 +45,7 @@ const columns: DataGridColumn<Employee>[] = [
     header: 'Département',
     sortable: false,
     render: (_, row) => (
-      <span className="text-slate-600">{row.department?.name ?? '—'}</span>
+      <span className="text-muted-foreground">{row.department?.name ?? '—'}</span>
     ),
   },
   {
@@ -55,15 +55,15 @@ const columns: DataGridColumn<Employee>[] = [
     render: (_, row) =>
       row.manager ? (
         <div>
-          <p className="text-slate-800 font-medium text-sm">
+          <p className="text-foreground font-medium text-sm">
             {row.manager.firstName} {row.manager.lastName}
           </p>
           {row.manager.position?.title && (
-            <p className="text-slate-500 text-xs">{row.manager.position.title}</p>
+            <p className="text-muted-foreground text-xs">{row.manager.position.title}</p>
           )}
         </div>
       ) : (
-        <span className="text-slate-400">—</span>
+        <span className="text-muted-foreground">—</span>
       ),
   },
   {
@@ -72,11 +72,11 @@ const columns: DataGridColumn<Employee>[] = [
     sortable: false,
     render: (_, row) =>
       row._count?.subordinates ? (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800">
           {row._count.subordinates} {row._count.subordinates === 1 ? 'personne' : 'personnes'}
         </Badge>
       ) : (
-        <span className="text-slate-400">—</span>
+        <span className="text-muted-foreground">—</span>
       ),
   },
   {
@@ -84,11 +84,11 @@ const columns: DataGridColumn<Employee>[] = [
     header: 'Contrat',
     render: (val) =>
       val ? (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
           {CONTRACT_LABELS[val as string] ?? val}
         </span>
       ) : (
-        <span className="text-slate-400">—</span>
+        <span className="text-muted-foreground">—</span>
       ),
   },
   {
@@ -104,7 +104,7 @@ const columns: DataGridColumn<Employee>[] = [
     key: 'hireDate',
     header: "Date d'embauche",
     render: (val) => (
-      <span className="text-slate-600">
+      <span className="text-muted-foreground">
         {val ? new Date(val as string).toLocaleDateString('fr-FR') : '—'}
       </span>
     ),
@@ -128,7 +128,7 @@ export function EmployeesList({ employees, onEdit, onDelete }: EmployeesListProp
             variant="ghost"
             size="sm"
             onClick={() => onDelete(row.id)}
-            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

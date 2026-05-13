@@ -9,6 +9,7 @@ import { useHR } from '@/hooks/useHR';
 import { LeavesList } from '@/components/hr/LeavesList';
 import { LeaveFormDialog } from '@/components/hr/LeaveFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function LeavesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -124,17 +125,23 @@ export default function LeavesPage({ params }: { params: Promise<{ slug: string 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Congés</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <Button onClick={() => setFormOpen(true)}>
-            <Calendar className="h-4 w-4 mr-2" />
-            Nouvelle demande
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Congés"
+        description="Gestion des demandes de congés"
+        breadcrumbs={[
+          { label: 'RH', href: `/dashboard/${slug}/hr` },
+          { label: 'Congés' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <Button onClick={() => setFormOpen(true)}>
+              <Calendar className="h-4 w-4 mr-2" />
+              Nouvelle demande
+            </Button>
+          </>
+        }
+      />
 
       {/* Loading */}
       {loading && (

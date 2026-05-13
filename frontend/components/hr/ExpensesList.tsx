@@ -45,7 +45,7 @@ export function ExpensesList({
       key: 'employee',
       header: 'Employé',
       render: (_, row) => (
-        <p className="font-medium text-slate-800">
+        <p className="font-medium text-foreground">
           {row.employee ? `${row.employee.firstName} ${row.employee.lastName}` : 'Inconnu'}
         </p>
       ),
@@ -55,7 +55,7 @@ export function ExpensesList({
       header: 'Titre',
       render: (val, row) => (
         <div className="flex items-center gap-2">
-          <span className="text-slate-800">{val as string}</span>
+          <span className="text-foreground">{val as string}</span>
           {row.receiptUrl && (
             <a
               href={row.receiptUrl}
@@ -74,14 +74,14 @@ export function ExpensesList({
       key: 'category',
       header: 'Catégorie',
       render: (val) => (
-        <span className="text-slate-600">{CATEGORY_LABELS[val as string] ?? val}</span>
+        <span className="text-muted-foreground">{CATEGORY_LABELS[val as string] ?? val}</span>
       ),
     },
     {
       key: 'amount',
       header: 'Montant',
       render: (val) => (
-        <span className="font-medium text-slate-800">
+        <span className="font-medium text-foreground">
           {(val as number).toLocaleString('fr-FR')} {currency}
         </span>
       ),
@@ -90,7 +90,7 @@ export function ExpensesList({
       key: 'date',
       header: 'Date',
       render: (val) => (
-        <span className="text-slate-600">
+        <span className="text-muted-foreground">
           {new Date(val as string).toLocaleDateString('fr-FR')}
         </span>
       ),
@@ -160,7 +160,7 @@ export function ExpensesList({
               variant="ghost"
               size="sm"
               onClick={() => onDelete(row.id)}
-              className="h-8 w-8 p-0 text-slate-600 hover:text-slate-700 hover:bg-slate-50"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
               title="Supprimer"
             >
               <Trash2 className="h-4 w-4" />

@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, TrendingUp, AlertTriangle, FolderTree, DollarSign } from 'lucide-react';
 import { useInventory } from '@/hooks/useInventory';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Company {
   id: string;
@@ -47,7 +48,14 @@ export default function InventoryDashboardPage({ params }: { params: Promise<{ s
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-foreground">Tableau de bord</h1>
+      <PageHeader
+        title="Tableau de bord"
+        description={`${stats.totalProducts} produits • ${stats.categories} catégories`}
+        breadcrumbs={[
+          { label: 'Inventaire', href: `/dashboard/${slug}/inventory` },
+          { label: 'Tableau de bord' },
+        ]}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

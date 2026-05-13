@@ -19,6 +19,8 @@ import type { DataGridColumn } from '@/components/data-grid';
 
 interface ContactsListProps {
   companyId: string;
+  statusFilter?: ContactStatus | 'ALL';
+  onCreate?: () => void;
 }
 
 const statusColors: Record<ContactStatus, string> = {
@@ -35,9 +37,8 @@ const statusLabels: Record<ContactStatus, string> = {
   PARTNER: 'Partenaire',
 };
 
-export function ContactsList({ companyId }: ContactsListProps) {
+export function ContactsList({ companyId, statusFilter = 'ALL', onCreate }: ContactsListProps) {
   const { contacts, loading, fetchContacts, deleteContact } = useCRMContacts(companyId);
-  const [statusFilter, setStatusFilter] = useState<ContactStatus | 'ALL'>('ALL');
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -61,6 +62,7 @@ export function ContactsList({ companyId }: ContactsListProps) {
   const handleCreate = () => {
     setSelectedContact(null);
     setIsDialogOpen(true);
+    onCreate?.();
   };
 
   const handleDialogClose = () => {
@@ -144,24 +146,6 @@ export function ContactsList({ companyId }: ContactsListProps) {
     },
   ];
 
-  const filterToolbar = (
-    <Select
-      value={statusFilter}
-      onValueChange={(value) => setStatusFilter(value as ContactStatus | 'ALL')}
-    >
-      <SelectTrigger className="w-44">
-        <SelectValue placeholder="Statut" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="ALL">Tous les statuts</SelectItem>
-        <SelectItem value="LEAD">Lead</SelectItem>
-        <SelectItem value="PROSPECT">Prospect</SelectItem>
-        <SelectItem value="CLIENT">Client</SelectItem>
-        <SelectItem value="PARTNER">Partenaire</SelectItem>
-      </SelectContent>
-    </Select>
-  );
-
   return (
     <>
       <DataGrid
@@ -170,12 +154,6 @@ export function ContactsList({ companyId }: ContactsListProps) {
         loading={loading}
         searchPlaceholder="Rechercher un contact..."
         emptyMessage="Aucun contact trouvé"
-        toolbar={
-          <div className="flex items-center gap-2">
-            {filterToolbar}
-            <Button onClick={handleCreate}>Nouveau contact</Button>
-          </div>
-        }
       />
 
       <ContactFormDialog

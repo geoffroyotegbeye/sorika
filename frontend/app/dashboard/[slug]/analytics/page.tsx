@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function AnalyticsPage({
   params,
@@ -54,31 +55,29 @@ export default function AnalyticsPage({
     year: 'Cette année',
   };
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-          <p className="text-sm text-muted-foreground">
-            Vue d'ensemble de votre activité
-          </p>
-        </div>
-
-        {/* Sélecteur de période */}
-        <div className="flex gap-2">
-          {['today', 'week', 'month', 'year'].map((p) => (
-            <Button
-              key={p}
-              variant={period === p ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setPeriod(p)}
-            >
-              {periodLabels[p]}
-            </Button>
-          ))}
-        </div>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Analytics"
+         description="Vue d'ensemble de votre activité"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+         ]}
+         actions={
+           <div className="flex gap-2">
+             {['today', 'week', 'month', 'year'].map((p) => (
+               <Button
+                 key={p}
+                 variant={period === p ? 'default' : 'outline'}
+                 size="sm"
+                 onClick={() => setPeriod(p)}
+               >
+                 {periodLabels[p]}
+               </Button>
+             ))}
+           </div>
+         }
+       />
 
       {/* KPIs principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

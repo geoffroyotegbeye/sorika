@@ -10,6 +10,7 @@ import type { Invoice, InvoiceStatus } from '@/types/accounting';
 import { InvoiceFormDialog } from '@/components/accounting/InvoiceFormDialog';
 import { PaymentFormDialog } from '@/components/accounting/PaymentFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus, CreditCard } from 'lucide-react';
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; className: string }> = {
@@ -150,17 +151,24 @@ export default function InvoicesPage({ params }: { params: Promise<{ slug: strin
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Factures</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <Button onClick={() => { setEditInvoice(null); setInvoiceDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle facture
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Factures"
+        description={`${filteredInvoices.length} facture${filteredInvoices.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Comptabilité', href: `/dashboard/${slug}/accounting` },
+          { label: 'Factures' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <Button onClick={() => { setEditInvoice(null); setInvoiceDialog(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle facture
+            </Button>
+          </>
+        }
+      />
 
       <DataGrid
         data={filteredInvoices}

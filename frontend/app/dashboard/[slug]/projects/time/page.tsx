@@ -3,6 +3,7 @@
 import { use } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus, Clock } from 'lucide-react';
 
 export default function TimeTrackingPage({
@@ -14,19 +15,20 @@ export default function TimeTrackingPage({
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Suivi du temps</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Enregistrez le temps passé sur vos projets
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle entrée
-        </Button>
-      </div>
+      <PageHeader
+        title="Suivi du temps"
+        description="Enregistrez le temps passé sur vos projets"
+        breadcrumbs={[
+          { label: 'Projets', href: `/dashboard/${slug}/projects` },
+          { label: 'Temps' },
+        ]}
+        actions={
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle entrée
+          </Button>
+        }
+      />
 
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

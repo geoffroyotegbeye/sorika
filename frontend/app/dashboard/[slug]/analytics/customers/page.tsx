@@ -11,6 +11,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface CRMAnalytics {
   contactsByStatus: Array<{ status: string; _count: number }>;
@@ -99,15 +100,16 @@ export default function CustomersAnalyticsPage({
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Clients & CRM</h1>
-        <p className="text-sm text-muted-foreground">
-          Analyse de votre pipeline commercial et de vos contacts
-        </p>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Clients & CRM"
+         description="Analyse de votre pipeline commercial et de vos contacts"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+           { label: 'Clients' },
+         ]}
+       />
 
       {/* KPIs CRM */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

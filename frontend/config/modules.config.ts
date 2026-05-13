@@ -24,6 +24,9 @@ import {
   Banknote,
   DollarSign,
   ListChecks,
+  Star,
+  Wallet,
+  Settings,
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
@@ -124,6 +127,16 @@ export const MODULES_CONFIG: Record<string, ModuleConfig> = {
         name: 'Notes de frais',
         href: '/hr/expenses',
         icon: Receipt,
+      },
+      {
+        name: 'Acomptes',
+        href: '/hr/advances',
+        icon: Wallet,
+      },
+      {
+        name: 'Paie',
+        href: '/hr/payroll',
+        icon: Calculator,
       },
     ],
   },
@@ -299,14 +312,43 @@ export const MODULES_CONFIG: Record<string, ModuleConfig> = {
         icon: ListChecks,
       },
       {
-        name: 'Kanban',
-        href: '/projects/kanban',
-        icon: LayoutDashboard,
-      },
-      {
         name: 'Temps',
         href: '/projects/time',
         icon: Calendar,
+      },
+    ],
+  },
+  ecommerce: {
+    id: 'ECOMMERCE',
+    name: 'E-Commerce',
+    description: 'Boutique et commandes en ligne',
+    icon: ShoppingCart,
+    color: 'orange',
+    menu: [
+      {
+        name: 'Dashboard',
+        href: '/ecommerce',
+        icon: LayoutDashboard,
+      },
+      {
+        name: 'Boutique',
+        href: '/ecommerce/shop',
+        icon: Package,
+      },
+      {
+        name: 'Commandes',
+        href: '/ecommerce/orders',
+        icon: ShoppingCart,
+      },
+      {
+        name: 'Codes promo',
+        href: '/ecommerce/coupons',
+        icon: Receipt,
+      },
+      {
+        name: 'Avis',
+        href: '/ecommerce/reviews',
+        icon: Star,
       },
     ],
   },

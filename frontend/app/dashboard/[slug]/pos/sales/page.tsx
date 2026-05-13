@@ -13,6 +13,7 @@ import {
   Download, ShoppingBag, TrendingUp, Package,
   DollarSign, CreditCard, Smartphone, Banknote,
 } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 type Period = 'today' | 'week' | 'month' | 'custom';
@@ -300,24 +301,27 @@ export default function SalesPage({ params }: { params: Promise<{ slug: string }
     { value: 'custom', label: 'Personnalisé' },
   ];
 
-  return (
-    <div className="space-y-4 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Ventes</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Historique et analyse des ventes</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-            <ChevronDown className={`h-4 w-4 mr-1.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-            Filtres
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportCSV} disabled={filtered.length === 0}>
-            <Download className="h-4 w-4 mr-1.5" />Export CSV
-          </Button>
-        </div>
-      </div>
+   return (
+     <div className="space-y-4 p-4">
+       <PageHeader
+         title="Ventes"
+         description="Historique et analyse des ventes"
+         breadcrumbs={[
+           { label: 'POS', href: `/dashboard/${slug}/pos` },
+           { label: 'Ventes' },
+         ]}
+         actions={
+           <>
+             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+               <ChevronDown className={`h-4 w-4 mr-1.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+               Filtres
+             </Button>
+             <Button variant="outline" size="sm" onClick={exportCSV} disabled={filtered.length === 0}>
+               <Download className="h-4 w-4 mr-1.5" />Export CSV
+             </Button>
+           </>
+         }
+       />
 
       {/* Filtres période */}
       <div className="flex flex-wrap gap-2 items-center">

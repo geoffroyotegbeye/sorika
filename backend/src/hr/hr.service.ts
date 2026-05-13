@@ -10,6 +10,11 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { CreateAdvanceDto } from './dto/create-advance.dto';
+import { UpdateAdvanceDto } from './dto/update-advance.dto';
+import { CreateAdvanceRuleDto } from './dto/create-advance-rule.dto';
+import { CreatePayrollVariableDto } from './dto/create-payroll-variable.dto';
+import { CreatePayrollPeriodDto } from './dto/create-payroll-period.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -1106,5 +1111,392 @@ export class HRService {
         employeeCount: d._count.employees,
       })),
     };
+  }
+
+  // ─── Acomptes (Advances) ───────────────────────────────────────────────────────
+
+  async listAdvances(companyId: string) {
+    return this.prisma.advance.findMany({
+      where: { companyId },
+      include: {
+        employee: {
+          include: {
+            department: true,
+            position: true,
+          },
+        },
+        advanceRule: true,
+      },
+      orderBy: { requestDate: 'desc' },
+    });
+  }
+
+  async createAdvance(companyId: string, dto: CreateAdvanceDto) {
+    // Vérifier l'employé
+    const employee = await this.prisma.employee.findFirst({
+      where: { id: dto.employeeId, companyId },
+    });
+    if (!employee) {
+      throw new NotFoundException('Employé non trouvé');
+    }
+
+    // Vérifier la règle d'acompte si fournie
+    if (dto.advanceRuleId) {
+      const rule = await this.prisma.advanceRule.findFirst({
+        where: { id: dto.advanceRuleId, companyId },
+      });
+      if (!rule) {
+        throw new NotFoundException('Règle d\'acompte non trouvée');
+      }
+
+      // Vérifier le pourcentage maximum
+      if (employee.salary) {
+        const maxAmount = (employee.salary * rule.maxPercentage) / 100;
+        if (dto.amount > maxAmount) {
+          throw new BadRequestException(`Le montant ne peut pas dépasser ${maxAmount} FCFA (${rule.maxPercentage}% du salaire)`);
+        }
+      }
+
+      // Vérifier le jour du mois
+      const currentDay = new Date().getDate();
+      if (!rule.allowedDaysOfMonth.includes(currentDay)) {
+        throw new BadRequestException(`Les acomptes ne sont autorisés que les jours: ${rule.allowedDaysOfMonth.join(', ')}`);
+      }
+    }
+
+    return this.prisma.advance.create({
+      data: {
+        ...dto,
+        companyId,
+        status: 'PENDING',
+      },
+      include: {
+        employee: {
+          include: {
+            department: true,
+            position: true,
+          },
+        },
+        advanceRule: true,
+      },
+    });
+  }
+
+  async updateAdvance(companyId: string, advanceId: string, dto: UpdateAdvanceDto) {
+    const advance = await this.prisma.advance.findFirst({
+      where: { id: advanceId, companyId },
+    });
+    if (!advance) {
+      throw new NotFoundException('Acompte non trouvé');
+    }
+
+    if (dto.status === 'APPROVED' && dto.approvedBy) {
+      dto.approvedAt = new Date();
+    }
+
+    if (dto.status === 'REJECTED' && dto.rejectedBy) {
+      dto.rejectedAt = new Date();
+    }
+
+    if (dto.status === 'PAID') {
+      dto.paidAt = new Date();
+    }
+
+    return this.prisma.advance.update({
+      where: { id: advanceId },
+      data: dto,
+      include: {
+        employee: {
+          include: {
+            department: true,
+            position: true,
+          },
+        },
+        advanceRule: true,
+      },
+    });
+  }
+
+  async deleteAdvance(companyId: string, advanceId: string) {
+    const advance = await this.prisma.advance.findFirst({
+      where: { id: advanceId, companyId },
+    });
+    if (!advance) {
+      throw new NotFoundException('Acompte non trouvé');
+    }
+
+    if (advance.status !== 'PENDING') {
+      throw new BadRequestException('Seuls les acomptes en attente peuvent être supprimés');
+    }
+
+    return this.prisma.advance.delete({
+      where: { id: advanceId },
+    });
+  }
+
+  async listAdvanceRules(companyId: string) {
+    return this.prisma.advanceRule.findMany({
+      where: { companyId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createAdvanceRule(companyId: string, dto: CreateAdvanceRuleDto) {
+    return this.prisma.advanceRule.create({
+      data: {
+        ...dto,
+        companyId,
+      },
+    });
+  }
+
+  async updateAdvanceRule(companyId: string, ruleId: string, dto: Partial<CreateAdvanceRuleDto>) {
+    const rule = await this.prisma.advanceRule.findFirst({
+      where: { id: ruleId, companyId },
+    });
+    if (!rule) {
+      throw new NotFoundException('Règle d\'acompte non trouvée');
+    }
+
+    return this.prisma.advanceRule.update({
+      where: { id: ruleId },
+      data: dto,
+    });
+  }
+
+  async deleteAdvanceRule(companyId: string, ruleId: string) {
+    const rule = await this.prisma.advanceRule.findFirst({
+      where: { id: ruleId, companyId },
+    });
+    if (!rule) {
+      throw new NotFoundException('Règle d\'acompte non trouvée');
+    }
+
+    return this.prisma.advanceRule.delete({
+      where: { id: ruleId },
+    });
+  }
+
+  // ─── Paie (Payroll) ─────────────────────────────────────────────────────────────
+
+  async listPayrollPeriods(companyId: string) {
+    return this.prisma.payrollPeriod.findMany({
+      where: { companyId },
+      include: {
+        _count: {
+          select: { payrollEntries: true },
+        },
+      },
+      orderBy: { startDate: 'desc' },
+    });
+  }
+
+  async createPayrollPeriod(companyId: string, dto: CreatePayrollPeriodDto) {
+    return this.prisma.payrollPeriod.create({
+      data: {
+        ...dto,
+        companyId,
+      },
+    });
+  }
+
+  async updatePayrollPeriod(companyId: string, periodId: string, dto: Partial<CreatePayrollPeriodDto>) {
+    const period = await this.prisma.payrollPeriod.findFirst({
+      where: { id: periodId, companyId },
+    });
+    if (!period) {
+      throw new NotFoundException('Période de paie non trouvée');
+    }
+
+    return this.prisma.payrollPeriod.update({
+      where: { id: periodId },
+      data: dto,
+    });
+  }
+
+  async deletePayrollPeriod(companyId: string, periodId: string) {
+    const period = await this.prisma.payrollPeriod.findFirst({
+      where: { id: periodId, companyId },
+    });
+    if (!period) {
+      throw new NotFoundException('Période de paie non trouvée');
+    }
+
+    if (period.status !== 'DRAFT') {
+      throw new BadRequestException('Seules les périodes en brouillon peuvent être supprimées');
+    }
+
+    return this.prisma.payrollPeriod.delete({
+      where: { id: periodId },
+    });
+  }
+
+  async listPayrollVariables(companyId: string) {
+    return this.prisma.payrollVariable.findMany({
+      where: { companyId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createPayrollVariable(companyId: string, dto: CreatePayrollVariableDto) {
+    // Vérifier l'unicité du code
+    const existing = await this.prisma.payrollVariable.findFirst({
+      where: { companyId, code: dto.code },
+    });
+    if (existing) {
+      throw new ConflictException('Ce code existe déjà');
+    }
+
+    return this.prisma.payrollVariable.create({
+      data: {
+        ...dto,
+        companyId,
+      },
+    });
+  }
+
+  async updatePayrollVariable(companyId: string, variableId: string, dto: Partial<CreatePayrollVariableDto>) {
+    const variable = await this.prisma.payrollVariable.findFirst({
+      where: { id: variableId, companyId },
+    });
+    if (!variable) {
+      throw new NotFoundException('Variable de paie non trouvée');
+    }
+
+    // Vérifier l'unicité du code si modifié
+    if (dto.code && dto.code !== variable.code) {
+      const existing = await this.prisma.payrollVariable.findFirst({
+        where: { companyId, code: dto.code },
+      });
+      if (existing) {
+        throw new ConflictException('Ce code existe déjà');
+      }
+    }
+
+    return this.prisma.payrollVariable.update({
+      where: { id: variableId },
+      data: dto,
+    });
+  }
+
+  async deletePayrollVariable(companyId: string, variableId: string) {
+    const variable = await this.prisma.payrollVariable.findFirst({
+      where: { id: variableId, companyId },
+    });
+    if (!variable) {
+      throw new NotFoundException('Variable de paie non trouvée');
+    }
+
+    return this.prisma.payrollVariable.delete({
+      where: { id: variableId },
+    });
+  }
+
+  async calculatePayroll(companyId: string, periodId: string) {
+    const period = await this.prisma.payrollPeriod.findFirst({
+      where: { id: periodId, companyId },
+      include: {
+        company: true,
+      },
+    });
+    if (!period) {
+      throw new NotFoundException('Période de paie non trouvée');
+    }
+
+    // Récupérer tous les employés actifs
+    const employees = await this.prisma.employee.findMany({
+      where: { companyId, isActive: true },
+      include: {
+        department: true,
+        position: true,
+      },
+    });
+
+    // Récupérer les variables de paie
+    const variables = await this.prisma.payrollVariable.findMany({
+      where: { companyId },
+    });
+
+    // Pour chaque employé, créer une entrée de paie
+    const entries: any[] = [];
+    for (const employee of employees) {
+      if (!employee.salary) continue;
+
+      // Calculer le salaire brut avec les variables
+      let grossSalary = employee.salary;
+      const variablesMap: Record<string, number> = {};
+
+      for (const variable of variables) {
+        if (variable.type === 'FIXED') {
+          grossSalary += variable.value || 0;
+          variablesMap[variable.code] = variable.value || 0;
+        } else if (variable.type === 'PERCENTAGE') {
+          const variableValue = (employee.salary * (variable.value || 0)) / 100;
+          grossSalary += variableValue;
+          variablesMap[variable.code] = variableValue;
+        }
+      }
+
+      const entry = await this.prisma.payrollEntry.create({
+        data: {
+          employeeId: employee.id,
+          payrollPeriodId: periodId,
+          companyId,
+          baseSalary: employee.salary,
+          grossSalary,
+          deductions: 0,
+          netSalary: grossSalary,
+          variables: variablesMap,
+        },
+      });
+      entries.push(entry);
+    }
+
+    // Mettre à jour le statut de la période
+    await this.prisma.payrollPeriod.update({
+      where: { id: periodId },
+      data: { status: 'CALCULATED' },
+    });
+
+    return entries;
+  }
+
+  async validatePayroll(companyId: string, periodId: string) {
+    const period = await this.prisma.payrollPeriod.findFirst({
+      where: { id: periodId, companyId },
+    });
+    if (!period) {
+      throw new NotFoundException('Période de paie non trouvée');
+    }
+
+    if (period.status !== 'CALCULATED') {
+      throw new BadRequestException('La paie doit être calculée avant validation');
+    }
+
+    return this.prisma.payrollPeriod.update({
+      where: { id: periodId },
+      data: { status: 'VALIDATED' },
+    });
+  }
+
+  async listPayrollEntries(companyId: string, periodId?: string) {
+    const where: Prisma.PayrollEntryWhereInput = { companyId };
+    if (periodId) {
+      where.payrollPeriodId = periodId;
+    }
+
+    return this.prisma.payrollEntry.findMany({
+      where,
+      include: {
+        employee: {
+          include: {
+            department: true,
+            position: true,
+          },
+        },
+        payrollPeriod: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }

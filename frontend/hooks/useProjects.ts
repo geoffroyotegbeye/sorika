@@ -96,6 +96,21 @@ export function useProjects(companyId: string) {
   // TÂCHES
   // ============================================
 
+  const fetchAllTasks = useCallback(async () => {
+    if (!companyId) return;
+    setLoading(true);
+    try {
+      const data = await api.get<Task[]>(
+        `/companies/${companyId}/projects/all-tasks`,
+      );
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching all tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [companyId]);
+
   const fetchTasks = useCallback(
     async (projectId: string) => {
       if (!companyId) return;
@@ -214,6 +229,7 @@ export function useProjects(companyId: string) {
     createProject,
     updateProject,
     deleteProject,
+    fetchAllTasks,
     fetchTasks,
     createTask,
     updateTask,

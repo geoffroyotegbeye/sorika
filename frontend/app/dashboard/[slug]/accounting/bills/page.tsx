@@ -9,6 +9,7 @@ import { useAccounting } from '@/hooks/useAccounting';
 import type { Bill, BillStatus } from '@/types/accounting';
 import { BillFormDialog } from '@/components/accounting/BillFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus } from 'lucide-react';
 
 const STATUS_CONFIG: Record<BillStatus, { label: string; className: string }> = {
@@ -133,17 +134,24 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Charges</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <Button onClick={() => { setEditBill(null); setBillDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle charge
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Charges"
+        description={`${filteredBills.length} charge${filteredBills.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Comptabilité', href: `/dashboard/${slug}/accounting` },
+          { label: 'Charges' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <Button onClick={() => { setEditBill(null); setBillDialog(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle charge
+            </Button>
+          </>
+        }
+      />
 
       <DataGrid
         data={filteredBills}

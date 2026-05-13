@@ -79,7 +79,7 @@ const MODULE_CATEGORIES = [
         description: 'Boutique et commandes',
         icon: ShoppingBag,
         color: 'orange',
-        href: (slug: string) => `/dashboard/${slug}/shop`,
+        href: (slug: string) => `/dashboard/${slug}/ecommerce`,
       },
     ],
   },

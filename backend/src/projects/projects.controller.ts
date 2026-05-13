@@ -32,6 +32,12 @@ export class ProjectsController {
     return this.projectsService.getProjectStats(companyId);
   }
 
+  @Get('all-tasks')
+  @RequirePermission('PROJECTS', 'READ')
+  getAllCompanyTasks(@Param('companyId') companyId: string) {
+    return this.projectsService.getAllCompanyTasks(companyId);
+  }
+
   @Get(':projectId')
   @RequirePermission('PROJECTS', 'READ')
   getProjectById(

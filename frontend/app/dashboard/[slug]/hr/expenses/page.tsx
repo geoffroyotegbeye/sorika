@@ -11,6 +11,7 @@ import { ExpensesList } from '@/components/hr/ExpensesList';
 import { ExpenseFormDialog } from '@/components/hr/ExpenseFormDialog';
 import { BillFormDialog } from '@/components/accounting/BillFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Expense } from '@/types/hr-extended';
 
 export default function ExpensesPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -129,17 +130,23 @@ export default function ExpensesPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Notes de frais</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <Button onClick={() => setFormOpen(true)}>
-            <Receipt className="h-4 w-4 mr-2" />
-            Nouvelle note de frais
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Notes de frais"
+        description="Gestion des notes de frais et remboursements"
+        breadcrumbs={[
+          { label: 'RH', href: `/dashboard/${slug}/hr` },
+          { label: 'Notes de frais' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <Button onClick={() => setFormOpen(true)}>
+              <Receipt className="h-4 w-4 mr-2" />
+              Nouvelle note de frais
+            </Button>
+          </>
+        }
+      />
 
       {/* Loading */}
       {loading && (

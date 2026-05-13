@@ -32,6 +32,7 @@ export function TaskFormDialog({
   projects,
   employees = [],
 }: TaskFormDialogProps) {
+  console.log('TaskFormDialog - projects available:', projects);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -55,7 +56,8 @@ export function TaskFormDialog({
         dueDate: task.dueDate?.split('T')[0] || '',
         estimatedHours: task.estimatedHours?.toString() || '',
       });
-    } else {
+    } else if (open && projects.length > 0) {
+      // Ne réinitialiser que si le dialog est ouvert et qu'il y a des projets
       setFormData({
         title: '',
         description: '',
@@ -73,15 +75,18 @@ export function TaskFormDialog({
     e.preventDefault();
 
     if (!formData.projectId) {
+      alert('Veuillez sélectionner un projet');
       return;
     }
+
+    console.log('TaskFormDialog - submitting:', formData);
 
     const data: Partial<Task> = {
       title: formData.title,
       description: formData.description || undefined,
       status: formData.status as any,
       priority: formData.priority as any,
-      assigneeId: formData.assigneeId || undefined,
+      assigneeId: formData.assigneeId && formData.assigneeId !== 'none' ? formData.assigneeId : undefined,
       dueDate: formData.dueDate || undefined,
       estimatedHours: formData.estimatedHours
         ? parseFloat(formData.estimatedHours)

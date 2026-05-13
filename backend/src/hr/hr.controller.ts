@@ -5,6 +5,11 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { CreateAdvanceDto } from './dto/create-advance.dto';
+import { UpdateAdvanceDto } from './dto/update-advance.dto';
+import { CreateAdvanceRuleDto } from './dto/create-advance-rule.dto';
+import { CreatePayrollVariableDto } from './dto/create-payroll-variable.dto';
+import { CreatePayrollPeriodDto } from './dto/create-payroll-period.dto';
 import { PermissionGuard, RequirePermission } from '../common/guards/permission.guard';
 
 @Controller('companies/:companyId/hr')
@@ -356,5 +361,140 @@ export class HRController {
   @RequirePermission('HR', 'READ')
   getHRStats(@Param('companyId') companyId: string) {
     return this.hrService.getHRStats(companyId);
+  }
+
+  // ─── Acomptes (Advances) ─────────────────────────────────────────────────────────
+
+  @Get('advances')
+  @RequirePermission('HR', 'READ')
+  listAdvances(@Param('companyId') companyId: string) {
+    return this.hrService.listAdvances(companyId);
+  }
+
+  @Post('advances')
+  @RequirePermission('HR', 'CREATE')
+  createAdvance(@Param('companyId') companyId: string, @Body() dto: CreateAdvanceDto) {
+    return this.hrService.createAdvance(companyId, dto);
+  }
+
+  @Patch('advances/:id')
+  @RequirePermission('HR', 'UPDATE')
+  updateAdvance(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateAdvanceDto,
+  ) {
+    return this.hrService.updateAdvance(companyId, id, dto);
+  }
+
+  @Delete('advances/:id')
+  @RequirePermission('HR', 'DELETE')
+  deleteAdvance(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.deleteAdvance(companyId, id);
+  }
+
+  @Get('advance-rules')
+  @RequirePermission('HR', 'READ')
+  listAdvanceRules(@Param('companyId') companyId: string) {
+    return this.hrService.listAdvanceRules(companyId);
+  }
+
+  @Post('advance-rules')
+  @RequirePermission('HR', 'CREATE')
+  createAdvanceRule(@Param('companyId') companyId: string, @Body() dto: CreateAdvanceRuleDto) {
+    return this.hrService.createAdvanceRule(companyId, dto);
+  }
+
+  @Patch('advance-rules/:id')
+  @RequirePermission('HR', 'UPDATE')
+  updateAdvanceRule(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateAdvanceRuleDto>,
+  ) {
+    return this.hrService.updateAdvanceRule(companyId, id, dto);
+  }
+
+  @Delete('advance-rules/:id')
+  @RequirePermission('HR', 'DELETE')
+  deleteAdvanceRule(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.deleteAdvanceRule(companyId, id);
+  }
+
+  // ─── Paie (Payroll) ─────────────────────────────────────────────────────────────
+
+  @Get('payroll-periods')
+  @RequirePermission('HR', 'READ')
+  listPayrollPeriods(@Param('companyId') companyId: string) {
+    return this.hrService.listPayrollPeriods(companyId);
+  }
+
+  @Post('payroll-periods')
+  @RequirePermission('HR', 'CREATE')
+  createPayrollPeriod(@Param('companyId') companyId: string, @Body() dto: CreatePayrollPeriodDto) {
+    return this.hrService.createPayrollPeriod(companyId, dto);
+  }
+
+  @Patch('payroll-periods/:id')
+  @RequirePermission('HR', 'UPDATE')
+  updatePayrollPeriod(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+    @Body() dto: Partial<CreatePayrollPeriodDto>,
+  ) {
+    return this.hrService.updatePayrollPeriod(companyId, id, dto);
+  }
+
+  @Delete('payroll-periods/:id')
+  @RequirePermission('HR', 'DELETE')
+  deletePayrollPeriod(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.deletePayrollPeriod(companyId, id);
+  }
+
+  @Get('payroll-variables')
+  @RequirePermission('HR', 'READ')
+  listPayrollVariables(@Param('companyId') companyId: string) {
+    return this.hrService.listPayrollVariables(companyId);
+  }
+
+  @Post('payroll-variables')
+  @RequirePermission('HR', 'CREATE')
+  createPayrollVariable(@Param('companyId') companyId: string, @Body() dto: CreatePayrollVariableDto) {
+    return this.hrService.createPayrollVariable(companyId, dto);
+  }
+
+  @Patch('payroll-variables/:id')
+  @RequirePermission('HR', 'UPDATE')
+  updatePayrollVariable(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+    @Body() dto: Partial<CreatePayrollVariableDto>,
+  ) {
+    return this.hrService.updatePayrollVariable(companyId, id, dto);
+  }
+
+  @Delete('payroll-variables/:id')
+  @RequirePermission('HR', 'DELETE')
+  deletePayrollVariable(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.deletePayrollVariable(companyId, id);
+  }
+
+  @Post('payroll-periods/:id/calculate')
+  @RequirePermission('HR', 'UPDATE')
+  calculatePayroll(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.calculatePayroll(companyId, id);
+  }
+
+  @Post('payroll-periods/:id/validate')
+  @RequirePermission('HR', 'UPDATE')
+  validatePayroll(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.hrService.validatePayroll(companyId, id);
+  }
+
+  @Get('payroll-entries')
+  @RequirePermission('HR', 'READ')
+  listPayrollEntries(@Param('companyId') companyId: string, @Req() req: any) {
+    const { periodId } = req.query;
+    return this.hrService.listPayrollEntries(companyId, periodId);
   }
 }

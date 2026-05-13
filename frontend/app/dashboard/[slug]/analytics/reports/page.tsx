@@ -25,6 +25,7 @@ import {
   FileSpreadsheet,
   File,
 } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function ReportsPage({
   params,
@@ -94,15 +95,16 @@ export default function ReportsPage({
     });
   };
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Rapports</h1>
-        <p className="text-sm text-muted-foreground">
-          Générez et exportez vos rapports d'analyse
-        </p>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Rapports"
+         description="Générez et exportez vos rapports d'analyse"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+           { label: 'Rapports' },
+         ]}
+       />
 
       {/* Types de rapports disponibles */}
       <div>

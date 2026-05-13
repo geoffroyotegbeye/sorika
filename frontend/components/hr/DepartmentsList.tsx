@@ -23,13 +23,13 @@ export function DepartmentsList({ departments, onEdit, onDelete }: DepartmentsLi
     {
       key: 'name',
       header: 'Nom',
-      render: (val) => <p className="font-medium text-slate-800">{val as string}</p>,
+      render: (val) => <p className="font-medium text-foreground">{val as string}</p>,
     },
     {
       key: 'description',
       header: 'Description',
       render: (val) => (
-        <p className="text-slate-600 line-clamp-2">{(val as string) ?? '—'}</p>
+        <p className="text-muted-foreground line-clamp-2">{(val as string) ?? '—'}</p>
       ),
     },
     {
@@ -40,7 +40,7 @@ export function DepartmentsList({ departments, onEdit, onDelete }: DepartmentsLi
       render: (_, row) => {
         const count = row._count?.employees ?? 0;
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
             {count}
           </span>
         );
@@ -73,7 +73,7 @@ export function DepartmentsList({ departments, onEdit, onDelete }: DepartmentsLi
                       size="sm"
                       onClick={() => onDelete(row.id)}
                       disabled={!canDelete}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

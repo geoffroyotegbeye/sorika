@@ -11,6 +11,7 @@ import {
   Users, Package, ArrowRight, Clock, AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
@@ -72,19 +73,22 @@ export default function POSDashboardPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="space-y-6 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Point de Vente</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Vue d'ensemble — {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-        </div>
-        <Link href={`/dashboard/${slug}/pos/cashier`}>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 gap-2">
-            <ShoppingCart className="h-4 w-4" />
-            Ouvrir la caisse
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Point de Vente"
+        description={`Vue d'ensemble — ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}`}
+        breadcrumbs={[
+          { label: 'POS', href: `/dashboard/${slug}/pos` },
+          { label: 'Tableau de bord' },
+        ]}
+        actions={
+          <Link href={`/dashboard/${slug}/pos/cashier`}>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Ouvrir la caisse
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Stats du jour */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

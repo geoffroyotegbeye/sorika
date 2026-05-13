@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { SortState, DataGridColumn } from './types';
+import { SortState, DataGridColumn, ColumnFilterState } from './types';
 
 interface UseDataGridOptions<T> {
   data: T[];
@@ -12,6 +12,7 @@ export function useDataGrid<T>({ data, columns, pageSize = 8 }: UseDataGridOptio
   const [sort, setSort] = useState<SortState>({ column: null, direction: null });
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<T[]>([]);
+  const [columnFilter, setColumnFilter] = useState<ColumnFilterState>({ column: null, value: '' });
 
   // Colonnes searchable
   const searchableColumns = useMemo(
@@ -21,15 +22,30 @@ export function useDataGrid<T>({ data, columns, pageSize = 8 }: UseDataGridOptio
 
   // Filtrage par recherche
   const filtered = useMemo(() => {
-    if (!search.trim()) return data;
-    const q = search.toLowerCase();
-    return data.filter((row: any) =>
-      searchableColumns.some((col) => {
-        const val = row[col.key];
+    let result = data;
+
+    // Filtrage par recherche globale
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((row: any) =>
+        searchableColumns.some((col) => {
+          const val = row[col.key];
+          return val != null && String(val).toLowerCase().includes(q);
+        })
+      );
+    }
+
+    // Filtrage par colonne
+    if (columnFilter.column && columnFilter.value.trim()) {
+      const q = columnFilter.value.toLowerCase();
+      result = result.filter((row: any) => {
+        const val = row[columnFilter.column!];
         return val != null && String(val).toLowerCase().includes(q);
-      })
-    );
-  }, [data, search, searchableColumns]);
+      });
+    }
+
+    return result;
+  }, [data, search, searchableColumns, columnFilter]);
 
   // Tri
   const sorted = useMemo(() => {
@@ -64,6 +80,22 @@ export function useDataGrid<T>({ data, columns, pageSize = 8 }: UseDataGridOptio
     });
   }, []);
 
+  // Toggle filtre colonne
+  const handleColumnFilter = useCallback((column: string) => {
+    setColumnFilter((prev) => {
+      if (prev.column === column) {
+        return { column: null, value: '' };
+      }
+      // Réinitialiser la valeur quand on change de colonne
+      return { column, value: '' };
+    });
+  }, []);
+
+  const handleColumnFilterValue = useCallback((value: string) => {
+    setColumnFilter((prev) => ({ ...prev, value }));
+    setPage(1);
+  }, []);
+
   // Sélection
   const toggleRow = useCallback((row: T) => {
     setSelected((prev) =>
@@ -84,5 +116,6 @@ export function useDataGrid<T>({ data, columns, pageSize = 8 }: UseDataGridOptio
     rows: paginated,
     totalRows: sorted.length,
     selected, toggleRow, toggleAll, isSelected,
+    columnFilter, handleColumnFilter, handleColumnFilterValue,
   };
 }

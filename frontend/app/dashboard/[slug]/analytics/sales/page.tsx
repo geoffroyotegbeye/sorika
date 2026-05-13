@@ -13,6 +13,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function SalesAnalyticsPage({
   params,
@@ -51,15 +52,16 @@ export default function SalesAnalyticsPage({
     ? revenueTrend.reduce((max, item) => item.revenue > max.revenue ? item : max, revenueTrend[0])
     : null;
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Ventes & Performance</h1>
-        <p className="text-sm text-muted-foreground">
-          Analyse détaillée de vos ventes et revenus
-        </p>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Ventes & Performance"
+         description="Analyse détaillée de vos ventes et revenus"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+           { label: 'Ventes' },
+         ]}
+       />
 
       {/* Filtres de période */}
       <Card className="border border-border">

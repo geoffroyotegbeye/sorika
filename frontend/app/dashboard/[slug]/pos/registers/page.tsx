@@ -15,6 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 // ── Form modal ────────────────────────────────────────────────────────────────
 function RegisterFormModal({
@@ -133,21 +134,24 @@ export default function RegistersPage({ params }: { params: Promise<{ slug: stri
     );
   }
 
-  return (
-    <div className="space-y-6 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Caisses</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Gestion des caisses enregistreuses</p>
-        </div>
-        <Button
-          className="bg-emerald-600 hover:bg-emerald-700 gap-2"
-          onClick={() => { setEditTarget(null); setShowForm(true); }}
-        >
-          <Plus className="h-4 w-4" />Nouvelle caisse
-        </Button>
-      </div>
+   return (
+     <div className="space-y-6 p-4">
+       <PageHeader
+         title="Caisses"
+         description="Gestion des caisses enregistreuses"
+         breadcrumbs={[
+           { label: 'POS', href: `/dashboard/${slug}/pos` },
+           { label: 'Caisses' },
+         ]}
+         actions={
+           <Button
+             className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+             onClick={() => { setEditTarget(null); setShowForm(true); }}
+           >
+             <Plus className="h-4 w-4" />Nouvelle caisse
+           </Button>
+         }
+       />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">

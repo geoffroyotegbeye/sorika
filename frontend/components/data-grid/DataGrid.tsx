@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDataGrid } from './useDataGrid';
@@ -31,6 +31,7 @@ export function DataGrid<T extends object>({
     rows,
     totalRows,
     selected, toggleRow, toggleAll, isSelected,
+    columnFilter, handleColumnFilter, handleColumnFilterValue,
   } = useDataGrid({ data, columns, pageSize });
 
   // Notifier le parent quand la sélection change
@@ -90,17 +91,49 @@ export function DataGrid<T extends object>({
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
                     'px-4 py-3 text-left font-medium text-muted-foreground whitespace-nowrap',
-                    col.sortable !== false &&
+                    col.filterable !== false && col.key !== 'actions' &&
                       'cursor-pointer select-none hover:text-foreground'
                   )}
-                  onClick={() => col.sortable !== false && handleSort(col.key)}
+                  onClick={() => {
+                    if (col.filterable !== false && col.key !== 'actions') handleColumnFilter(col.key);
+                  }}
                 >
-                  <span className="inline-flex items-center gap-1">
-                    {col.header}
-                    {col.sortable !== false && (
-                      <SortIcon column={col.key} sort={sort} />
+                  <div className="space-y-1">
+                    <span className="inline-flex items-center gap-1">
+                      {col.header}
+                      {col.sortable !== false && (
+                        <span onClick={(e) => {
+                          e.stopPropagation();
+                          handleSort(col.key);
+                        }}>
+                          <SortIcon column={col.key} sort={sort} />
+                        </span>
+                      )}
+                    </span>
+                    {columnFilter.column === col.key && col.key !== 'actions' && (
+                      <div className="overflow-hidden relative">
+                        <input
+                          type={col.filterType === 'number' ? 'number' : 'text'}
+                          placeholder="Filtrer..."
+                          value={columnFilter.value}
+                          onChange={(e) => handleColumnFilterValue(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full px-6 py-1 text-xs border-b border-primary focus:outline-none focus:border-primary bg-transparent transition-all pr-8"
+                        />
+                        {columnFilter.value && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleColumnFilterValue('');
+                            }}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
                     )}
-                  </span>
+                  </div>
                 </th>
               ))}
             </tr>

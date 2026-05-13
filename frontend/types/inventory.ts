@@ -43,6 +43,10 @@ export interface InventoryProduct {
   isActive: boolean;
   isSellable: boolean;
   isPurchasable: boolean;
+  isAvailableOnline: boolean;
+  ecommerceDescription?: string;
+  ecommerceImages?: any;
+  packagingInfo?: string;
   companyId: string;
   movements?: StockMovement[];
   stockAlerts?: StockAlert[];
@@ -132,6 +136,10 @@ export interface CreateProductDto {
   isActive?: boolean;
   isSellable?: boolean;
   isPurchasable?: boolean;
+  isAvailableOnline?: boolean;
+  ecommerceDescription?: string;
+  ecommerceImages?: any;
+  packagingInfo?: string;
 }
 
 export interface UpdateProductDto extends Partial<CreateProductDto> {}

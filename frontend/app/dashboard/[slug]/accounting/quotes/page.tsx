@@ -9,6 +9,7 @@ import { useAccounting } from '@/hooks/useAccounting';
 import type { Quote, QuoteStatus } from '@/types/accounting';
 import { QuoteFormDialog } from '@/components/accounting/QuoteFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus } from 'lucide-react';
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; className: string }> = {
@@ -130,17 +131,24 @@ export default function QuotesPage({ params }: { params: Promise<{ slug: string 
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Devis</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          <Button onClick={() => { setEditQuote(null); setQuoteDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouveau devis
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Devis"
+        description={`${filteredQuotes.length} devis`}
+        breadcrumbs={[
+          { label: 'Comptabilité', href: `/dashboard/${slug}/accounting` },
+          { label: 'Devis' },
+        ]}
+        actions={
+          <>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            <Button onClick={() => { setEditQuote(null); setQuoteDialog(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouveau devis
+            </Button>
+          </>
+        }
+      />
 
       <DataGrid
         data={filteredQuotes}

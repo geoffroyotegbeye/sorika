@@ -133,15 +133,15 @@ export function AddMemberDialog({ open, onOpenChange, onCreate }: AddMemberDialo
 
         {generatedPassword ? (
           <div className="space-y-4 mt-2">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
-              <p className="text-sm font-medium text-green-900">Membre créé avec succès !</p>
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-lg p-4 space-y-3">
+              <p className="text-sm font-medium text-green-900 dark:text-green-400">Membre créé avec succès !</p>
               <div className="space-y-2">
-                <Label className="text-green-800">Mot de passe généré</Label>
+                <Label className="text-green-800 dark:text-green-500">Mot de passe généré</Label>
                 <div className="flex gap-2">
                   <Input
                     value={generatedPassword}
                     readOnly
-                    className="font-mono bg-white"
+                    className="font-mono bg-white dark:bg-slate-900"
                   />
                   <Button
                     type="button"
@@ -152,7 +152,7 @@ export function AddMemberDialog({ open, onOpenChange, onCreate }: AddMemberDialo
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-green-700">
+                <p className="text-xs text-green-700 dark:text-green-600">
                   ⚠️ Notez ce mot de passe maintenant. Il ne sera plus affiché.
                 </p>
               </div>

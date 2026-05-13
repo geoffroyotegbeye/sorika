@@ -7,6 +7,7 @@ import { useInventory } from '@/hooks/useInventory';
 import { CategoriesList } from '@/components/inventory/CategoriesList';
 import { CategoryFormDialog } from '@/components/inventory/CategoryFormDialog';
 import type { ProductCategory } from '@/types/inventory';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function CategoriesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -43,13 +44,20 @@ export default function CategoriesPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Catégories</h1>
-        <Button onClick={() => { setEditCategory(null); setCategoryDialog(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle catégorie
-        </Button>
-      </div>
+      <PageHeader
+        title="Catégories"
+        description={`${categories.length} catégorie${categories.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Inventaire', href: `/dashboard/${slug}/inventory` },
+          { label: 'Catégories' },
+        ]}
+        actions={
+          <Button onClick={() => { setEditCategory(null); setCategoryDialog(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle catégorie
+          </Button>
+        }
+      />
 
       {loading ? (
         <div className="flex items-center justify-center py-12">

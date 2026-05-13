@@ -5,11 +5,18 @@ export interface SortState {
   direction: 'asc' | 'desc' | null;
 }
 
+export interface ColumnFilterState {
+  column: string | null;
+  value: string;
+}
+
 export interface DataGridColumn<T> {
   key: keyof T & string;
   header: string;
   sortable?: boolean;
   searchable?: boolean;
+  filterable?: boolean;
+  filterType?: 'string' | 'number';
   width?: string;
   render?: (value: T[keyof T], row: T) => ReactNode;
 }

@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, DollarSign, TrendingUp, Building2 } from 'lucide-react';
 import { useAttendance } from '@/hooks/useAttendance';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function HRDashboardPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -35,6 +36,11 @@ export default function HRDashboardPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Tableau de bord RH"
+        description="Vue d'ensemble des ressources humaines"
+      />
+      
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Effectif total */}

@@ -11,6 +11,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface InventoryAnalytics {
   totalProducts: number;
@@ -87,17 +88,16 @@ export default function ProductsAnalyticsPage({
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          Produits & Inventaire
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Analyse de vos stocks et performance produits
-        </p>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Produits & Inventaire"
+         description="Analyse de vos stocks et performance produits"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+           { label: 'Produits' },
+         ]}
+       />
 
       {/* KPIs Inventaire */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

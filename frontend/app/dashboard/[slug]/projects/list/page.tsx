@@ -7,6 +7,7 @@ import { useProjects } from '@/hooks/useProjects';
 import type { Project } from '@/types/projects';
 import { Badge } from '@/components/ui/badge';
 import { ProjectFormDialog } from '@/components/projects/ProjectFormDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { toast } from 'sonner';
 
 export default function ProjectsListPage({
@@ -111,19 +112,20 @@ export default function ProjectsListPage({
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Tous les projets</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {projects.length} projet{projects.length > 1 ? 's' : ''}
-          </p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau projet
-        </Button>
-      </div>
+      <PageHeader
+        title="Tous les projets"
+        description={`${projects.length} projet${projects.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Projets', href: `/dashboard/${slug}/projects` },
+          { label: 'Liste' },
+        ]}
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau projet
+          </Button>
+        }
+      />
 
       {/* Liste des projets */}
       {projects.length === 0 ? (

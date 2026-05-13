@@ -136,23 +136,15 @@ export function OpportunitiesKanban({ companyId, currency = 'XOF' }: Opportuniti
 
   return (
     <div className="h-full overflow-hidden flex flex-col gap-4">
-      {/* Header fixe */}
-      <div className="flex justify-end shrink-0">
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle opportunité
-        </Button>
-      </div>
-
       {/* Zone colonnes — scroll X interne, hauteur fixe */}
       <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0" style={{ maxHeight: '600px' }}>
-        <div className="flex gap-3 h-full px-0.5 pb-2" style={{ minWidth: `${stages.length * 220}px` }}>
+        <div className="flex gap-3 h-full px-0.5 pb-2" style={{ minWidth: `${stages.length * 280}px` }}>
           {stages.map((stage) => {
             const stageOpportunities = getOpportunitiesByStage(stage.value);
             const totalValue = getTotalValueByStage(stage.value);
 
             return (
-              <div key={stage.value} className="flex flex-col w-52 shrink-0 h-full">
+              <div key={stage.value} className="flex flex-col w-64 shrink-0 h-full">
                 {/* En-tête colonne */}
                 <div className={`${stage.color} rounded-t-lg px-3 py-2.5 shrink-0`}>
                   <div className="flex items-center justify-between">

@@ -7,6 +7,7 @@ import { useInventory } from '@/hooks/useInventory';
 import type { StockAlert } from '@/types/inventory';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function AlertsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -71,15 +72,22 @@ export default function AlertsPage({ params }: { params: Promise<{ slug: string 
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Alertes de stock</h1>
-        <Button
-          variant="outline"
-          onClick={() => setShowResolved(!showResolved)}
-        >
-          {showResolved ? 'Masquer résolues' : 'Afficher résolues'}
-        </Button>
-      </div>
+      <PageHeader
+        title="Alertes de stock"
+        description={`${alerts.length} alerte${alerts.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Inventaire', href: `/dashboard/${slug}/inventory` },
+          { label: 'Alertes' },
+        ]}
+        actions={
+          <Button
+            variant="outline"
+            onClick={() => setShowResolved(!showResolved)}
+          >
+            {showResolved ? 'Masquer résolues' : 'Afficher résolues'}
+          </Button>
+        }
+      />
 
       {loading ? (
         <div className="flex items-center justify-center py-12">

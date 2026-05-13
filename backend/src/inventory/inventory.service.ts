@@ -293,6 +293,13 @@ export class InventoryService {
         unit: dto.unit,
         imageUrl: dto.imageUrl,
         companyId,
+        isActive: dto.isActive !== undefined ? dto.isActive : true,
+        isSellable: dto.isSellable !== undefined ? dto.isSellable : true,
+        isPurchasable: dto.isPurchasable !== undefined ? dto.isPurchasable : true,
+        isAvailableOnline: dto.isAvailableOnline || false,
+        ecommerceDescription: dto.ecommerceDescription,
+        ecommerceImages: dto.ecommerceImages,
+        packagingInfo: dto.packagingInfo,
       },
       include: {
         category: true,

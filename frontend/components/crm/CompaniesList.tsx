@@ -19,6 +19,8 @@ import type { DataGridColumn } from '@/components/data-grid';
 
 interface CompaniesListProps {
   companyId: string;
+  sizeFilter?: CompanySize | 'ALL';
+  onCreate?: () => void;
 }
 
 const sizeLabels: Record<CompanySize, string> = {
@@ -28,9 +30,8 @@ const sizeLabels: Record<CompanySize, string> = {
   ENTERPRISE: 'Entreprise (200+)',
 };
 
-export function CompaniesList({ companyId }: CompaniesListProps) {
+export function CompaniesList({ companyId, sizeFilter = 'ALL', onCreate }: CompaniesListProps) {
   const { companies, loading, fetchCompanies, deleteCompany } = useCRMCompanies(companyId);
-  const [sizeFilter, setSizeFilter] = useState<CompanySize | 'ALL'>('ALL');
   const [selectedCompany, setSelectedCompany] = useState<ClientCompany | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -54,6 +55,7 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
   const handleCreate = () => {
     setSelectedCompany(null);
     setIsDialogOpen(true);
+    onCreate?.();
   };
 
   const handleDialogClose = () => {
@@ -142,26 +144,6 @@ export function CompaniesList({ companyId }: CompaniesListProps) {
         loading={loading}
         searchPlaceholder="Rechercher une entreprise..."
         emptyMessage="Aucune entreprise trouvée"
-        toolbar={
-          <div className="flex items-center gap-2">
-            <Select
-              value={sizeFilter}
-              onValueChange={(v) => setSizeFilter(v as CompanySize | 'ALL')}
-            >
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="Taille" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Toutes les tailles</SelectItem>
-                <SelectItem value="SMALL">Petite (1-10)</SelectItem>
-                <SelectItem value="MEDIUM">Moyenne (11-50)</SelectItem>
-                <SelectItem value="LARGE">Grande (51-200)</SelectItem>
-                <SelectItem value="ENTERPRISE">Entreprise (200+)</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleCreate}>Nouvelle entreprise</Button>
-          </div>
-        }
       />
 
       <CompanyFormDialog

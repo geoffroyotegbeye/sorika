@@ -11,6 +11,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface HRAnalytics {
   totalEmployees: number;
@@ -73,15 +74,16 @@ export default function TeamAnalyticsPage({
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Équipe & RH</h1>
-        <p className="text-sm text-muted-foreground">
-          Analyse de vos ressources humaines et performance d'équipe
-        </p>
-      </div>
+   return (
+     <div className="space-y-6">
+       <PageHeader
+         title="Équipe & RH"
+         description="Analyse de vos ressources humaines et performance d'équipe"
+         breadcrumbs={[
+           { label: 'Analytics', href: `/dashboard/${slug}/analytics` },
+           { label: 'Équipe' },
+         ]}
+       />
 
       {/* KPIs RH */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

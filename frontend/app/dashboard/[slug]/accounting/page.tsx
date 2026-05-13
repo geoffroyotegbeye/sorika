@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, FileText, Receipt, AlertCircle, ShoppingCart } from 'lucide-react';
 import { useAccounting } from '@/hooks/useAccounting';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function AccountingDashboardPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -36,7 +37,10 @@ export default function AccountingDashboardPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-foreground">Tableau de bord</h1>
+      <PageHeader
+        title="Tableau de bord Comptabilité"
+        description="Vue d'ensemble de votre activité financière"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>

@@ -17,6 +17,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { PosModule } from './pos/pos.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ProjectsModule } from './projects/projects.module';
+import { EcommerceModule } from './ecommerce/ecommerce.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -40,6 +41,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     PosModule,
     AnalyticsModule,
     ProjectsModule,
+    EcommerceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

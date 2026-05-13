@@ -7,6 +7,7 @@ import type { DataGridColumn } from '@/components/data-grid';
 import { useAccounting } from '@/hooks/useAccounting';
 import type { Supplier } from '@/types/accounting';
 import { SupplierFormDialog } from '@/components/accounting/SupplierFormDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 export default function SuppliersPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -87,14 +88,21 @@ export default function SuppliersPage({ params }: { params: Promise<{ slug: stri
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Fournisseurs</h1>
-        <Button onClick={() => { setEditSupplier(null); setSupplierDialog(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau fournisseur
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Fournisseurs"
+        description={`${suppliers.length} fournisseur${suppliers.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Comptabilité', href: `/dashboard/${slug}/accounting` },
+          { label: 'Fournisseurs' },
+        ]}
+        actions={
+          <Button onClick={() => { setEditSupplier(null); setSupplierDialog(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau fournisseur
+          </Button>
+        }
+      />
 
       <DataGrid
         data={suppliers}

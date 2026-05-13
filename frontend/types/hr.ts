@@ -130,3 +130,159 @@ export interface CreateAssignmentDto {
   effectiveDate: string;
   notes?: string;
 }
+
+// Acomptes
+export type AdvanceStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAID';
+
+export interface AdvanceRule {
+  id: string;
+  name: string;
+  description: string | null;
+  maxPercentage: number; // Pourcentage max du salaire mensuel
+  minDaysWorked: number; // Nombre minimum de jours travaillés requis
+  allowedDaysOfMonth: number[]; // Jours du mois où les acomptes sont autorisés (1-31)
+  requireManagerApproval: boolean;
+  companyId: string;
+  createdAt: string;
+}
+
+export interface Advance {
+  id: string;
+  employeeId: string;
+  employee?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    salary: number | null;
+  };
+  amount: number;
+  status: AdvanceStatus;
+  requestDate: string;
+  approvedDate: string | null;
+  paidDate: string | null;
+  approvedBy: string | null;
+  reason: string;
+  companyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAdvanceDto {
+  employeeId: string;
+  amount: number;
+  reason: string;
+}
+
+export interface UpdateAdvanceDto {
+  status?: AdvanceStatus;
+}
+
+export interface CreateAdvanceRuleDto {
+  name: string;
+  description?: string;
+  maxPercentage: number;
+  minDaysWorked: number;
+  allowedDaysOfMonth: number[];
+  requireManagerApproval: boolean;
+}
+
+export interface UpdateAdvanceRuleDto {
+  name?: string;
+  description?: string;
+  maxPercentage?: number;
+  minDaysWorked?: number;
+  allowedDaysOfMonth?: number[];
+  requireManagerApproval?: boolean;
+}
+
+// Paie
+export type PayrollStatus = 'DRAFT' | 'CALCULATED' | 'VALIDATED' | 'PAID';
+
+export interface PayrollVariable {
+  id: string;
+  name: string;
+  code: string; // Code unique pour la variable (ex: BASE_SALARY, OVERTIME_RATE)
+  type: 'FIXED' | 'PERCENTAGE' | 'FORMULA';
+  value: number | null; // Valeur fixe ou pourcentage
+  formula: string | null; // Formule si type = FORMULA
+  description: string | null;
+  appliesTo: 'ALL' | 'POSITION' | 'DEPARTMENT';
+  positionId?: string | null;
+  departmentId?: string | null;
+  companyId: string;
+  createdAt: string;
+}
+
+export interface PayrollPeriod {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  paymentDate: string;
+  status: PayrollStatus;
+  companyId: string;
+  createdAt: string;
+}
+
+export interface PayrollEntry {
+  id: string;
+  payrollPeriodId: string;
+  employeeId: string;
+  employee?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    salary: number | null;
+    position?: { title: string } | null;
+  };
+  baseSalary: number;
+  grossSalary: number;
+  deductions: number;
+  netSalary: number;
+  overtime: number;
+  bonuses: number;
+  otherDeductions: number;
+  status: PayrollStatus;
+  companyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePayrollVariableDto {
+  name: string;
+  code: string;
+  type: 'FIXED' | 'PERCENTAGE' | 'FORMULA';
+  value?: number;
+  formula?: string;
+  description?: string;
+  appliesTo: 'ALL' | 'POSITION' | 'DEPARTMENT';
+  positionId?: string;
+  departmentId?: string;
+}
+
+export interface UpdatePayrollVariableDto {
+  name?: string;
+  code?: string;
+  type?: 'FIXED' | 'PERCENTAGE' | 'FORMULA';
+  value?: number;
+  formula?: string;
+  description?: string;
+  appliesTo?: 'ALL' | 'POSITION' | 'DEPARTMENT';
+  positionId?: string;
+  departmentId?: string;
+}
+
+export interface CreatePayrollPeriodDto {
+  name: string;
+  startDate: string;
+  endDate: string;
+  paymentDate: string;
+}
+
+export interface UpdatePayrollPeriodDto {
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  paymentDate?: string;
+  status?: PayrollStatus;
+}

@@ -11,6 +11,7 @@ import { AddMemberDialog } from '@/components/members/AddMemberDialog';
 import { EditPermissionsDialog } from '@/components/members/EditPermissionsDialog';
 import { ResetPasswordDialog } from '@/components/members/ResetPasswordDialog';
 import { PermissionsDialog } from '@/components/members/PermissionsDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Member, PredefinedRole } from '@/types/members';
 
 export default function MembersPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -81,13 +82,19 @@ export default function MembersPage({ params }: { params: Promise<{ slug: string
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Membres</h1>
-        <Button onClick={() => setAddOpen(true)}>
-          Ajouter un membre
-        </Button>
-      </div>
+      <PageHeader
+        title="Membres"
+        description={`${members.length} membre${members.length > 1 ? 's' : ''} actif${members.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Paramètres', href: `/dashboard/${slug}/settings` },
+          { label: 'Membres' },
+        ]}
+        actions={
+          <Button onClick={() => setAddOpen(true)}>
+            Ajouter un membre
+          </Button>
+        }
+      />
 
       {/* Loading */}
       {loading && (

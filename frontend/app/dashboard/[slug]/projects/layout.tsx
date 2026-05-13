@@ -3,6 +3,8 @@
 import { use } from 'react';
 import { ModuleSidebar } from '@/components/layout/ModuleSidebar';
 import { getModuleConfig } from '@/config/modules.config';
+import { cn } from '@/lib/utils';
+import { useSidebar } from '@/hooks/useSidebar';
 
 export default function ProjectsLayout({
   children,
@@ -13,6 +15,7 @@ export default function ProjectsLayout({
 }) {
   const { slug } = use(params);
   const moduleConfig = getModuleConfig('projects');
+  const { isCollapsed } = useSidebar();
 
   if (!moduleConfig) {
     return <div>{children}</div>;
@@ -31,7 +34,10 @@ export default function ProjectsLayout({
         items={sidebarItems}
         companySlug={slug}
       />
-      <div className="min-h-screen flex-1 overflow-auto bg-background pl-64 p-4 lg:p-6">
+      <div className={cn(
+        "min-h-screen flex-1 overflow-auto bg-background p-4 lg:p-6 transition-all duration-300",
+        isCollapsed ? "pl-16" : "pl-64"
+      )}>
         {children}
       </div>
     </div>

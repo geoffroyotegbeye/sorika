@@ -9,6 +9,7 @@ import { usePositions } from '@/hooks/usePositions';
 import { EmployeesList } from '@/components/hr/EmployeesList';
 import { EmployeeFormDialog } from '@/components/hr/EmployeeFormDialogSteps';
 import { ImportExportButtons } from '@/components/hr/ImportExportButtons';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Employee } from '@/types/hr';
 
 export default function EmployeesPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -75,23 +76,29 @@ export default function EmployeesPage({ params }: { params: Promise<{ slug: stri
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Employés</h1>
-        <div className="flex items-center gap-2">
-          <ImportExportButtons
-            companyId={company.id}
-            onImportComplete={() => {
-              fetchEmployees();
-              toast.success('Liste des employés actualisée');
-            }}
-          />
-          <Button onClick={handleOpenCreate}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Ajouter un employé
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Employés"
+        description={`${employees.length} employé${employees.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'RH', href: `/dashboard/${slug}/hr` },
+          { label: 'Employés' },
+        ]}
+        actions={
+          <>
+            <ImportExportButtons
+              companyId={company.id}
+              onImportComplete={() => {
+                fetchEmployees();
+                toast.success('Liste des employés actualisée');
+              }}
+            />
+            <Button onClick={handleOpenCreate}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Ajouter un employé
+            </Button>
+          </>
+        }
+      />
 
       {/* Loading */}
       {loading && (

@@ -106,21 +106,21 @@ export function PermissionsDialog({
               </SelectContent>
             </Select>
             {selectedRole && (
-              <p className="text-sm text-slate-500">{selectedRole.description}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{selectedRole.description}</p>
             )}
           </div>
 
           {/* Aperçu des permissions */}
           {selectedRole && (
-            <div className="space-y-3 border rounded-lg p-4 bg-slate-50">
-              <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="space-y-3 border rounded-lg p-4 bg-slate-50 dark:bg-slate-900/50">
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-600" />
                 Permissions incluses
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 {Object.entries(selectedRole.permissions).map(([module, actions]) => (
                   <div key={module} className="space-y-1">
-                    <p className="text-xs font-medium text-slate-600">{module}</p>
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{module}</p>
                     <div className="flex flex-wrap gap-1">
                       {(actions as string[]).map((action) => (
                         <Badge key={action} variant="secondary" className="text-xs">

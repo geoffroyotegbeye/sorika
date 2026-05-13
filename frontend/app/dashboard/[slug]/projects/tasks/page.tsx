@@ -2,11 +2,14 @@
 
 import { use, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, ListChecks, Edit, Trash2, Calendar, User } from 'lucide-react';
+import { Plus, ListChecks, LayoutGrid, List } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProjects } from '@/hooks/useProjects';
 import { TaskFormDialog } from '@/components/projects/TaskFormDialog';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { TaskListView } from '@/components/projects/TaskListView';
+import { TaskKanbanView } from '@/components/projects/TaskKanbanView';
 import type { Task } from '@/types/projects';
 import { toast } from 'sonner';
 
@@ -22,14 +25,14 @@ export default function TasksPage({
     tasks,
     loading,
     fetchProjects,
-    fetchTasks,
+    fetchAllTasks,
     createTask,
     updateTask,
     deleteTask,
   } = useProjects(companyId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -44,22 +47,15 @@ export default function TasksPage({
   useEffect(() => {
     if (companyId) {
       fetchProjects();
+      fetchAllTasks();
     }
-  }, [companyId, fetchProjects]);
-
-  useEffect(() => {
-    if (companyId && projects.length > 0 && !selectedProjectId) {
-      setSelectedProjectId(projects[0].id);
-    }
-  }, [companyId, projects, selectedProjectId]);
-
-  useEffect(() => {
-    if (companyId && selectedProjectId) {
-      fetchTasks(selectedProjectId);
-    }
-  }, [companyId, selectedProjectId, fetchTasks]);
+  }, [companyId, fetchProjects, fetchAllTasks]);
 
   const handleCreate = () => {
+    if (projects.length === 0) {
+      toast.error('Créez d\'abord un projet avant d\'ajouter des tâches');
+      return;
+    }
     setEditTask(null);
     setDialogOpen(true);
   };
@@ -70,6 +66,7 @@ export default function TasksPage({
   };
 
   const handleSubmit = async (projectId: string, data: Partial<Task>) => {
+    console.log('Submitting task:', { projectId, data, companyId });
     try {
       if (editTask) {
         await updateTask(projectId, editTask.id, data);
@@ -79,8 +76,10 @@ export default function TasksPage({
         toast.success('Tâche créée avec succès');
       }
       setDialogOpen(false);
-    } catch (error) {
-      toast.error('Une erreur est survenue');
+      fetchAllTasks(); // Rafraîchir toutes les tâches
+    } catch (error: any) {
+      console.error('Error submitting task:', error);
+      toast.error(error?.message || 'Une erreur est survenue');
     }
   };
 
@@ -89,6 +88,7 @@ export default function TasksPage({
     try {
       await deleteTask(task.projectId, task.id);
       toast.success('Tâche supprimée avec succès');
+      fetchAllTasks(); // Rafraîchir toutes les tâches
     } catch (error) {
       toast.error('Une erreur est survenue');
     }
@@ -140,27 +140,41 @@ export default function TasksPage({
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Toutes les tâches</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {tasks.length} tâche{tasks.length > 1 ? 's' : ''}
-          </p>
-        </div>
-        <Button onClick={handleCreate} className="cursor-pointer">
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle tâche
-        </Button>
-      </div>
+      <PageHeader
+        title="Tâches"
+        description={`${tasks.length} tâche${tasks.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Projets', href: `/dashboard/${slug}/projects` },
+          { label: 'Tâches' },
+        ]}
+        actions={
+          <div className="flex items-center gap-3">
+            {/* Sélecteur de vue */}
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'kanban')}>
+              <TabsList>
+                <TabsTrigger value="list" className="gap-2">
+                  <List className="h-4 w-4" />
+                  Liste
+                </TabsTrigger>
+                <TabsTrigger value="kanban" className="gap-2">
+                  <LayoutGrid className="h-4 w-4" />
+                  Kanban
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Button onClick={handleCreate} className="cursor-pointer">
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle tâche
+            </Button>
+          </div>
+        }
+      />
 
       {/* Contenu */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tâches</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {tasks.length === 0 ? (
+      {tasks.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
             <div className="text-center py-12">
               <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <ListChecks className="h-8 w-8 text-muted-foreground" />
@@ -176,75 +190,30 @@ export default function TasksPage({
                 Créer une tâche
               </Button>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/40 transition-colors"
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-foreground">
-                          {task.title}
-                        </h3>
-                        <Badge className={getStatusColor(task.status)}>
-                          {getStatusLabel(task.status)}
-                        </Badge>
-                        <Badge className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
-                      </div>
-                      {task.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {task.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        {task.dueDate && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(task.dueDate).toLocaleDateString('fr-FR')}
-                          </span>
-                        )}
-                        {task.assignee && (
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {task.assignee.firstName} {task.assignee.lastName}
-                          </span>
-                        )}
-                        {task.estimatedHours && (
-                          <span>Estimé: {task.estimatedHours}h</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(task)}
-                      className="h-8 w-8 p-0 cursor-pointer"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(task)}
-                      className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300 cursor-pointer"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {viewMode === 'list' && (
+            <TaskListView
+              tasks={tasks}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              getStatusLabel={getStatusLabel}
+              getStatusColor={getStatusColor}
+              getPriorityColor={getPriorityColor}
+            />
           )}
-        </CardContent>
-      </Card>
+
+          {viewMode === 'kanban' && (
+            <TaskKanbanView
+              tasks={tasks}
+              onTaskClick={handleEdit}
+              getPriorityColor={getPriorityColor}
+            />
+          )}
+        </>
+      )}
 
       {/* Dialog */}
       <TaskFormDialog

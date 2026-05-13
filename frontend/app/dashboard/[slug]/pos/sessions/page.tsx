@@ -11,6 +11,7 @@ import {
   TrendingUp, AlertCircle, CheckCircle2, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
@@ -188,13 +189,16 @@ export default function SessionsPage({ params }: { params: Promise<{ slug: strin
     },
   ], []);
 
-  return (
-    <div className="space-y-6 p-4">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Sessions de caisse</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Historique des ouvertures et fermetures</p>
-      </div>
+   return (
+     <div className="space-y-6 p-4">
+       <PageHeader
+         title="Sessions de caisse"
+         description="Historique des ouvertures et fermetures"
+         breadcrumbs={[
+           { label: 'POS', href: `/dashboard/${slug}/pos` },
+           { label: 'Sessions' },
+         ]}
+       />
 
       {/* Sessions ouvertes */}
       {open.length > 0 && (

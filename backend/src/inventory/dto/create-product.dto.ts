@@ -71,6 +71,21 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   isPurchasable?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isAvailableOnline?: boolean;
+
+  @IsString()
+  @IsOptional()
+  ecommerceDescription?: string;
+
+  @IsOptional()
+  ecommerceImages?: any;
+
+  @IsString()
+  @IsOptional()
+  packagingInfo?: string;
 }
 
 export class UpdateProductDto {
@@ -145,4 +160,19 @@ export class UpdateProductDto {
   @IsBoolean()
   @IsOptional()
   isPurchasable?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isAvailableOnline?: boolean;
+
+  @IsString()
+  @IsOptional()
+  ecommerceDescription?: string;
+
+  @IsOptional()
+  ecommerceImages?: any;
+
+  @IsString()
+  @IsOptional()
+  packagingInfo?: string;
 }

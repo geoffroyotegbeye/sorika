@@ -2,6 +2,9 @@
 
 import { use, useEffect, useState } from 'react';
 import { OpportunitiesKanban } from '@/components/crm/OpportunitiesKanban';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -61,10 +64,21 @@ export default function OpportunitiesPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden gap-4">
-      <div className="flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-semibold text-foreground">Opportunités</h1>
-      </div>
+    <div className="flex flex-col h-full overflow-hidden gap-6">
+      <PageHeader
+        title="Opportunités"
+        description="Gérez votre pipeline de ventes"
+        breadcrumbs={[
+          { label: 'CRM', href: `/dashboard/${slug}/crm` },
+          { label: 'Opportunités' },
+        ]}
+        actions={
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle opportunité
+          </Button>
+        }
+      />
       <div className="flex-1 min-h-0 overflow-hidden">
         <OpportunitiesKanban companyId={company.id} currency={company.currency ?? 'XOF'} />
       </div>

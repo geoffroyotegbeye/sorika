@@ -26,10 +26,10 @@ const LEVEL_LABELS: Record<string, string> = {
 };
 
 const LEVEL_COLORS: Record<string, string> = {
-  EXECUTIVE: 'bg-purple-100 text-purple-700',
-  MANAGER: 'bg-blue-100 text-blue-700',
-  STAFF: 'bg-green-100 text-green-700',
-  INTERN: 'bg-orange-100 text-orange-700',
+  EXECUTIVE: 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300',
+  MANAGER: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
+  STAFF: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300',
+  INTERN: 'bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300',
 };
 
 export function PositionsList({ companyId, positions, onRefresh }: PositionsListProps) {
@@ -53,7 +53,7 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
     {
       key: 'title',
       header: 'Titre du poste',
-      render: (val) => <p className="font-medium text-slate-900">{val as string}</p>,
+      render: (val) => <p className="font-medium text-foreground">{val as string}</p>,
     },
     {
       key: 'level',
@@ -61,7 +61,7 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
       render: (val) => {
         const level = val as string | null;
         return (
-          <Badge className={LEVEL_COLORS[level ?? ''] ?? 'bg-slate-100 text-slate-700'}>
+          <Badge className={LEVEL_COLORS[level ?? ''] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}>
             {LEVEL_LABELS[level ?? ''] ?? level ?? '—'}
           </Badge>
         );
@@ -71,7 +71,7 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
       key: 'description',
       header: 'Description',
       render: (val) => (
-        <p className="text-slate-600 max-w-md truncate">{(val as string) || '—'}</p>
+        <p className="text-muted-foreground max-w-md truncate">{(val as string) || '—'}</p>
       ),
     },
     {
@@ -80,7 +80,7 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
       sortable: false,
       searchable: false,
       render: (_, row) => (
-        <div className="flex items-center gap-2 text-slate-600">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Users className="h-4 w-4" />
           <span>{row._count?.employees || 0}</span>
         </div>
@@ -101,7 +101,7 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
               setPositionToDelete(row.id);
               setDeleteDialogOpen(true);
             }}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

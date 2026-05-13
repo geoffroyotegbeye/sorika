@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MovementFormDialog } from '@/components/inventory/MovementFormDialog';
 import { TrendingUp, TrendingDown, RefreshCw, Plus } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function MovementsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -115,13 +116,20 @@ export default function MovementsPage({ params }: { params: Promise<{ slug: stri
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">Mouvements de stock</h1>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nouveau mouvement
-        </Button>
-      </div>
+      <PageHeader
+        title="Mouvements de stock"
+        description={`${movements.length} mouvement${movements.length > 1 ? 's' : ''}`}
+        breadcrumbs={[
+          { label: 'Inventaire', href: `/dashboard/${slug}/inventory` },
+          { label: 'Mouvements' },
+        ]}
+        actions={
+          <Button onClick={() => setShowForm(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nouveau mouvement
+          </Button>
+        }
+      />
 
       <DataGrid
         data={movements}

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   Home,
   LogOut,
@@ -16,11 +17,15 @@ import {
   Users,
   Sun,
   Moon,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlobalSearch } from '@/components/GlobalSearch';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
+import { useSidebar } from '@/hooks/useSidebar';
+import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({
   children,
@@ -37,6 +42,7 @@ export default function DashboardLayout({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { setTheme } = useTheme();
+  const { isCollapsed, toggle, initialize } = useSidebar();
 
   const { slug } = use(params);
 
@@ -49,6 +55,7 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
+    initialize(); // Initialiser l'état de la sidebar
     const userData = localStorage.getItem('user');
     if (!userData) { router.push('/login'); return; }
     const parsedUser = JSON.parse(userData);
@@ -184,45 +191,84 @@ export default function DashboardLayout({
 
       {/* ── Sidebar ── */}
       {showMainSidebar && (
-        <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center gap-3 p-5 border-b border-sidebar-border">
-          <div className="h-9 w-9 bg-linear-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shrink-0">
+        <aside className={cn(
+          "fixed inset-y-0 left-0 z-40 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col transition-all duration-300",
+          isCollapsed ? "w-16" : "w-64",
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        )}>
+          {/* Bouton Toggle en haut sur la bordure */}
+          <button
+            onClick={toggle}
+            className="absolute -right-3 top-6 z-50 hidden lg:flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-md hover:bg-sidebar-accent transition-colors"
+            aria-label={isCollapsed ? "Ouvrir la sidebar" : "Fermer la sidebar"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronLeft className="h-3.5 w-3.5" />
+            )}
+          </button>
+        <div className={cn(
+          "flex items-center p-5 border-b border-sidebar-border transition-all",
+          isCollapsed ? "justify-center" : "gap-3"
+        )}>
+          <div className="h-9 w-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-base">{company.name[0].toUpperCase()}</span>
           </div>
-          <div className="min-w-0">
-            <p className="font-semibold text-sm text-sidebar-foreground truncate">{company.name}</p>
-            <p className="truncate text-xs text-sidebar-foreground/60">sorika.bj/{company.slug}</p>
-          </div>
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <p className="font-semibold text-sm text-sidebar-foreground truncate">{company.name}</p>
+              <p className="truncate text-xs text-sidebar-foreground/60">sorika.bj/{company.slug}</p>
+            </div>
+          )}
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-          <a
+          <Link
             href={`/dashboard/${slug}`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive(`/dashboard/${slug}`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+              isActive(`/dashboard/${slug}`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
+              isCollapsed && 'justify-center'
+            )}
+            title={isCollapsed ? "Tableau de bord" : ""}
           >
             <Home className="h-4 w-4 shrink-0" />
-            Tableau de bord
-          </a>
-          <a
+            {!isCollapsed && "Tableau de bord"}
+          </Link>
+          <Link
             href={`/dashboard/${slug}/members`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/members`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+              pathname.startsWith(`/dashboard/${slug}/members`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
+              isCollapsed && 'justify-center'
+            )}
+            title={isCollapsed ? "Membres" : ""}
           >
             <Users className="h-4 w-4 shrink-0" />
-            Membres
-          </a>
-          <a
+            {!isCollapsed && "Membres"}
+          </Link>
+          <Link
             href={`/dashboard/${slug}/settings`}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname.startsWith(`/dashboard/${slug}/settings`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'}`}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+              pathname.startsWith(`/dashboard/${slug}/settings`) ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
+              isCollapsed && 'justify-center'
+            )}
+            title={isCollapsed ? "Paramètres" : ""}
           >
             <Settings className="h-4 w-4 shrink-0" />
-            Paramètres
-          </a>
+            {!isCollapsed && "Paramètres"}
+          </Link>
         </nav>
       </aside>
       )}
 
       {/* ── Zone principale ── */}
-      <div className={`flex flex-col flex-1 min-h-0 overflow-hidden ${showMainSidebar ? 'lg:pl-64' : ''}`}>
+      <div className={cn(
+        "flex flex-col flex-1 min-h-0 overflow-hidden transition-all duration-300",
+        showMainSidebar && (isCollapsed ? 'lg:pl-16' : 'lg:pl-64')
+      )}>
 
         {/* ── Topbar ── */}
         <header className={`sticky top-0 z-30 h-14 bg-background border-b border-border flex items-center gap-4 px-4 lg:px-6 ${!showMainSidebar ? 'lg:pl-72' : ''}`}>
@@ -303,14 +349,14 @@ export default function DashboardLayout({
                   </div>
 
                   <div className="p-3 border-t border-border space-y-1">
-                    <a
+                    <Link
                       href={`/dashboard/${slug}/settings`}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors"
                       onClick={() => setUserDropdownOpen(false)}
                     >
                       <Settings className="h-4 w-4" />
                       Paramètres du compte
-                    </a>
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
