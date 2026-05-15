@@ -18,13 +18,17 @@ interface AdvanceRuleFormDialogProps {
 
 export function AdvanceRuleFormDialog({ companyId, rule, open, onClose }: AdvanceRuleFormDialogProps) {
   const [formData, setFormData] = useState<CreateAdvanceRuleDto>({
-    name: '',
+    name: 'Règle d\'acompte',
     description: '',
     maxPercentage: 50,
     minDaysWorked: 15,
     allowedDaysOfMonth: Array.from({ length: 31 }, (_, i) => i + 1),
     requireManagerApproval: true,
   });
+  const [isHalfSalary, setIsHalfSalary] = useState(false);
+  const [baseSalaryDisplay, setBaseSalaryDisplay] = useState('');
+  const [maxPercentageDisplay, setMaxPercentageDisplay] = useState('');
+  const [companyUuid, setCompanyUuid] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,24 +41,97 @@ export function AdvanceRuleFormDialog({ companyId, rule, open, onClose }: Advanc
         allowedDaysOfMonth: rule.allowedDaysOfMonth,
         requireManagerApproval: rule.requireManagerApproval,
       });
+      setIsHalfSalary(rule.maxPercentage === 50);
+      setBaseSalaryDisplay(rule.baseSalary?.toString() || '');
+      setMaxPercentageDisplay(rule.maxPercentage.toString());
     } else {
       setFormData({
-        name: '',
+        name: 'Règle d\'acompte',
         description: '',
-        maxPercentage: 50,
+        maxPercentage: 0,
         minDaysWorked: 15,
         allowedDaysOfMonth: Array.from({ length: 31 }, (_, i) => i + 1),
         requireManagerApproval: true,
       });
+      setIsHalfSalary(false);
+      setBaseSalaryDisplay('');
+      setMaxPercentageDisplay('');
     }
   }, [rule]);
+
+  // Récupérer l'UUID de l'entreprise à partir du slug
+  useEffect(() => {
+    const fetchCompanyUuid = async () => {
+      if (!companyId) return;
+      try {
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user');
+        if (!userData) return;
+        const parsed = JSON.parse(userData);
+
+        const response = await fetch(`http://localhost:3001/companies/slug/${companyId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'x-user-id': parsed.user.id,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.id) {
+            setCompanyUuid(data.id);
+          }
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération de l\'UUID de l\'entreprise', err);
+      }
+    };
+
+    fetchCompanyUuid();
+  }, [companyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Implement API call
-    setLoading(false);
-    onClose();
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const parsed = JSON.parse(userData);
+
+      const submitData = {
+        ...formData,
+        baseSalary: Number(baseSalaryDisplay) || null,
+        maxPercentage: isHalfSalary ? 50 : (Number(maxPercentageDisplay) || 0),
+      };
+
+      const url = rule 
+        ? `http://localhost:3001/companies/${companyUuid}/hr/advance-rules/${rule.id}`
+        : `http://localhost:3001/companies/${companyUuid}/hr/advance-rules`;
+      
+      const method = rule ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'x-user-id': parsed.user.id,
+        },
+        body: JSON.stringify(submitData),
+      });
+
+      if (response.ok) {
+        onClose();
+        window.location.reload();
+      } else {
+        console.error('Erreur lors de la création/modification de la règle');
+      }
+    } catch (err) {
+      console.error('Erreur lors de la création/modification de la règle', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleDay = (day: number) => {
@@ -73,47 +150,55 @@ export function AdvanceRuleFormDialog({ companyId, rule, open, onClose }: Advanc
           <DialogTitle>{rule ? 'Modifier la règle' : 'Nouvelle règle d\'acompte'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isHalfSalary"
+              checked={isHalfSalary}
+              onCheckedChange={(checked) => {
+                setIsHalfSalary(checked as boolean);
+                if (checked) {
+                  setMaxPercentageDisplay('50');
+                  setFormData({ ...formData, maxPercentage: 50 });
+                } else {
+                  setFormData({ ...formData, maxPercentage: Number(maxPercentageDisplay) || 0 });
+                }
+              }}
+            />
+            <Label htmlFor="isHalfSalary" className="font-medium">Demi solde</Label>
+          </div>
           <div>
-            <Label htmlFor="name">Nom de la règle</Label>
+            <Label htmlFor="baseSalary">Montant du salaire de base (FCFA)</Label>
             <div className="mt-2">
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                id="baseSalary"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={baseSalaryDisplay}
+                onInput={(e) => {
+                  const value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                  setBaseSalaryDisplay(value);
+                }}
                 required
               />
             </div>
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
-            <div className="mt-2">
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="maxPercentage">Pourcentage maximum du salaire mensuel (%)</Label>
+            <Label htmlFor="maxPercentage">Pourcentage maximum du salaire de base (%)</Label>
             <div className="mt-2">
               <Input
                 id="maxPercentage"
-                type="number"
-                value={formData.maxPercentage}
-                onChange={(e) => setFormData({ ...formData, maxPercentage: Number(e.target.value) })}
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="minDaysWorked">Nombre minimum de jours travaillés requis</Label>
-            <div className="mt-2">
-              <Input
-                id="minDaysWorked"
-                type="number"
-                value={formData.minDaysWorked}
-                onChange={(e) => setFormData({ ...formData, minDaysWorked: Number(e.target.value) })}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={maxPercentageDisplay}
+                onInput={(e) => {
+                  const value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                  setMaxPercentageDisplay(value);
+                  setFormData({ ...formData, maxPercentage: Number(value) || 0 });
+                  setIsHalfSalary(Number(value) === 50);
+                }}
+                disabled={isHalfSalary}
                 required
               />
             </div>
@@ -146,7 +231,7 @@ export function AdvanceRuleFormDialog({ companyId, rule, open, onClose }: Advanc
               Annuler
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Enregistrement...' : rule ? 'Modifier' : 'Créer'}
+              {loading ? 'Enregistrement...' : rule ? 'Modifier' : 'Enregistrer'}
             </Button>
           </DialogFooter>
         </form>

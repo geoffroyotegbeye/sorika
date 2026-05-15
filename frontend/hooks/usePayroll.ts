@@ -8,15 +8,45 @@ import {
   UpdatePayrollVariableDto,
 } from '@/types/hr';
 
-export function usePayroll(companyId: string) {
+export function usePayroll(companySlug: string) {
+  const [companyUuid, setCompanyUuid] = useState<string>('');
   const [payrollPeriods, setPayrollPeriods] = useState<any[]>([]);
   const [payrollVariables, setPayrollVariables] = useState<any[]>([]);
   const [payrollEntries, setPayrollEntries] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Récupérer l'UUID de l'entreprise à partir du slug
+  const fetchCompanyUuid = useCallback(async () => {
+    if (!companySlug) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const parsed = JSON.parse(userData);
+
+      const response = await fetch(`http://localhost:3001/companies/slug/${companySlug}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-user-id': parsed.user.id,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.id) {
+          setCompanyUuid(data.id);
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération de l\'UUID de l\'entreprise', err);
+    }
+  }, [companySlug]);
+
   const fetchPayrollPeriods = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -26,7 +56,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'x-user-id': parsed.user.id,
@@ -41,10 +71,10 @@ export function usePayroll(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyUuid]);
 
   const fetchPayrollVariables = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -54,7 +84,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-variables`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-variables`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'x-user-id': parsed.user.id,
@@ -69,10 +99,10 @@ export function usePayroll(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyUuid]);
 
   const fetchPayrollEntries = useCallback(async (periodId?: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -83,8 +113,8 @@ export function usePayroll(companyId: string) {
       const parsed = JSON.parse(userData);
 
       const url = periodId 
-        ? `http://localhost:3001/companies/${companyId}/hr/payroll-entries?periodId=${periodId}`
-        : `http://localhost:3001/companies/${companyId}/hr/payroll-entries`;
+        ? `http://localhost:3001/companies/${companyUuid}/hr/payroll-entries?periodId=${periodId}`
+        : `http://localhost:3001/companies/${companyUuid}/hr/payroll-entries`;
 
       const response = await fetch(url, {
         headers: {
@@ -101,10 +131,10 @@ export function usePayroll(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyUuid]);
 
-  const createPayrollPeriod = async (dto: CreatePayrollPeriodDto) => {
-    if (!companyId) return;
+  const fetchEmployees = useCallback(async () => {
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -114,7 +144,35 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-calculate`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-user-id': parsed.user.id,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors du chargement des employés');
+      const data = await response.json();
+      setEmployees(data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, [companyUuid]);
+
+  const createPayrollPeriod = async (dto: CreatePayrollPeriodDto) => {
+    if (!companyUuid) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const parsed = JSON.parse(userData);
+
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +191,7 @@ export function usePayroll(companyId: string) {
   };
 
   const updatePayrollPeriod = async (id: string, dto: Partial<CreatePayrollPeriodDto>) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -143,7 +201,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +220,7 @@ export function usePayroll(companyId: string) {
   };
 
   const deletePayrollPeriod = async (id: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -172,7 +230,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -189,7 +247,7 @@ export function usePayroll(companyId: string) {
   };
 
   const createPayrollVariable = async (dto: CreatePayrollVariableDto) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -199,7 +257,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-variables`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-variables`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -218,7 +276,7 @@ export function usePayroll(companyId: string) {
   };
 
   const updatePayrollVariable = async (id: string, dto: UpdatePayrollVariableDto) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -228,7 +286,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-variables/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-variables/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -247,7 +305,7 @@ export function usePayroll(companyId: string) {
   };
 
   const deletePayrollVariable = async (id: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -257,7 +315,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-variables/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-variables/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -274,7 +332,7 @@ export function usePayroll(companyId: string) {
   };
 
   const calculatePayroll = async (periodId: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -284,7 +342,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods/${periodId}/calculate`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods/${periodId}/calculate`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -301,7 +359,7 @@ export function usePayroll(companyId: string) {
   };
 
   const validatePayroll = async (periodId: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -311,7 +369,7 @@ export function usePayroll(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/payroll-periods/${periodId}/validate`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/payroll-periods/${periodId}/validate`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -328,19 +386,28 @@ export function usePayroll(companyId: string) {
   };
 
   useEffect(() => {
-    fetchPayrollPeriods();
-    fetchPayrollVariables();
-  }, [companyId]);
+    fetchCompanyUuid();
+  }, [companySlug]);
+
+  useEffect(() => {
+    if (companyUuid) {
+      fetchPayrollPeriods();
+      fetchPayrollVariables();
+      fetchEmployees();
+    }
+  }, [companyUuid]);
 
   return {
     payrollPeriods,
     payrollEntries,
     payrollVariables,
+    employees,
     loading,
     error,
     fetchPayrollPeriods,
     fetchPayrollEntries,
     fetchPayrollVariables,
+    fetchEmployees,
     createPayrollPeriod,
     updatePayrollPeriod,
     deletePayrollPeriod,

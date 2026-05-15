@@ -1332,16 +1332,38 @@ export class HRService {
   }
 
   async listPayrollVariables(companyId: string) {
+    // Récupérer l'entreprise par slug pour obtenir l'ID UUID
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Entreprise non trouvée');
+    }
+
     return this.prisma.payrollVariable.findMany({
-      where: { companyId },
+      where: { companyId: company.id },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async createPayrollVariable(companyId: string, dto: CreatePayrollVariableDto) {
+    // Récupérer l'entreprise par slug pour obtenir l'ID UUID
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Entreprise non trouvée');
+    }
+
+    const actualCompanyId = company.id;
+
     // Vérifier l'unicité du code
     const existing = await this.prisma.payrollVariable.findFirst({
-      where: { companyId, code: dto.code },
+      where: { companyId: actualCompanyId, code: dto.code },
     });
     if (existing) {
       throw new ConflictException('Ce code existe déjà');
@@ -1350,14 +1372,26 @@ export class HRService {
     return this.prisma.payrollVariable.create({
       data: {
         ...dto,
-        companyId,
+        companyId: actualCompanyId,
       },
     });
   }
 
   async updatePayrollVariable(companyId: string, variableId: string, dto: Partial<CreatePayrollVariableDto>) {
+    // Récupérer l'entreprise par slug pour obtenir l'ID UUID
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Entreprise non trouvée');
+    }
+
+    const actualCompanyId = company.id;
+
     const variable = await this.prisma.payrollVariable.findFirst({
-      where: { id: variableId, companyId },
+      where: { id: variableId, companyId: actualCompanyId },
     });
     if (!variable) {
       throw new NotFoundException('Variable de paie non trouvée');
@@ -1366,7 +1400,7 @@ export class HRService {
     // Vérifier l'unicité du code si modifié
     if (dto.code && dto.code !== variable.code) {
       const existing = await this.prisma.payrollVariable.findFirst({
-        where: { companyId, code: dto.code },
+        where: { companyId: actualCompanyId, code: dto.code },
       });
       if (existing) {
         throw new ConflictException('Ce code existe déjà');
@@ -1380,8 +1414,20 @@ export class HRService {
   }
 
   async deletePayrollVariable(companyId: string, variableId: string) {
+    // Récupérer l'entreprise par slug pour obtenir l'ID UUID
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Entreprise non trouvée');
+    }
+
+    const actualCompanyId = company.id;
+
     const variable = await this.prisma.payrollVariable.findFirst({
-      where: { id: variableId, companyId },
+      where: { id: variableId, companyId: actualCompanyId },
     });
     if (!variable) {
       throw new NotFoundException('Variable de paie non trouvée');
@@ -1390,6 +1436,81 @@ export class HRService {
     return this.prisma.payrollVariable.delete({
       where: { id: variableId },
     });
+  }
+
+  async testFormula(companyId: string, formula: string, testData?: Record<string, number>) {
+    // Récupérer l'entreprise par slug pour obtenir l'ID UUID
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Entreprise non trouvée');
+    }
+
+    const actualCompanyId = company.id;
+
+    // Récupérer toutes les variables de l'entreprise
+    const variables = await this.prisma.payrollVariable.findMany({
+      where: { companyId: actualCompanyId },
+    });
+
+    // Créer un contexte avec les valeurs des variables
+    const context: Record<string, number> = {};
+    
+    // Ajouter les données de test si fournies
+    if (testData) {
+      Object.keys(testData).forEach(key => {
+        context[key] = testData[key];
+      });
+    }
+
+    // Ajouter les valeurs des variables existantes
+    variables.forEach(variable => {
+      if (variable.type === 'FIXED' || variable.type === 'PERCENTAGE') {
+        if (variable.value !== undefined && variable.value !== null) {
+          context[variable.code] = variable.value;
+        }
+      }
+    });
+
+    try {
+      // Remplacer les variables dans la formule par leurs valeurs
+      let evaluatedFormula = formula;
+      Object.keys(context).forEach(key => {
+        const regex = new RegExp(`\\{${key}\\}`, 'g');
+        evaluatedFormula = evaluatedFormula.replace(regex, context[key].toString());
+      });
+
+      // Évaluer la formule
+      const result = eval(evaluatedFormula);
+      
+      return { result, success: true };
+    } catch (error) {
+      return { result: null, success: false, error: error instanceof Error ? error.message : 'Erreur lors de l\'évaluation' };
+    }
+  }
+
+  private evaluateFormula(formula: string, variablesMap: Record<string, number>, baseSalary: number): number {
+    try {
+      // Remplacer les variables dans la formule par leurs valeurs
+      let evaluatedFormula = formula;
+      Object.keys(variablesMap).forEach(key => {
+        const regex = new RegExp(`\\{${key}\\}`, 'g');
+        evaluatedFormula = evaluatedFormula.replace(regex, variablesMap[key].toString());
+      });
+
+      // Remplacer {BASE_SALARY} par le salaire de base
+      evaluatedFormula = evaluatedFormula.replace(/\{BASE_SALARY\}/g, baseSalary.toString());
+
+      // Évaluer la formule
+      const result = eval(evaluatedFormula);
+      return typeof result === 'number' ? result : 0;
+    } catch (error) {
+      console.error('Erreur lors de l\'évaluation de la formule:', error);
+      return 0;
+    }
   }
 
   async calculatePayroll(companyId: string, periodId: string) {
@@ -1434,6 +1555,15 @@ export class HRService {
           const variableValue = (employee.salary * (variable.value || 0)) / 100;
           grossSalary += variableValue;
           variablesMap[variable.code] = variableValue;
+        } else if (variable.type === 'FORMULA') {
+          // Évaluer la formule
+          try {
+            const result = this.evaluateFormula(variable.formula || '', variablesMap, employee.salary);
+            grossSalary += result;
+            variablesMap[variable.code] = result;
+          } catch (err) {
+            console.error(`Erreur lors de l'évaluation de la formule ${variable.code}:`, err);
+          }
         }
       }
 
@@ -1498,5 +1628,94 @@ export class HRService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  // ─── Calcul de paie des employés ───────────────────────────────────────────────
+
+  async calculatePayrollForEmployees(companyId: string) {
+    // Récupérer l'entreprise pour obtenir la devise
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { currency: true },
+    });
+
+    const currency = company?.currency || 'XOF';
+
+    // Récupérer tous les employés avec leurs données
+    const employees = await this.prisma.employee.findMany({
+      where: { companyId },
+      include: {
+        position: true,
+        department: true,
+      },
+    });
+
+    // Pour chaque employé, calculer les données de paie
+    const payrollData = await Promise.all(
+      employees.map(async (employee) => {
+        // Récupérer les acomptes de l'employé pour le mois courant
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const advances = await this.prisma.advance.findMany({
+          where: {
+            employeeId: employee.id,
+            companyId,
+            createdAt: {
+              gte: startOfMonth,
+              lte: endOfMonth,
+            },
+          },
+        });
+
+        // Récupérer les présences de l'employé pour le mois courant
+        const attendances = await this.prisma.attendance.findMany({
+          where: {
+            employeeId: employee.id,
+            companyId,
+            date: {
+              gte: startOfMonth,
+              lte: endOfMonth,
+            },
+          },
+        });
+
+        // Calculer les jours présents
+        const daysPresent = attendances.filter(
+          (a) => a.status === 'PRESENT' || a.status === 'REMOTE'
+        ).length;
+
+        // Calculer le total des acomptes
+        const totalAdvances = advances.reduce((sum, a) => sum + (a.amount || 0), 0);
+
+        // Récupérer le salaire de base : utiliser le salaire de l'employé s'il existe, sinon celui du poste
+        const baseSalary = employee.salary || employee.position?.salary || 0;
+        const grossSalary = baseSalary;
+        const prime = 0; // Sera calculé avec les variables de paie
+
+        return {
+          id: employee.id,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          position: employee.position,
+          department: employee.department,
+          baseSalary,
+          prime,
+          grossSalary,
+          advances: advances.map((a) => ({
+            id: a.id,
+            amount: a.amount,
+            date: a.createdAt,
+          })),
+          totalAdvances,
+          daysPresent,
+          workingDays: 22, // Jours ouvrés par défaut
+          currency,
+        };
+      })
+    );
+
+    return payrollData;
   }
 }

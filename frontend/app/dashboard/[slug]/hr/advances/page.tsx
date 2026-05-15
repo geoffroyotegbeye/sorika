@@ -24,6 +24,11 @@ export default function AdvancesPage() {
   const [isRuleDialogOpen, setIsRuleDialogOpen] = useState(false);
 
   const handleCreate = () => {
+    // Vérifier si une règle existe avant d'ouvrir le formulaire
+    if (!advanceRules || advanceRules.length === 0) {
+      alert('Veuillez d\'abord définir une règle d\'acompte');
+      return;
+    }
     setSelectedAdvance(null);
     setIsDialogOpen(true);
   };
@@ -34,7 +39,12 @@ export default function AdvancesPage() {
   };
 
   const handleCreateRule = () => {
-    setSelectedRule(null);
+    // Récupérer la première règle existante pour modification
+    if (advanceRules && advanceRules.length > 0) {
+      setSelectedRule(advanceRules[0]);
+    } else {
+      setSelectedRule(null);
+    }
     setIsRuleDialogOpen(true);
   };
 
@@ -165,7 +175,6 @@ export default function AdvancesPage() {
         actions={
           <div className="flex items-center gap-2">
             <Button onClick={handleCreateRule} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
               Règles d'acompte
             </Button>
             <Button onClick={handleCreate}>
@@ -185,6 +194,7 @@ export default function AdvancesPage() {
       <AdvanceFormDialog
         companyId={companyId}
         advance={selectedAdvance}
+        advanceRule={advanceRules && advanceRules.length > 0 ? advanceRules[0] : null}
         open={isDialogOpen}
         onClose={handleDialogClose}
       />

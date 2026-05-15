@@ -243,13 +243,15 @@ model Department {
 
 // 9.5. Postes/Fonctions (Module RH)
 model Position {
-  id          String     @id @default(uuid())
-  title       String     // Titre du poste (ex: "Directeur", "Manager", "Développeur")
-  description String?    @db.Text
-  level       String?    // Niveau hiérarchique (ex: "EXECUTIVE", "MANAGER", "STAFF", "INTERN")
+  id          String           @id @default(uuid())
+  title       String           // Titre du poste (ex: "Directeur", "Manager", "Développeur")
+  description String?          @db.Text
+  level       String?          // Niveau hiérarchique (ex: "EXECUTIVE", "MANAGER", "STAFF", "INTERN")
+  salary      Int?             // Salaire de base du poste
   companyId   String
   employees   Employee[]
-  createdAt   DateTime   @default(now())
+  payrollVariables PayrollVariable[]
+  createdAt   DateTime         @default(now())
 
   @@unique([companyId, title])
   @@index([companyId])
@@ -288,6 +290,7 @@ model Employee {
   assignments  Assignment[] @relation("EmployeeAssignments")
   advances     Advance[]
   payrollEntries PayrollEntry[]
+  payrollVariables PayrollVariable[]
   
   // Relations POS
   cashSessions CashSession[]
@@ -1644,6 +1647,7 @@ model AdvanceRule {
   id                    String   @id @default(uuid())
   name                  String
   description           String?  @db.Text
+  baseSalary            Int?     // Montant du salaire de base en FCFA
   maxPercentage         Float    @default(50) // Pourcentage maximum du salaire mensuel
   minDaysWorked        Int      @default(15) // Nombre minimum de jours travaillés requis
   allowedDaysOfMonth    Int[]    @default([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) // Jours du mois où les acomptes sont autorisés
@@ -1689,17 +1693,32 @@ model PayrollVariable {
   id          String   @id @default(uuid())
   name        String
   code        String   // Code unique pour les formules
-  type        String   // FIXED, PERCENTAGE
+  type        String   // FIXED, PERCENTAGE, FORMULA
   value       Float?   // Valeur fixe ou pourcentage
+  formula     String?  @db.Text // Formule de calcul complexe (ex: "baseSalary * 0.1 + performance")
   description String?  @db.Text
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Relations pour application spécifique
+  positionId  String?
+  position    Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+  employeeId  String?
+  employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  
+  // Ordre d'application (pour les formules qui dépendent d'autres variables)
+  order       Int      @default(0)
+  dependsOn   Json?    // ["PRIME_BASE", "PERFORMANCE"] // Variables dont dépend cette formule
+  
   payrollEntries PayrollEntry[] @relation("PayrollVariableEntries")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([companyId, code])
   @@index([companyId])
+  @@index([positionId])
+  @@index([employeeId])
+  @@index([order])
 }
 
 model PayrollPeriod {

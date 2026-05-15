@@ -138,6 +138,7 @@ export interface AdvanceRule {
   id: string;
   name: string;
   description: string | null;
+  baseSalary: number | null;
   maxPercentage: number; // Pourcentage max du salaire mensuel
   minDaysWorked: number; // Nombre minimum de jours travaillés requis
   allowedDaysOfMonth: number[]; // Jours du mois où les acomptes sont autorisés (1-31)
@@ -180,6 +181,7 @@ export interface UpdateAdvanceDto {
 export interface CreateAdvanceRuleDto {
   name: string;
   description?: string;
+  baseSalary?: number;
   maxPercentage: number;
   minDaysWorked: number;
   allowedDaysOfMonth: number[];
@@ -189,6 +191,7 @@ export interface CreateAdvanceRuleDto {
 export interface UpdateAdvanceRuleDto {
   name?: string;
   description?: string;
+  baseSalary?: number;
   maxPercentage?: number;
   minDaysWorked?: number;
   allowedDaysOfMonth?: number[];

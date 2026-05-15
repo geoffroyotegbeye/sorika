@@ -6,9 +6,37 @@ export function useAdvances(companyId: string) {
   const [advanceRules, setAdvanceRules] = useState<AdvanceRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [companyUuid, setCompanyUuid] = useState<string>('');
+
+  // Récupérer l'UUID de l'entreprise à partir du slug
+  const fetchCompanyUuid = useCallback(async () => {
+    if (!companyId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const parsed = JSON.parse(userData);
+
+      const response = await fetch(`http://localhost:3001/companies/slug/${companyId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-user-id': parsed.user.id,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.id) {
+          setCompanyUuid(data.id);
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération de l\'UUID de l\'entreprise', err);
+    }
+  }, [companyId]);
 
   const fetchAdvances = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -18,7 +46,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advances`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advances`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'x-user-id': parsed.user.id,
@@ -33,10 +61,10 @@ export function useAdvances(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyUuid]);
 
   const fetchAdvanceRules = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -46,7 +74,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advance-rules`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advance-rules`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'x-user-id': parsed.user.id,
@@ -61,10 +89,10 @@ export function useAdvances(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyUuid]);
 
   const createAdvance = async (dto: any) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -74,7 +102,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advances`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advances`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +121,7 @@ export function useAdvances(companyId: string) {
   };
 
   const updateAdvance = async (id: string, dto: any) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -103,7 +131,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advances/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advances/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +150,7 @@ export function useAdvances(companyId: string) {
   };
 
   const deleteAdvance = async (id: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -132,7 +160,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advances/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advances/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -149,7 +177,7 @@ export function useAdvances(companyId: string) {
   };
 
   const createAdvanceRule = async (dto: any) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -159,7 +187,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advance-rules`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advance-rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +206,7 @@ export function useAdvances(companyId: string) {
   };
 
   const updateAdvanceRule = async (id: string, dto: any) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -188,7 +216,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advance-rules/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advance-rules/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -207,7 +235,7 @@ export function useAdvances(companyId: string) {
   };
 
   const deleteAdvanceRule = async (id: string) => {
-    if (!companyId) return;
+    if (!companyUuid) return;
     
     setLoading(true);
     setError(null);
@@ -217,7 +245,7 @@ export function useAdvances(companyId: string) {
       if (!userData) return;
       const parsed = JSON.parse(userData);
 
-      const response = await fetch(`http://localhost:3001/companies/${companyId}/hr/advance-rules/${id}`, {
+      const response = await fetch(`http://localhost:3001/companies/${companyUuid}/hr/advance-rules/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -234,9 +262,15 @@ export function useAdvances(companyId: string) {
   };
 
   useEffect(() => {
-    fetchAdvances();
-    fetchAdvanceRules();
-  }, [companyId]);
+    fetchCompanyUuid();
+  }, [fetchCompanyUuid]);
+
+  useEffect(() => {
+    if (companyUuid) {
+      fetchAdvances();
+      fetchAdvanceRules();
+    }
+  }, [companyUuid, fetchAdvances, fetchAdvanceRules]);
 
   return {
     advances,

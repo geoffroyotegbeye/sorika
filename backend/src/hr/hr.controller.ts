@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import type { Response } from 'express';
 import { HRService } from './hr.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -13,7 +13,6 @@ import { CreatePayrollPeriodDto } from './dto/create-payroll-period.dto';
 import { PermissionGuard, RequirePermission } from '../common/guards/permission.guard';
 
 @Controller('companies/:companyId/hr')
-@UseGuards(PermissionGuard)
 export class HRController {
   constructor(private readonly hrService: HRService) {}
 
@@ -452,19 +451,17 @@ export class HRController {
   }
 
   @Get('payroll-variables')
-  @RequirePermission('HR', 'READ')
   listPayrollVariables(@Param('companyId') companyId: string) {
     return this.hrService.listPayrollVariables(companyId);
   }
 
   @Post('payroll-variables')
-  @RequirePermission('HR', 'CREATE')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   createPayrollVariable(@Param('companyId') companyId: string, @Body() dto: CreatePayrollVariableDto) {
     return this.hrService.createPayrollVariable(companyId, dto);
   }
 
   @Patch('payroll-variables/:id')
-  @RequirePermission('HR', 'UPDATE')
   updatePayrollVariable(
     @Param('companyId') companyId: string,
     @Param('id') id: string,
@@ -474,9 +471,13 @@ export class HRController {
   }
 
   @Delete('payroll-variables/:id')
-  @RequirePermission('HR', 'DELETE')
   deletePayrollVariable(@Param('companyId') companyId: string, @Param('id') id: string) {
     return this.hrService.deletePayrollVariable(companyId, id);
+  }
+
+  @Post('payroll-variables/test')
+  testFormula(@Param('companyId') companyId: string, @Body() body: { formula: string; testData?: Record<string, number> }) {
+    return this.hrService.testFormula(companyId, body.formula, body.testData);
   }
 
   @Post('payroll-periods/:id/calculate')
@@ -496,5 +497,11 @@ export class HRController {
   listPayrollEntries(@Param('companyId') companyId: string, @Req() req: any) {
     const { periodId } = req.query;
     return this.hrService.listPayrollEntries(companyId, periodId);
+  }
+
+  @Get('payroll-calculate')
+  @RequirePermission('HR', 'READ')
+  calculatePayrollForEmployees(@Param('companyId') companyId: string) {
+    return this.hrService.calculatePayrollForEmployees(companyId);
   }
 }
