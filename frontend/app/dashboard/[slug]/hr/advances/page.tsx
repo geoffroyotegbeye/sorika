@@ -4,13 +4,14 @@ import { useParams } from 'next/navigation';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Advance, AdvanceRule, AdvanceStatus } from '@/types/hr';
 import { Badge } from '@/components/ui/badge';
 import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import { Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { useAdvances } from '@/hooks/useAdvances';
+import { useCompany } from '@/hooks/useCompany';
 import { AdvanceFormDialog } from '@/components/hr/AdvanceFormDialog';
 import { AdvanceRuleFormDialog } from '@/components/hr/AdvanceRuleFormDialog';
 
@@ -18,6 +19,8 @@ export default function AdvancesPage() {
   const params = useParams();
   const companyId = params.slug as string;
   const { advances, advanceRules, loading, fetchAdvances, updateAdvance, deleteAdvance, createAdvanceRule } = useAdvances(companyId);
+  const { company } = useCompany(companyId);
+  const currency = company?.currency || 'FCFA';
   const [selectedAdvance, setSelectedAdvance] = useState<Advance | null>(null);
   const [selectedRule, setSelectedRule] = useState<AdvanceRule | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -104,7 +107,7 @@ export default function AdvancesPage() {
     {
       key: 'amount',
       header: 'Montant',
-      render: (val) => <span>{val as number} FCFA</span>,
+      render: (val) => <span>{val as number} {currency}</span>,
     },
     {
       key: 'status',
@@ -124,6 +127,16 @@ export default function AdvancesPage() {
       key: 'reason',
       header: 'Raison',
       render: (val) => (val as string) || '—',
+    },
+    {
+      key: 'createdAt',
+      header: 'Créé le',
+      render: (val) => <span className="text-sm text-muted-foreground">{new Date(val as string).toLocaleDateString('fr-FR')}</span>,
+    },
+    {
+      key: 'createdById',
+      header: 'Créé par',
+      render: (val) => <span className="text-sm text-muted-foreground">{val && typeof val === 'string' ? 'ID: ' + val.slice(0, 8) : '—'}</span>,
     },
     {
       key: 'id',

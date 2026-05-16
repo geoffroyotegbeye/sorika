@@ -70,7 +70,7 @@ async function main() {
         title: 'Directeur Général',
         description: 'Dirigeant de l\'entreprise',
         level: 'EXECUTIVE',
-        salary: 1500000,
+        baseSalary: 1500000,
       },
     }),
     prisma.position.upsert({
@@ -81,7 +81,7 @@ async function main() {
         title: 'Manager RH',
         description: 'Responsable des ressources humaines',
         level: 'MANAGER',
-        salary: 800000,
+        baseSalary: 800000,
       },
     }),
     prisma.position.upsert({
@@ -92,7 +92,7 @@ async function main() {
         title: 'Développeur Senior',
         description: 'Développeur expérimenté',
         level: 'STAFF',
-        salary: 600000,
+        baseSalary: 600000,
       },
     }),
     prisma.position.upsert({
@@ -103,7 +103,7 @@ async function main() {
         title: 'Développeur Junior',
         description: 'Développeur débutant',
         level: 'STAFF',
-        salary: 350000,
+        baseSalary: 350000,
       },
     }),
     prisma.position.upsert({
@@ -114,7 +114,7 @@ async function main() {
         title: 'Comptable',
         description: 'Responsable comptabilité',
         level: 'STAFF',
-        salary: 450000,
+        baseSalary: 450000,
       },
     }),
     prisma.position.upsert({
@@ -125,7 +125,7 @@ async function main() {
         title: 'Assistant',
         description: 'Assistant administratif',
         level: 'STAFF',
-        salary: 250000,
+        baseSalary: 250000,
       },
     }),
   ]);
@@ -201,7 +201,7 @@ async function main() {
         departmentId: departments[0].id,
         hireDate: new Date('2020-01-01'),
         contractType: 'CDI',
-        salary: 1600000, // Salaire spécifique supérieur au poste
+        baseSalary: 1600000, // Salaire spécifique supérieur au poste
         isActive: true,
       },
     }),
@@ -218,7 +218,7 @@ async function main() {
         departmentId: departments[1].id,
         hireDate: new Date('2021-03-15'),
         contractType: 'CDI',
-        salary: null, // Utilisera le salaire du poste (800000)
+        baseSalary: null, // Utilisera le salaire du poste (800000)
         isActive: true,
       },
     }),
@@ -235,7 +235,7 @@ async function main() {
         departmentId: departments[2].id,
         hireDate: new Date('2022-06-01'),
         contractType: 'CDI',
-        salary: null, // Utilisera le salaire du poste (600000)
+        baseSalary: null, // Utilisera le salaire du poste (600000)
         isActive: true,
       },
     }),
@@ -252,7 +252,7 @@ async function main() {
         departmentId: departments[2].id,
         hireDate: new Date('2023-01-10'),
         contractType: 'CDD',
-        salary: 400000, // Salaire spécifique supérieur au poste
+        baseSalary: 400000, // Salaire spécifique supérieur au poste
         isActive: true,
       },
     }),
@@ -269,7 +269,7 @@ async function main() {
         departmentId: departments[3].id,
         hireDate: new Date('2021-09-20'),
         contractType: 'CDI',
-        salary: null, // Utilisera le salaire du poste (450000)
+        baseSalary: null, // Utilisera le salaire du poste (450000)
         isActive: true,
       },
     }),

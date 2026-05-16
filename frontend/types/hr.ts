@@ -6,8 +6,12 @@ export interface Position {
   title: string;
   description: string | null;
   level: PositionLevel | null;
+  baseSalary: number | null;
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
+  updatedAt: string;
   _count?: {
     employees: number;
   };
@@ -18,7 +22,10 @@ export interface Department {
   name: string;
   description: string | null;
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
+  updatedAt: string;
   _count?: {
     employees: number;
   };
@@ -31,7 +38,7 @@ export interface Employee {
   positionId: string | null;
   position?: Position | null;
   contractType: ContractType | null;
-  salary: number | null;
+  baseSalary: number | null;
   hireDate: string;
   isActive: boolean;
   departmentId: string | null;
@@ -48,6 +55,8 @@ export interface Employee {
   };
   companyId: string;
   userId: string | null;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -154,7 +163,7 @@ export interface Advance {
     id: string;
     firstName: string;
     lastName: string;
-    salary: number | null;
+    baseSalary: number | null;
   };
   amount: number;
   status: AdvanceStatus;
@@ -164,6 +173,8 @@ export interface Advance {
   approvedBy: string | null;
   reason: string;
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -235,7 +246,7 @@ export interface PayrollEntry {
     id: string;
     firstName: string;
     lastName: string;
-    salary: number | null;
+    baseSalary: number | null;
     position?: { title: string } | null;
   };
   baseSalary: number;

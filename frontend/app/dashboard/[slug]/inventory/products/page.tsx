@@ -1,16 +1,18 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import { useInventory } from '@/hooks/useInventory';
+import { useCompany } from '@/hooks/useCompany';
 import type { InventoryProduct } from '@/types/inventory';
 import { ProductFormDialog } from '@/components/inventory/ProductFormDialog';
 import { MovementFormDialog } from '@/components/inventory/MovementFormDialog';
-import { Plus, Package, AlertTriangle, ArrowUpDown, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Plus, Package, AlertTriangle, ArrowUpDown, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -21,6 +23,7 @@ interface Company {
 export default function ProductsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [company, setCompany] = useState<Company | null>(null);
+  const { company: companyData } = useCompany(slug);
 
   useEffect(() => {
     try {
@@ -65,7 +68,7 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
     );
   }
 
-  const currency = company.currency ?? 'XOF';
+  const currency = companyData?.currency || company?.currency || 'FCFA';
   const fmt = (n: number) => n.toLocaleString('fr-FR') + ' ' + currency;
 
   const handleCloseDialog = () => {
@@ -160,6 +163,16 @@ export default function ProductsPage({ params }: { params: Promise<{ slug: strin
       key: 'costPrice',
       header: 'Prix d\'achat',
       render: (val) => <span className="text-muted-foreground">{val ? fmt(val as number) : '—'}</span>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Créé le',
+      render: (val) => <span className="text-sm text-muted-foreground">{new Date(val as string).toLocaleDateString('fr-FR')}</span>,
+    },
+    {
+      key: 'createdById',
+      header: 'Créé par',
+      render: (val) => <span className="text-sm text-muted-foreground">{val && typeof val === 'string' ? 'ID: ' + val.slice(0, 8) : '—'}</span>,
     },
     {
       key: 'isActive',

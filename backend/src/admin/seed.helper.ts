@@ -45,14 +45,14 @@ export async function runSeed(prisma: PrismaService, companyId: string) {
     ]);
 
     // ── 3. RH : Employés (8 avec hiérarchie) ────────────────────────────────
-    const emp1 = await tx.employee.create({ data: { companyId, firstName: 'Kofi',  lastName: 'Mensah',  positionId: posDG.id,     departmentId: deptDir.id,     contractType: 'CDI',   salary: 850000, hireDate: d(-730), isActive: true } });
-    const emp2 = await tx.employee.create({ data: { companyId, firstName: 'Ama',   lastName: 'Diallo',  positionId: posRH.id,     departmentId: deptRH.id,      contractType: 'CDI',   salary: 450000, hireDate: d(-365), isActive: true, managerId: emp1.id } });
-    const emp3 = await tx.employee.create({ data: { companyId, firstName: 'Kwame', lastName: 'Asante',  positionId: posDev.id,    departmentId: deptTech.id,    contractType: 'CDI',   salary: 550000, hireDate: d(-180), isActive: true, managerId: emp1.id } });
-    const emp4 = await tx.employee.create({ data: { companyId, firstName: 'Fatou', lastName: 'Traoré',  positionId: posComm.id,   departmentId: deptComm.id,    contractType: 'CDD',   salary: 320000, hireDate: d(-90),  isActive: true, managerId: emp1.id } });
-    const emp5 = await tx.employee.create({ data: { companyId, firstName: 'Yao',   lastName: 'Kouassi', positionId: posDevJr.id,  departmentId: deptTech.id,    contractType: 'CDI',   salary: 280000, hireDate: d(-60),  isActive: true, managerId: emp3.id } });
-    const emp6 = await tx.employee.create({ data: { companyId, firstName: 'Adjoa', lastName: 'Mensah',  positionId: posCompta.id, departmentId: deptFinance.id, contractType: 'CDI',   salary: 380000, hireDate: d(-200), isActive: true, managerId: emp1.id } });
-    const emp7 = await tx.employee.create({ data: { companyId, firstName: 'Sekou', lastName: 'Camara',  positionId: posComm.id,   departmentId: deptComm.id,    contractType: 'CDI',   salary: 310000, hireDate: d(-120), isActive: true, managerId: emp4.id } });
-    const emp8 = await tx.employee.create({ data: { companyId, firstName: 'Abena', lastName: 'Owusu',   positionId: posStage.id,  departmentId: deptTech.id,    contractType: 'STAGE', salary: 80000,  hireDate: d(-30),  isActive: true, managerId: emp3.id } });
+    const emp1 = await tx.employee.create({ data: { companyId, firstName: 'Kofi',  lastName: 'Mensah',  positionId: posDG.id,     departmentId: deptDir.id,     contractType: 'CDI',   baseSalary: 850000, hireDate: d(-730), isActive: true } });
+    const emp2 = await tx.employee.create({ data: { companyId, firstName: 'Ama',   lastName: 'Diallo',  positionId: posRH.id,     departmentId: deptRH.id,      contractType: 'CDI',   baseSalary: 450000, hireDate: d(-365), isActive: true, managerId: emp1.id } });
+    const emp3 = await tx.employee.create({ data: { companyId, firstName: 'Kwame', lastName: 'Asante',  positionId: posDev.id,    departmentId: deptTech.id,    contractType: 'CDI',   baseSalary: 550000, hireDate: d(-180), isActive: true, managerId: emp1.id } });
+    const emp4 = await tx.employee.create({ data: { companyId, firstName: 'Fatou', lastName: 'Traoré',  positionId: posComm.id,   departmentId: deptComm.id,    contractType: 'CDD',   baseSalary: 320000, hireDate: d(-90),  isActive: true, managerId: emp1.id } });
+    const emp5 = await tx.employee.create({ data: { companyId, firstName: 'Yao',   lastName: 'Kouassi', positionId: posDevJr.id,  departmentId: deptTech.id,    contractType: 'CDI',   baseSalary: 280000, hireDate: d(-60),  isActive: true, managerId: emp3.id } });
+    const emp6 = await tx.employee.create({ data: { companyId, firstName: 'Adjoa', lastName: 'Mensah',  positionId: posCompta.id, departmentId: deptFinance.id, contractType: 'CDI',   baseSalary: 380000, hireDate: d(-200), isActive: true, managerId: emp1.id } });
+    const emp7 = await tx.employee.create({ data: { companyId, firstName: 'Sekou', lastName: 'Camara',  positionId: posComm.id,   departmentId: deptComm.id,    contractType: 'CDI',   baseSalary: 310000, hireDate: d(-120), isActive: true, managerId: emp4.id } });
+    const emp8 = await tx.employee.create({ data: { companyId, firstName: 'Abena', lastName: 'Owusu',   positionId: posStage.id,  departmentId: deptTech.id,    contractType: 'STAGE', baseSalary: 80000,  hireDate: d(-30),  isActive: true, managerId: emp3.id } });
 
     // ── 4. RH : Types de congés ──────────────────────────────────────────────
     const [ltCP, ltRTT, ltSick, ltUnpaid] = await Promise.all([

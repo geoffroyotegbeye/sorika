@@ -33,7 +33,7 @@ export class UpdateEmployeeDto {
 
   @IsNumber()
   @IsOptional()
-  salary?: number;
+  baseSalary?: number;
 
   @IsBoolean()
   @IsOptional()

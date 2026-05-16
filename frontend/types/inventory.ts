@@ -48,6 +48,8 @@ export interface InventoryProduct {
   ecommerceImages?: any;
   packagingInfo?: string;
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   movements?: StockMovement[];
   stockAlerts?: StockAlert[];
   _count?: {

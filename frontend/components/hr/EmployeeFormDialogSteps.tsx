@@ -76,7 +76,7 @@ export function EmployeeFormDialog({
       setHireDate(employee.hireDate.split('T')[0]);
       setDepartmentId(employee.departmentId ?? '');
       setContractType(employee.contractType ?? '');
-      setSalary(employee.salary?.toString() ?? '');
+      setSalary(employee.baseSalary?.toString() ?? '');
       setManagerId(employee.managerId ?? '');
       setIsActive(employee.isActive);
     } else {
@@ -118,7 +118,7 @@ export function EmployeeFormDialog({
         isActive,
         departmentId: departmentId || undefined,
         contractType: contractType ? (contractType as ContractType) : undefined,
-        salary: salary ? parseFloat(salary) : undefined,
+        baseSalary: salary ? parseFloat(salary) : undefined,
         managerId: managerId || undefined,
       };
 
@@ -300,7 +300,7 @@ export function EmployeeFormDialog({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Salaire (optionnel)</Label>
+                <Label>Salaire de base (optionnel)</Label>
                 <Input
                   type="number"
                   placeholder="Ex: 45000"

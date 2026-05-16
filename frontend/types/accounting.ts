@@ -77,6 +77,8 @@ export interface Invoice {
   items: InvoiceItem[];
   payments: Payment[];
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -114,6 +116,8 @@ export interface Quote {
   convertedAt?: string;
   items: QuoteItem[];
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -147,6 +151,8 @@ export interface Bill {
   supplierName?: string;
   items: BillItem[];
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }

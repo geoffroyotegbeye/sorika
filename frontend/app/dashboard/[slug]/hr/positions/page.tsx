@@ -53,6 +53,7 @@ export default function PositionsPage({ params }: { params: Promise<{ slug: stri
       ) : (
         <PositionsList
           companyId={company.id}
+          companySlug={slug}
           positions={positions}
           onRefresh={fetchPositions}
         />

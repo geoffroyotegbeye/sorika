@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsIn, IsNumber } from 'class-validator';
 
 export class UpdatePositionDto {
   @IsString()
@@ -13,4 +13,16 @@ export class UpdatePositionDto {
   @IsOptional()
   @IsIn(['EXECUTIVE', 'MANAGER', 'STAFF', 'INTERN'])
   level?: string;
+
+  @IsNumber()
+  @IsOptional()
+  baseSalary?: number;
+
+  @IsString()
+  @IsOptional()
+  createdById?: string;
+
+  @IsString()
+  @IsOptional()
+  updatedById?: string;
 }

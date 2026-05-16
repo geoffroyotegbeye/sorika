@@ -28,13 +28,15 @@ interface PositionFormDialogProps {
   companyId: string;
   position?: Position;
   onSuccess?: () => void;
+  trigger?: React.ReactNode;
 }
 
-export function PositionFormDialog({ companyId, position, onSuccess }: PositionFormDialogProps) {
+export function PositionFormDialog({ companyId, position, onSuccess, trigger }: PositionFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [level, setLevel] = useState<PositionLevel | 'none'>('none');
+  const [baseSalary, setBaseSalary] = useState('');
 
   const { createPosition, updatePosition } = usePositions(companyId);
 
@@ -43,6 +45,7 @@ export function PositionFormDialog({ companyId, position, onSuccess }: PositionF
       setTitle(position.title);
       setDescription(position.description || '');
       setLevel(position.level || 'none');
+      setBaseSalary(position.baseSalary?.toString() || '');
     }
   }, [position]);
 
@@ -59,6 +62,7 @@ export function PositionFormDialog({ companyId, position, onSuccess }: PositionF
         title: title.trim(),
         description: description.trim() || undefined,
         level: level === 'none' ? undefined : level,
+        baseSalary: baseSalary ? parseFloat(baseSalary) : undefined,
       };
 
       if (position) {
@@ -81,12 +85,13 @@ export function PositionFormDialog({ companyId, position, onSuccess }: PositionF
     setTitle('');
     setDescription('');
     setLevel('none');
+    setBaseSalary('');
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {position ? (
+        {trigger || (position ? (
           <Button variant="ghost" size="sm">
             Modifier
           </Button>
@@ -95,7 +100,7 @@ export function PositionFormDialog({ companyId, position, onSuccess }: PositionF
             <Plus className="h-4 w-4 mr-2" />
             Nouveau poste
           </Button>
-        )}
+        ))}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
@@ -138,6 +143,17 @@ export function PositionFormDialog({ companyId, position, onSuccess }: PositionF
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Responsabilités, compétences requises..."
               rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="baseSalary">Salaire de base (optionnel)</Label>
+            <Input
+              id="baseSalary"
+              type="number"
+              value={baseSalary}
+              onChange={(e) => setBaseSalary(e.target.value)}
+              placeholder="Ex: 500000"
             />
           </div>
 

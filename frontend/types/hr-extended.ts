@@ -113,6 +113,8 @@ export interface Expense {
   rejectionReason?: string;
   reimbursedAt?: string;
   companyId: string;
+  createdById: string | null;
+  updatedById: string | null;
   createdAt: string;
   updatedAt: string;
 }

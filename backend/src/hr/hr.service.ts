@@ -53,7 +53,7 @@ export class HRService {
         positionId: dto.positionId,
         hireDate: new Date(dto.hireDate),
         contractType: dto.contractType,
-        salary: dto.salary,
+        baseSalary: dto.baseSalary,
         isActive: dto.isActive ?? true,
         departmentId: dto.departmentId,
         managerId: dto.managerId,
@@ -105,7 +105,7 @@ export class HRService {
         ...(dto.positionId !== undefined && { positionId: dto.positionId }),
         ...(dto.hireDate !== undefined && { hireDate: new Date(dto.hireDate) }),
         ...(dto.contractType !== undefined && { contractType: dto.contractType }),
-        ...(dto.salary !== undefined && { salary: dto.salary }),
+        ...(dto.baseSalary !== undefined && { baseSalary: dto.baseSalary }),
         ...(dto.isActive !== undefined && { isActive: dto.isActive }),
         ...(dto.departmentId !== undefined && { departmentId: dto.departmentId }),
         ...(dto.managerId !== undefined && { managerId: dto.managerId }),
@@ -174,7 +174,7 @@ export class HRService {
       emp.manager?.user?.email || '',
       emp.hireDate.toISOString().split('T')[0],
       emp.contractType || '',
-      emp.salary?.toString() || '',
+      emp.baseSalary?.toString() || '',
       emp.isActive ? 'Oui' : 'Non',
     ]);
 
@@ -259,7 +259,7 @@ export class HRService {
         }
 
         // Parser le salaire
-        const salary = salaryStr ? parseFloat(salaryStr) : undefined;
+        const baseSalary = salaryStr ? parseFloat(salaryStr) : undefined;
 
         // Parser isActive
         const isActive = isActiveStr?.toLowerCase() === 'oui' || isActiveStr?.toLowerCase() === 'true' || isActiveStr === '1';
@@ -274,7 +274,7 @@ export class HRService {
             managerId,
             hireDate: hireDate ? new Date(hireDate) : new Date(),
             contractType: contractType || null,
-            salary,
+            baseSalary,
             isActive,
             companyId,
           },
@@ -404,6 +404,8 @@ export class HRService {
           title: dto.title,
           description: dto.description,
           level: dto.level,
+          baseSalary: dto.baseSalary,
+          // createdById: dto.createdById, // Temporairement désactivé en attente de régénération Prisma
           companyId,
         },
         include: { _count: { select: { employees: true } } },
@@ -430,6 +432,8 @@ export class HRService {
           ...(dto.title !== undefined && { title: dto.title }),
           ...(dto.description !== undefined && { description: dto.description }),
           ...(dto.level !== undefined && { level: dto.level }),
+          ...(dto.baseSalary !== undefined && { baseSalary: dto.baseSalary }),
+          ...(dto.updatedById !== undefined && { updatedById: dto.updatedById }),
         },
         include: { _count: { select: { employees: true } } },
       });
@@ -1150,8 +1154,8 @@ export class HRService {
       }
 
       // Vérifier le pourcentage maximum
-      if (employee.salary) {
-        const maxAmount = (employee.salary * rule.maxPercentage) / 100;
+      if (employee.baseSalary) {
+        const maxAmount = (employee.baseSalary * rule.maxPercentage) / 100;
         if (dto.amount > maxAmount) {
           throw new BadRequestException(`Le montant ne peut pas dépasser ${maxAmount} FCFA (${rule.maxPercentage}% du salaire)`);
         }
@@ -1541,10 +1545,10 @@ export class HRService {
     // Pour chaque employé, créer une entrée de paie
     const entries: any[] = [];
     for (const employee of employees) {
-      if (!employee.salary) continue;
+      if (!employee.baseSalary) continue;
 
       // Calculer le salaire brut avec les variables
-      let grossSalary = employee.salary;
+      let grossSalary = employee.baseSalary;
       const variablesMap: Record<string, number> = {};
 
       for (const variable of variables) {
@@ -1552,13 +1556,13 @@ export class HRService {
           grossSalary += variable.value || 0;
           variablesMap[variable.code] = variable.value || 0;
         } else if (variable.type === 'PERCENTAGE') {
-          const variableValue = (employee.salary * (variable.value || 0)) / 100;
+          const variableValue = (employee.baseSalary * (variable.value || 0)) / 100;
           grossSalary += variableValue;
           variablesMap[variable.code] = variableValue;
         } else if (variable.type === 'FORMULA') {
           // Évaluer la formule
           try {
-            const result = this.evaluateFormula(variable.formula || '', variablesMap, employee.salary);
+            const result = this.evaluateFormula(variable.formula || '', variablesMap, employee.baseSalary);
             grossSalary += result;
             variablesMap[variable.code] = result;
           } catch (err) {
@@ -1572,7 +1576,7 @@ export class HRService {
           employeeId: employee.id,
           payrollPeriodId: periodId,
           companyId,
-          baseSalary: employee.salary,
+          baseSalary: employee.baseSalary,
           grossSalary,
           deductions: 0,
           netSalary: grossSalary,
@@ -1690,7 +1694,7 @@ export class HRService {
         const totalAdvances = advances.reduce((sum, a) => sum + (a.amount || 0), 0);
 
         // Récupérer le salaire de base : utiliser le salaire de l'employé s'il existe, sinon celui du poste
-        const baseSalary = employee.salary || employee.position?.salary || 0;
+        const baseSalary = employee.baseSalary || employee.position?.baseSalary || 0;
         const grossSalary = baseSalary;
         const prime = 0; // Sera calculé avec les variables de paie
 

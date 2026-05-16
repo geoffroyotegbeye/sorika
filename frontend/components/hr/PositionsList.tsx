@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Users } from 'lucide-react';
+import { Trash2, Users, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePositions } from '@/hooks/usePositions';
+import { useCompany } from '@/hooks/useCompany';
 import { PositionFormDialog } from './PositionFormDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { DataGrid } from '@/components/data-grid';
@@ -14,6 +15,7 @@ import type { Position } from '@/types/hr';
 
 interface PositionsListProps {
   companyId: string;
+  companySlug: string;
   positions: Position[];
   onRefresh: () => void;
 }
@@ -32,10 +34,12 @@ const LEVEL_COLORS: Record<string, string> = {
   INTERN: 'bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300',
 };
 
-export function PositionsList({ companyId, positions, onRefresh }: PositionsListProps) {
+export function PositionsList({ companyId, companySlug, positions, onRefresh }: PositionsListProps) {
   const { deletePosition } = usePositions(companyId);
+  const { company } = useCompany(companySlug);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [positionToDelete, setPositionToDelete] = useState<string | null>(null);
+  const currency = company?.currency || 'FCFA';
 
   const handleDelete = async (positionId: string) => {
     try {
@@ -75,6 +79,23 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
       ),
     },
     {
+      key: 'baseSalary',
+      header: 'Salaire de base',
+      render: (val) => (
+        <span className="font-medium">{val ? `${val as number} ${currency}` : '—'}</span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Créé le',
+      render: (val) => <span className="text-sm text-muted-foreground">{new Date(val as string).toLocaleDateString('fr-FR')}</span>,
+    },
+    {
+      key: 'createdById',
+      header: 'Créé par',
+      render: (val) => <span className="text-sm text-muted-foreground">{val && typeof val === 'string' ? 'ID: ' + val.slice(0, 8) : '—'}</span>,
+    },
+    {
       key: '_count',
       header: 'Employés',
       sortable: false,
@@ -93,7 +114,21 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
       searchable: false,
       render: (_, row) => (
         <div className="flex items-center justify-end gap-2">
-          <PositionFormDialog companyId={companyId} position={row} onSuccess={onRefresh} />
+          <PositionFormDialog
+            companyId={companyId}
+            position={row}
+            onSuccess={onRefresh}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                title="Modifier"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            }
+          />
           <Button
             variant="ghost"
             size="sm"
@@ -101,7 +136,8 @@ export function PositionsList({ companyId, positions, onRefresh }: PositionsList
               setPositionToDelete(row.id);
               setDeleteDialogOpen(true);
             }}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
+            title="Supprimer"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

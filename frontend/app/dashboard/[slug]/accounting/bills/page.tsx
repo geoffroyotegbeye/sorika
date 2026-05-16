@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import { useAccounting } from '@/hooks/useAccounting';
+import { useCompany } from '@/hooks/useCompany';
 import type { Bill, BillStatus } from '@/types/accounting';
 import { BillFormDialog } from '@/components/accounting/BillFormDialog';
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check } from 'lucide-react';
 
 const STATUS_CONFIG: Record<BillStatus, { label: string; className: string }> = {
   PENDING:   { label: 'En attente', className: 'bg-yellow-100 text-yellow-700' },
@@ -22,6 +23,7 @@ const STATUS_CONFIG: Record<BillStatus, { label: string; className: string }> = 
 export default function BillsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [company, setCompany] = useState<any>(null);
+  const { company: companyData } = useCompany(slug);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -51,7 +53,7 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
 
   if (!company) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" /></div>;
 
-  const currency = company.currency ?? 'XOF';
+  const currency = companyData?.currency || company?.currency || 'FCFA';
   const fmt = (n: number) => n.toLocaleString('fr-FR') + ' ' + currency;
 
   const handleCloseDialog = () => {
@@ -88,6 +90,16 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
       render: (val) => <span className="font-medium">{fmt(val as number)}</span>,
     },
     {
+      key: 'createdAt',
+      header: 'Créé le',
+      render: (val) => <span className="text-sm text-muted-foreground">{new Date(val as string).toLocaleDateString('fr-FR')}</span>,
+    },
+    {
+      key: 'createdById',
+      header: 'Créé par',
+      render: (val) => <span className="text-sm text-muted-foreground">{val && typeof val === 'string' ? 'ID: ' + val.slice(0, 8) : '—'}</span>,
+    },
+    {
       key: 'status',
       header: 'Statut',
       render: (val) => {
@@ -104,29 +116,32 @@ export default function BillsPage({ params }: { params: Promise<{ slug: string }
         <div className="flex justify-end gap-2">
           {row.status === 'PENDING' && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => updateBill(row.id, { status: 'PAID' })}
-              className="h-8"
+              className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+              title="Marquer comme payée"
             >
-              Marquer payée
+              <Check className="h-4 w-4" />
             </Button>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => { setEditBill(row); setBillDialog(true); }}
-            className="h-8 text-muted-foreground"
+            className="h-8 w-8 p-0"
+            title="Modifier"
           >
-            Modifier
+            <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => deleteBill(row.id)}
-            className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+            title="Supprimer"
           >
-            Supprimer
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),

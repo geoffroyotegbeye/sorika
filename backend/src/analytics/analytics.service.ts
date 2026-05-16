@@ -316,8 +316,8 @@ export class AnalyticsService {
 
     // Masse salariale
     const totalSalary = employees
-      .filter((e) => e.isActive && e.salary)
-      .reduce((sum, e) => sum + (e.salary || 0), 0);
+      .filter((e) => e.isActive && e.baseSalary)
+      .reduce((sum, e) => sum + (e.baseSalary || 0), 0);
 
     return {
       totalEmployees: employees.length,

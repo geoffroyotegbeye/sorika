@@ -235,7 +235,10 @@ model Department {
   companyId   String
   company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   employees   Employee[]
+  createdById String?    // userId du créateur
+  updatedById String?    // userId du dernier modificateur
   createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -247,11 +250,14 @@ model Position {
   title       String           // Titre du poste (ex: "Directeur", "Manager", "Développeur")
   description String?          @db.Text
   level       String?          // Niveau hiérarchique (ex: "EXECUTIVE", "MANAGER", "STAFF", "INTERN")
-  salary      Int?             // Salaire de base du poste
+  baseSalary  Int?             // Salaire de base du poste
   companyId   String
   employees   Employee[]
   payrollVariables PayrollVariable[]
+  createdById String?          // userId du créateur
+  updatedById String?          // userId du dernier modificateur
   createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@unique([companyId, title])
   @@index([companyId])
@@ -265,7 +271,7 @@ model Employee {
   positionId   String?     // Relation vers Position
   position     Position?   @relation(fields: [positionId], references: [id])
   contractType String?
-  salary       Float?
+  baseSalary   Float?      // Salaire de base de l'employé (optionnel, utilise le salaire du poste si non défini)
   hireDate     DateTime
   isActive     Boolean     @default(true)
   departmentId String?
@@ -280,6 +286,11 @@ model Employee {
   company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId       String?     @unique
   user         User?       @relation(fields: [userId], references: [id])
+  
+  createdById  String?     // userId du créateur
+  updatedById  String?     // userId du dernier modificateur
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   
   // Relations RH
   leaves       Leave[]
@@ -300,9 +311,6 @@ model Employee {
   projectMemberships ProjectMember[]
   assignedTasks      Task[]          @relation("TaskAssignee")
   timeEntries        TimeEntry[]
-  
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
 
   @@index([companyId])
   @@index([departmentId])
@@ -430,8 +438,10 @@ model Expense {
   rejectionReason String? @db.Text
   reimbursedAt DateTime?
   companyId   String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdById  String?  // userId du créateur
+  updatedById  String?  // userId du dernier modificateur
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([employeeId])
   @@index([companyId])
@@ -528,6 +538,8 @@ model ClientCompany {
   // Relations
   ownerId         String    // Commercial responsable
   owner           User      @relation("ClientCompanyOwner", fields: [ownerId], references: [id])
+  createdById     String?   // userId du créateur
+  updatedById     String?   // userId du dernier modificateur
   
   contacts        Contact[]
   opportunities   Opportunity[]
@@ -637,7 +649,10 @@ model TaxRate {
   invoiceItems InvoiceItem[]
   quoteItems   QuoteItem[]
   billItems    BillItem[]
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([companyId])
 }
@@ -654,6 +669,8 @@ model Supplier {
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   bills       Bill[]
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -691,6 +708,7 @@ model Quote {
   companyId     String
   company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdById   String?     // userId
+  updatedById   String?     // userId du dernier modificateur
   items         QuoteItem[]
   invoice       Invoice?    @relation("QuoteInvoice")
 
@@ -715,7 +733,10 @@ model QuoteItem {
   taxAmount   Float    @default(0)
   total       Float    // quantity * unitPrice + taxAmount
   position    Int      @default(0) // Ordre d affichage
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([quoteId])
 }
@@ -753,6 +774,7 @@ model Invoice {
   companyId     String
   company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdById   String?
+  updatedById   String?
   items         InvoiceItem[]
   payments      Payment[]
   
@@ -781,7 +803,10 @@ model InvoiceItem {
   taxAmount   Float    @default(0)
   total       Float
   position    Int      @default(0)
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([invoiceId])
 }
@@ -800,7 +825,9 @@ model Payment {
   companyId     String
   company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdById   String?
+  updatedById   String?
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([invoiceId])
   @@index([companyId])
@@ -831,6 +858,7 @@ model Bill {
   companyId     String
   company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdById   String?
+  updatedById   String?
   items         BillItem[]
 
   createdAt     DateTime    @default(now())
@@ -854,7 +882,10 @@ model BillItem {
   taxAmount   Float    @default(0)
   total       Float
   position    Int      @default(0)
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([billId])
 }
@@ -874,6 +905,8 @@ model ProductCategory {
   products    InventoryProduct[]
   companyId   String
   company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById String?           // userId du créateur
+  updatedById String?           // userId du dernier modificateur
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
@@ -924,6 +957,8 @@ model InventoryProduct {
   // Relations
   companyId   String
   company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById String?        // userId du créateur
+  updatedById String?        // userId du dernier modificateur
   
   movements   StockMovement[]
   stockAlerts StockAlert[]
@@ -1655,6 +1690,8 @@ model AdvanceRule {
   companyId             String
   company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   advances              Advance[]
+  createdById           String?  // userId du créateur
+  updatedById           String?  // userId du dernier modificateur
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
@@ -1679,8 +1716,10 @@ model Advance {
   advanceRule  AdvanceRule? @relation(fields: [advanceRuleId], references: [id])
   companyId   String
   company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdById  String?      // userId du créateur
+  updatedById  String?      // userId du dernier modificateur
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@index([employeeId])
   @@index([companyId])
@@ -1705,14 +1744,16 @@ model PayrollVariable {
   position    Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
   employeeId  String?
   employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  createdById String?  // userId du créateur
+  updatedById String?  // userId du dernier modificateur
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   // Ordre d'application (pour les formules qui dépendent d'autres variables)
   order       Int      @default(0)
   dependsOn   Json?    // ["PRIME_BASE", "PERFORMANCE"] // Variables dont dépend cette formule
   
   payrollEntries PayrollEntry[] @relation("PayrollVariableEntries")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   @@unique([companyId, code])
   @@index([companyId])

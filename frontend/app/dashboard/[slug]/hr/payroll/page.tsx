@@ -103,11 +103,12 @@ export default function PayrollPage() {
       render: (_, row) => (
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => handleGeneratePayslip(row)}
+          className="h-8 w-8 p-0"
+          title="Générer le bulletin de paie"
         >
-          <FileText className="h-4 w-4 mr-2" />
-          Bulletin
+          <FileText className="h-4 w-4" />
         </Button>
       ),
     },

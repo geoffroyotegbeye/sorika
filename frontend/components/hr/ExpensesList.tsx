@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, X, Trash2, Receipt, BookOpen } from 'lucide-react';
+import { Check, X, Trash2, Receipt, BookOpen, DollarSign } from 'lucide-react';
 import { DataGrid } from '@/components/data-grid';
 import type { DataGridColumn } from '@/components/data-grid';
 import type { Expense } from '@/types/hr-extended';
@@ -87,6 +87,16 @@ export function ExpensesList({
       ),
     },
     {
+      key: 'createdAt',
+      header: 'Créé le',
+      render: (val) => <span className="text-sm text-muted-foreground">{new Date(val as string).toLocaleDateString('fr-FR')}</span>,
+    },
+    {
+      key: 'createdById',
+      header: 'Créé par',
+      render: (val) => <span className="text-sm text-muted-foreground">{val && typeof val === 'string' ? 'ID: ' + val.slice(0, 8) : '—'}</span>,
+    },
+    {
       key: 'date',
       header: 'Date',
       render: (val) => (
@@ -137,10 +147,10 @@ export function ExpensesList({
               variant="ghost"
               size="sm"
               onClick={() => onReimburse(row.id)}
-              className="text-xs"
+              className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               title="Marquer comme remboursé"
             >
-              Rembourser
+              <DollarSign className="h-4 w-4" />
             </Button>
           )}
           {row.status === 'APPROVED' && onSendToAccounting && (
@@ -148,11 +158,10 @@ export function ExpensesList({
               variant="ghost"
               size="sm"
               onClick={() => onSendToAccounting(row)}
-              className="h-8 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
               title="Créer une charge comptable"
             >
-              <BookOpen className="h-3.5 w-3.5 mr-1" />
-              Comptabilité
+              <BookOpen className="h-4 w-4" />
             </Button>
           )}
           {row.status !== 'REIMBURSED' && (
