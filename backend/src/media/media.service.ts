@@ -1,31 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MediaService {
-  constructor(private prisma: PrismaService) {}
+  private s3Client: S3Client;
+  private bucketName: string;
+  private s3Region: string;
+
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {
+    this.s3Client = new S3Client({
+      region: this.configService.get('AWS_REGION') || 'us-east-1',
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID') || '',
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY') || '',
+      },
+    });
+    this.bucketName = this.configService.get('S3_BUCKET_NAME') || 'sorika-uploads';
+    this.s3Region = this.configService.get('AWS_REGION') || 'us-east-1';
+  }
 
   async uploadMedia(companyId: string, file: Express.Multer.File) {
-    const uploadDir = path.join(process.cwd(), 'uploads', companyId);
+    const filename = `${companyId}/${Date.now()}-${file.originalname}`;
     
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: filename,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
 
-    const filename = `${Date.now()}-${file.originalname}`;
-    const filepath = path.join(uploadDir, filename);
-    
-    fs.writeFileSync(filepath, file.buffer);
+    await this.s3Client.send(command);
 
     const media = await this.prisma.media.create({
       data: {
         filename: file.originalname,
-        filepath: `uploads/${companyId}/${filename}`,
+        filepath: filename,
         mimetype: file.mimetype,
         size: file.size,
-        url: `/uploads/${companyId}/${filename}`,
+        url: `https://${this.bucketName}.s3.${this.s3Region}.amazonaws.com/${filename}`,
         companyId,
       },
     });
@@ -49,10 +66,12 @@ export class MediaService {
       throw new Error('Media not found');
     }
 
-    const filepath = path.join(process.cwd(), media.filepath);
-    if (fs.existsSync(filepath)) {
-      fs.unlinkSync(filepath);
-    }
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: media.filepath,
+    });
+
+    await this.s3Client.send(command);
 
     await this.prisma.media.delete({ where: { id } });
 
@@ -60,12 +79,8 @@ export class MediaService {
   }
 
   getMediaFile(companyId: string, filename: string) {
-    const filepath = path.join(process.cwd(), 'uploads', companyId, filename);
-    
-    if (!fs.existsSync(filepath)) {
-      throw new Error('File not found');
-    }
-
-    return filepath;
+    // Avec S3, on retourne l'URL directe, pas le fichier local
+    const s3Url = `https://${this.bucketName}.s3.${this.s3Region}.amazonaws.com/${companyId}/${filename}`;
+    return s3Url;
   }
 }

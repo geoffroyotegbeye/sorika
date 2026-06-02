@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: sorika-db
+    restart: always
+    environment:
+      POSTGRES_USER: sorika
+      POSTGRES_PASSWORD: sorika123
+      POSTGRES_DB: sorika
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sorika"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend NestJS
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ./Dockerfile.backend
+    container_name: sorika-backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://sorika:sorika123@postgres:5432/sorika?schema=public
+      JWT_SECRET: votre-secret-jwt-super-securise-changez-moi-en-production
+      PORT: 3001
+      NODE_ENV: production
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/uploads
+    networks:
+      - sorika-network
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ./Dockerfile.frontend
+    container_name: sorika-frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - sorika-network
+
+volumes:
+  postgres_data:
+  backend_uploads:
+
+networks:
+  sorika-network:
+    driver: bridge

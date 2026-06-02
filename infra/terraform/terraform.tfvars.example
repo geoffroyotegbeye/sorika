@@ -1,0 +1,14 @@
+# Copier ce fichier en terraform.tfvars et remplir les valeurs
+
+# Région AWS
+aws_region = "us-east-1"
+
+# Nom du projet et environnement
+project_name = "sorika"
+environment  = "dev"
+
+# Clé publique SSH (générer avec: ssh-keygen -t rsa -b 4096)
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC..."
+
+# Mot de passe de la base de données RDS
+db_password = "votre-mot-de-passe-secu-pour-rds"

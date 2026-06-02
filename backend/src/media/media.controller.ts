@@ -6,11 +6,9 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
-import type { Response } from 'express';
 
 @Controller('media')
 export class MediaController {
@@ -34,10 +32,9 @@ export class MediaController {
   async getMediaFile(
     @Param('companyId') companyId: string,
     @Param('filename') filename: string,
-    @Res() res: Response,
   ) {
-    const filepath = this.mediaService.getMediaFile(companyId, filename);
-    return res.sendFile(filepath);
+    const s3Url = this.mediaService.getMediaFile(companyId, filename);
+    return { url: s3Url };
   }
 
   @Delete(':companyId/:id')
