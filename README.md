@@ -69,10 +69,11 @@ Les PME et startups africaines font face à un défi critique : **fragmentation 
 
 | Technologie | Problème résolu | Pourquoi ce choix |
 |-------------|-----------------|------------------|
-| **AWS** | Scalabilité & Services managés | Écosystème le plus complet, services managés (RDS, S3) = moins d'ops |
+| **AWS** | Scalabilité & Services managés | Écosystème le plus complet, services managés (RDS, S3, Amplify) = moins d'ops |
 | **EC2 t3.micro** | Compute isolé | Free Tier, séparation backend/frontend, contrôle fin |
 | **RDS PostgreSQL** | Base managée | Backups automatiques, patching automatique, HA multi-AZ possible |
 | **S3** | Stockage objet infini | Scalabilité infinie, lifecycle rules (Glacier), blocage accès public |
+| **Amplify** | Frontend managé | Supporte SSR Next.js, intégration Git, Free Tier disponible |
 | **VPC + Subnets** | Sécurité réseau | Segmentation public/privé, base de données isolée (defense in depth) |
 | **Terraform** | Infrastructure as Code | Reproductibilité, versionnage, drift detection |
 | **Docker** | Portabilité | "Build once, run anywhere", isolation environnement |
@@ -146,7 +147,7 @@ Voir le guide complet dans [`infra/DEPLOYMENT_GUIDE.md`](./infra/DEPLOYMENT_GUID
 
 **Architecture de production :**
 ```
-Frontend (Vercel/Amplify)
+Frontend (AWS Amplify - Next.js + SSR)
     ↓ HTTPS
 EC2 t3.micro (Backend NestJS + Docker)
     ↓ Private Network
@@ -155,7 +156,7 @@ RDS db.t3.micro (PostgreSQL)
 S3 Bucket (Media uploads)
 ```
 
-**CI/CD :** GitHub Actions automatise le build, push ECR, et déploiement EC2 à chaque push sur `main`.
+**CI/CD :** GitHub Actions automatise le build, push ECR, déploiement EC2 et déploiement Amplify à chaque push sur `main`.
 
 ---
 

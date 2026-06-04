@@ -18,13 +18,13 @@ Aller dans : `Settings` → `Secrets and variables` → `Actions` → `New repos
 | `EC2_PUBLIC_IP` | IP publique de l'instance EC2 | Après `terraform apply`, l'IP est dans les outputs |
 | `EC2_SSH_KEY` | Clé privée SSH pour l'accès EC2 | Contenu du fichier `.pem` généré avec `ssh-keygen` |
 
-## Secrets Vercel (optionnel, pour le frontend)
+## Secrets AWS Amplify (pour le frontend)
 
 | Secret | Description | Comment obtenir |
 |--------|-------------|----------------|
-| `VERCEL_TOKEN` | Token d'authentification Vercel | Créer un token sur vercel.com/account/tokens |
-| `VERCEL_ORG_ID` | ID de l'organisation Vercel | Dans les settings du projet Vercel |
-| `VERCEL_PROJECT_ID` | ID du projet Vercel | Dans les settings du projet Vercel |
+| `AMPLIFY_APP_ID` | ID de l'application Amplify | Dans la console AWS Amplify, App settings |
+| `AMPLIFY_BRANCH_NAME` | Nom de la branche (ex: main) | La branche Git connectée à Amplify |
+| `AMPLIFY_ENV_NAME` | Nom de l'environnement (ex: prod) | Dans la console AWS Amplify |
 
 ## Variables d'environnement pour le backend
 

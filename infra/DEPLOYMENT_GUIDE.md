@@ -148,12 +148,12 @@ docker run -d --name sorika-backend -p 3001:3001 \
 
 ## Étape 7 : Déployer le frontend
 
-Option 1 : Vercel (recommandé pour Next.js)
-1. Connecte ton repo GitHub sur Vercel
+Option 1 : AWS Amplify (recommandé pour Next.js)
+1. Connecte ton repo GitHub sur AWS Amplify
 2. Configure les variables d'environnement
 3. Déploie automatiquement à chaque push
 
-Option 2 : AWS Amplify
+Option 2 : Amplify CLI (manuel)
 ```bash
 # Installer Amplify CLI
 npm install -g @aws-amplify/cli
@@ -212,8 +212,8 @@ Cela détruira :
 
 ```
 ┌─────────────────────────────────────────┐
-│  Frontend (Vercel/Amplify)              │
-│  https://sorika.vercel.app             │
+│  Frontend (AWS Amplify)                │
+│  https://sorika.amplifyapp.com         │
 └──────────────┬──────────────────────────┘
                │
                ▼
